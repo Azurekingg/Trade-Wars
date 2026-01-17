@@ -1,7 +1,7 @@
 [build]
-builder = "railpack"
+builder = "nixpacks"
 
 [deploy]
-startCommand = "bash start.sh"
+startCommand = "cd c-Users-Admin-code-stock-wars && gunicorn -w 4 -b 0.0.0.0:$PORT app:app"
 restartPolicyType = "always"
 restartPolicyMaxRetries = 5

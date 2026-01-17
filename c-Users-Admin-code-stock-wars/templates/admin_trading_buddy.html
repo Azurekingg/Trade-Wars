@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Trading Buddy Videos & VFX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+        }
+        
+        h1 {
+            color: #0ea5e9;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            border-bottom: 2px solid #0ea5e9;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #a78bfa;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #0ea5e9;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid;
+            background: rgba(14, 165, 233, 0.1);
+            color: #0ea5e9;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: rgba(14, 165, 233, 0.2);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+        }
+        
+        .btn-success {
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .btn-danger {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .btn-primary {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        
+        th {
+            background: rgba(14, 165, 233, 0.2);
+            color: #0ea5e9;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: rgba(14, 165, 233, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid #0ea5e9;
+            color: #e0f2fe;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: rgba(15, 23, 42, 0.98);
+            margin: 50px auto;
+            padding: 30px;
+            border: 2px solid #0ea5e9;
+            max-width: 600px;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #fff;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .badge-enabled {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .badge-disabled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .badge-win {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .badge-loss {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .badge-general {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Trading Buddy Videos & VFX Manager</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="/vault" class="btn btn-primary">← Back to Vault</a>
+            <a href="/admin/feedback" class="btn btn-primary">Admin Feedback</a>
+        </div>
+        
+        <!-- Videos Section -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>📹 Videos</h2>
+                <button class="btn btn-success" onclick="openVideoModal()">+ Add Video</button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Video File</th>
+                        <th>VFX File</th>
+                        <th>Order</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for video in videos_data.videos %}
+                    <tr>
+                        <td>{{ video.id }}</td>
+                        <td>{{ video.title }}</td>
+                        <td>
+                            <span class="badge badge-{{ video.category }}">
+                                {{ video.category }}
+                            </span>
+                        </td>
+                        <td>{{ video.video_file }}</td>
+                        <td>{{ video.vfx_file or 'None' }}</td>
+                        <td>{{ video.order }}</td>
+                        <td>
+                            <span class="badge {% if video.enabled %}badge-enabled{% else %}badge-disabled{% endif %}">
+                                {% if video.enabled %}Enabled{% else %}Disabled{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editVideo('{{ video.id }}')" style="padding: 5px 10px; font-size: 0.8em;">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteVideo('{{ video.id }}')" style="padding: 5px 10px; font-size: 0.8em;">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- VFX Section -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>✨ VFX Effects</h2>
+                <button class="btn btn-success" onclick="openVFXModal()">+ Add VFX</button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>File</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vfx in videos_data.vfx %}
+                    <tr>
+                        <td>{{ vfx.id }}</td>
+                        <td>{{ vfx.name }}</td>
+                        <td>{{ vfx.type }}</td>
+                        <td>{{ vfx.file }}</td>
+                        <td>
+                            <span class="badge {% if vfx.enabled %}badge-enabled{% else %}badge-disabled{% endif %}">
+                                {% if vfx.enabled %}Enabled{% else %}Disabled{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteVFX('{{ vfx.id }}')" style="padding: 5px 10px; font-size: 0.8em;">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Available Files Section -->
+        <div class="section">
+            <h2>📁 Available Files</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="color: #3b82f6; margin-bottom: 10px;">Video Files (static/videos/)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        {% for file in video_files %}
+                        <li style="padding: 5px; background: rgba(59, 130, 246, 0.1); margin-bottom: 5px; border-radius: 4px;">{{ file }}</li>
+                        {% endfor %}
+                        {% if video_files|length == 0 %}
+                        <li style="color: #64748b;">No video files found. Upload videos to static/videos/</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: #a78bfa; margin-bottom: 10px;">VFX Files (static/vfx/)</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        {% for file in vfx_files %}
+                        <li style="padding: 5px; background: rgba(167, 139, 250, 0.1); margin-bottom: 5px; border-radius: 4px;">{{ file }}</li>
+                        {% endfor %}
+                        {% if vfx_files|length == 0 %}
+                        <li style="color: #64748b;">No VFX files found. Upload VFX JSON files to static/vfx/</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeVideoModal()">&times;</span>
+            <h2 id="videoModalTitle">Add Video</h2>
+            <form id="videoForm" onsubmit="saveVideo(event)">
+                <input type="hidden" id="video_id" name="video_id">
+                <div class="form-group">
+                    <label>Video ID (unique identifier):</label>
+                    <input type="text" id="video_id_input" name="video_id_input" required>
+                </div>
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="video_title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="video_description" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Video File (path from static/):</label>
+                    <select id="video_file" name="video_file" required>
+                        <option value="">Select a file...</option>
+                        {% for file in video_files %}
+                        <option value="videos/{{ file }}">videos/{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>VFX File (optional):</label>
+                    <select id="video_vfx" name="vfx_file">
+                        <option value="">None</option>
+                        {% for file in vfx_files %}
+                        <option value="vfx/{{ file }}">vfx/{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category:</label>
+                    <select id="video_category" name="category" required>
+                        <option value="win">Win</option>
+                        <option value="loss">Loss</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Order (display priority):</label>
+                    <input type="number" id="video_order" name="order" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="video_enabled" name="enabled" checked> Enabled
+                    </label>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-danger" onclick="closeVideoModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- VFX Modal -->
+    <div id="vfxModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeVFXModal()">&times;</span>
+            <h2>Add VFX</h2>
+            <form id="vfxForm" onsubmit="saveVFX(event)">
+                <div class="form-group">
+                    <label>VFX ID (unique identifier):</label>
+                    <input type="text" id="vfx_id" name="vfx_id" required>
+                </div>
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="vfx_name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>VFX File (path from static/):</label>
+                    <select id="vfx_file" name="file" required>
+                        <option value="">Select a file...</option>
+                        {% for file in vfx_files %}
+                        <option value="vfx/{{ file }}">vfx/{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type:</label>
+                    <select id="vfx_type" name="type" required>
+                        <option value="particle">Particle</option>
+                        <option value="animation">Animation</option>
+                        <option value="shader">Shader</option>
+                        <option value="css">CSS</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="vfx_description" name="description"></textarea>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-danger" onclick="closeVFXModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let editingVideoId = null;
+        
+        function openVideoModal(videoId = null) {
+            editingVideoId = videoId;
+            const modal = document.getElementById('videoModal');
+            const form = document.getElementById('videoForm');
+            
+            if (videoId) {
+                // Load video data for editing
+                // This would need to fetch from server or pass data
+                document.getElementById('videoModalTitle').textContent = 'Edit Video';
+            } else {
+                form.reset();
+                document.getElementById('videoModalTitle').textContent = 'Add Video';
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeVideoModal() {
+            document.getElementById('videoModal').style.display = 'none';
+            editingVideoId = null;
+        }
+        
+        function saveVideo(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            if (editingVideoId) {
+                data.video_id = editingVideoId;
+                fetch(`/admin/trading_buddy/update_video/${editingVideoId}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Error updating video');
+                    }
+                });
+            } else {
+                data.video_id = document.getElementById('video_id_input').value;
+                fetch('/admin/trading_buddy/add_video', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Error adding video');
+                    }
+                });
+            }
+        }
+        
+        function editVideo(videoId) {
+            // For now, just open modal - would need to fetch video data
+            openVideoModal(videoId);
+        }
+        
+        function deleteVideo(videoId) {
+            if (confirm(`Delete video ${videoId}?`)) {
+                fetch(`/admin/trading_buddy/delete_video/${videoId}`, {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Error deleting video');
+                    }
+                });
+            }
+        }
+        
+        function openVFXModal() {
+            document.getElementById('vfxModal').style.display = 'block';
+        }
+        
+        function closeVFXModal() {
+            document.getElementById('vfxModal').style.display = 'none';
+        }
+        
+        function saveVFX(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            fetch('/admin/trading_buddy/add_vfx', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message || 'Error adding VFX');
+                }
+            });
+        }
+        
+        function deleteVFX(vfxId) {
+            if (confirm(`Delete VFX ${vfxId}?`)) {
+                fetch(`/admin/trading_buddy/delete_vfx/${vfxId}`, {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Error deleting VFX');
+                    }
+                });
+            }
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const videoModal = document.getElementById('videoModal');
+            const vfxModal = document.getElementById('vfxModal');
+            if (event.target == videoModal) {
+                closeVideoModal();
+            }
+            if (event.target == vfxModal) {
+                closeVFXModal();
+            }
+        }
+    </script>
+</body>
+</html>
+

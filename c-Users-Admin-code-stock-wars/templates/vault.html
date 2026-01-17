@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: 
+                linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px;
+            border-radius: 0;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .section {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            border-radius: 0;
+            border: 1px solid #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
+
+        h1, h2 { margin-top: 0; text-transform: uppercase; font-family: 'Orbitron', sans-serif; }
+        h1 { 
+            grid-column: 1 / -1; 
+            text-align: center; 
+            color: #0ea5e9; 
+            margin-bottom: 20px; 
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.6);
+            letter-spacing: 3px;
+        }
+        h2 { 
+            font-size: 1.2em; 
+            color: #0ea5e9; 
+            border-bottom: 2px solid #0ea5e9; 
+            padding-bottom: 10px; 
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .stat-val { font-weight: bold; color: #f8fafc; }
+        .stat-val.green { color: #34d399; }
+        .stat-val.red { color: #f87171; }
+
+        .ability-list {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .ability-item {
+            padding: 10px;
+            background: #0f172a;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer; /* Interaction hint */
+        }
+        
+        .ability-item:hover {
+            border: 1px solid #60a5fa;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid #0ea5e9;
+            color: #e0f2fe;
+            border-radius: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Tech Buttons */
+        .btn {
+            position: relative;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid;
+            border-radius: 0;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 10px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary { 
+            background: rgba(14, 165, 233, 0.1); 
+            border-color: #0ea5e9; 
+            color: #0ea5e9; 
+            text-shadow: 0 0 5px rgba(14, 165, 233, 0.5);
+        }
+        .btn-primary:hover { 
+            background: rgba(14, 165, 233, 0.2); 
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger { 
+            background: rgba(239, 68, 68, 0.1); 
+            border-color: #ef4444; 
+            color: #ef4444;
+            text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+        .btn-danger:hover { 
+            background: rgba(239, 68, 68, 0.2); 
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+            color: #10b981;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .loan-shark-section {
+            grid-column: 1 / -1;
+            background: #451a03;
+            border-color: #78350f;
+            text-align: center;
+        }
+
+        .back-link {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a { color: #94a3b8; text-decoration: none; font-weight: bold; }
+        .back-link a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Player Vault</h1>
+
+        <!-- Profile Section -->
+        <div class="section">
+            <h2>Profile</h2>
+            <form action="/update_profile" method="POST">
+                <div class="form-group">
+                    <label style="color:#94a3b8; font-size:0.9em;">Codename</label>
+                    <input type="text" name="name" value="{{ player_data.get('username', 'Player') }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update ID</button>
+            </form>
+            
+            <div style="margin-top: 30px;">
+                <div class="stat-row">
+                    <span>Net Worth</span>
+                    <span class="stat-val green">${{ "%.2f"|format(player_data.net_worth) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span>Multiplayer Wins</span>
+                    <span class="stat-val">{{ player_data.get('wins', 0) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span>Multiplayer Losses</span>
+                    <span class="stat-val red">{{ player_data.get('losses', 0) }}</span>
+                </div>
+                
+                {% if player_data.get('loan', {}).get('active', False) %}
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #7f1d1d;">
+                    <h3 style="color:#ef4444; margin-top: 0; margin-bottom: 15px; font-size: 1em; border-bottom: 1px solid #7f1d1d; padding-bottom: 5px;">🦈 Loan Shark Debt</h3>
+                    <div class="stat-row">
+                        <span>Debt Amount</span>
+                        <span class="stat-val red">${{ "{:,}".format(player_data.loan.amount) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Penalty Rate</span>
+                        <span class="stat-val red">{{ (player_data.loan.interest_rate * 100)|int }}%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Matches Remaining</span>
+                        <span class="stat-val" style="color: {{ '#ef4444' if player_data.loan.matches_remaining <= 0 else '#fbbf24' }}">
+                            {{ player_data.loan.matches_remaining }}
+                        </span>
+                    </div>
+                    {% if player_data.loan.matches_remaining <= 0 %}
+                    <div style="color:#ef4444; font-weight:bold; margin-top:10px; text-align:center; padding: 10px; background: rgba(239, 68, 68, 0.2); border-radius: 4px; font-size: 0.9em;">
+                        ⚠️ DEADLINE PASSED! GARNISHMENT ACTIVE ⚠️
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if player_data.get('match_history') %}
+            <div style="margin-top: 30px;">
+                <h3 style="color:#e2e8f0; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 5px;">Match History</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    {% for match in player_data.match_history[-10:]|reverse %}
+                    <div style="background: rgba(30, 41, 59, 0.5); padding: 10px; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid {% if match.result == 'win' %}#22c55e{% else %}#ef4444{% endif %};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="color: {% if match.result == 'win' %}#22c55e{% else %}#ef4444{% endif %}; font-weight: bold; text-transform: uppercase;">
+                                    {{ match.result }}
+                                </span>
+                                <span style="color: #94a3b8; margin-left: 10px;">vs {{ match.opponent_username }}</span>
+                            </div>
+                            <div style="color: #64748b; font-size: 0.85em;">
+                                {% if match.wager > 0 %}
+                                Wager: ${{ "{:,}".format(match.wager) }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Inventory Section -->
+        <div class="section">
+            <h2>Ability Arsenal</h2>
+            <ul class="ability-list">
+                {% for ability in player_data.owned_abilities %}
+                <li class="ability-item">
+                    <span>{{ ability.name }}</span>
+                    <span style="font-size:0.8em; color:#64748b">{{ ability.rarity }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <!-- All Players Section -->
+        <div class="section" style="grid-column: 1 / -1;">
+            <h2>All Players</h2>
+            <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #0ea5e9;">
+                            <th style="padding: 10px; text-align: left; color: #0ea5e9;">Username</th>
+                            <th style="padding: 10px; text-align: left; color: #0ea5e9;">Player ID</th>
+                            <th style="padding: 10px; text-align: right; color: #0ea5e9;">Net Worth</th>
+                            <th style="padding: 10px; text-align: center; color: #0ea5e9;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in all_players %}
+                        <tr style="border-bottom: 1px solid #334155;">
+                            <td style="padding: 10px; color: #e0f2fe;">{{ player.username }}</td>
+                            <td style="padding: 10px; font-family: 'Orbitron', sans-serif; color: #0ea5e9; font-size: 0.9em;">{{ player.player_id }}</td>
+                            <td style="padding: 10px; text-align: right; color: #fbbf24; font-weight: bold;">${{ "{:,.2f}".format(player.net_worth) }}</td>
+                            <td style="padding: 10px; text-align: center;">
+                                {% if player.player_id == player_data.get('player_id') %}
+                                <span style="color: #64748b; font-size: 0.85em;">You</span>
+                                {% elif player.player_id in player_data.get('friends', []) %}
+                                <span style="color: #10b981; font-size: 0.85em;">✓ Friend</span>
+                                {% elif player.player_id in player_data.get('friend_requests_sent', []) %}
+                                <span style="color: #3b82f6; font-size: 0.85em;">Pending...</span>
+                                {% elif player.player_id in player_data.get('friend_requests_received', []) %}
+                                <button onclick="addFriendQuick('{{ player.player_id }}', '{{ player.username }}')" style="background: #fbbf24; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Accept Request</button>
+                                {% else %}
+                                <button onclick="addFriendQuick('{{ player.player_id }}', '{{ player.username }}')" style="background: #10b981; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Send Request</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Friends Section -->
+        <div class="section" style="grid-column: 1 / -1;">
+            <h2>Friends</h2>
+            <form action="/add_friend" method="POST" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label style="color:#94a3b8; font-size:0.9em; display:block; margin-bottom:5px;">Send Friend Request by Username or Player ID</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" name="friend_identifier" placeholder="Enter Username or Player ID" style="flex: 1;" required>
+                        <button type="submit" class="btn btn-success" style="width: auto; padding: 10px 20px;">Send Request</button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Friend Requests Received -->
+            {% if player_data.get('friend_requests_received') %}
+            <div style="margin-bottom: 20px; background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; padding: 15px; border-radius: 8px;">
+                <h3 style="font-size: 1em; color: #fbbf24; margin: 0 0 10px 0;">📬 Friend Requests ({{ player_data.friend_requests_received|length }})</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for requester_id in player_data.friend_requests_received %}
+                    <li style="padding: 10px; background: rgba(251, 191, 36, 0.15); margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <span style="font-weight: bold; color: #fbbf24;">{{ friend_map.get(requester_id, {}).get('username', 'Unknown') }}</span>
+                            <span style="font-family: 'Orbitron', sans-serif; color: #fcd34d; font-size: 0.8em; margin-left: 8px;">({{ requester_id }})</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <form action="/accept_friend_request" method="POST" style="margin: 0;">
+                                <input type="hidden" name="requester_id" value="{{ requester_id }}">
+                                <button type="submit" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold;">✓ Accept</button>
+                            </form>
+                            <form action="/decline_friend_request" method="POST" style="margin: 0;">
+                                <input type="hidden" name="requester_id" value="{{ requester_id }}">
+                                <button type="submit" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold;">✗ Decline</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Pending Sent Requests -->
+            {% if player_data.get('friend_requests_sent') %}
+            <div style="margin-bottom: 20px; background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 15px; border-radius: 8px;">
+                <h3 style="font-size: 1em; color: #3b82f6; margin: 0 0 10px 0;">📤 Pending Requests Sent ({{ player_data.friend_requests_sent|length }})</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for sent_id in player_data.friend_requests_sent %}
+                    <li style="padding: 8px 10px; background: rgba(59, 130, 246, 0.15); margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: bold; color: #3b82f6;">{{ friend_map.get(sent_id, {}).get('username', 'Unknown') }}</span>
+                            <span style="font-family: 'Orbitron', sans-serif; color: #60a5fa; font-size: 0.8em; margin-left: 8px;">({{ sent_id }})</span>
+                        </div>
+                        <span style="color: #64748b; font-size: 0.8em;">Waiting...</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Your Friends -->
+            <div style="margin-top: 15px;">
+                <h3 style="font-size: 1em; color: #94a3b8; margin-bottom: 10px;">Your Friends ({{ player_data.get('friends', [])|length }}):</h3>
+                {% if player_data.get('friends') %}
+                <ul style="list-style: none; padding: 0;">
+                    {% for friend_id in player_data.friends %}
+                    <li style="padding: 10px; background: rgba(5, 11, 20, 0.5); margin-bottom: 5px; border: 1px solid #0ea5e9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <span style="font-weight: bold; color: #e0f2fe;">{{ friend_map.get(friend_id, {}).get('username', 'Unknown') }}</span>
+                            <span style="font-family: 'Orbitron', sans-serif; color: #0ea5e9; font-size: 0.8em; margin-left: 8px;">({{ friend_id }})</span>
+                        </div>
+                        <button onclick="openLendModal('{{ friend_id }}')" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold;">💵 Lend Money</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: #64748b; font-size: 0.9em; margin: 0;">No friends yet. Send a friend request to get started!</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Lending Modal -->
+        <div id="lend-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15, 23, 42, 0.98); border: 2px solid #334155; border-radius: 12px; padding: 30px; z-index: 10000; min-width: 400px; max-width: 90vw; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #10b981; margin: 0;">Lend Money to Friend</h2>
+                <button onclick="closeLendModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+            <form id="lend-form" onsubmit="submitLend(event); return false;">
+                <input type="hidden" id="lend-friend-id" name="friend_id">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #94a3b8; margin-bottom: 5px;">Amount ($):</label>
+                    <input type="number" id="lend-amount" name="amount" min="1" step="1" required style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 16px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; color: #94a3b8; cursor: pointer;">
+                        <input type="radio" name="lend_type" value="gift" checked>
+                        <span>Gift (No interest, no repayment required)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; color: #94a3b8; cursor: pointer; margin-top: 10px;">
+                        <input type="radio" name="lend_type" value="loan">
+                        <span>Loan with Interest</span>
+                    </label>
+                </div>
+                <div id="interest-section" style="margin-bottom: 15px; display: none;">
+                    <label style="display: block; color: #94a3b8; margin-bottom: 5px;">Interest Rate (%):</label>
+                    <input type="number" id="lend-interest" name="interest_rate" min="0" max="100" step="0.1" value="5" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 16px;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="flex: 1; background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px;">Send</button>
+                    <button type="button" onclick="closeLendModal()" style="flex: 1; background: #475569; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px;">Cancel</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tokens & Emblems Section -->
+        <div class="section" style="grid-column: 1 / -1;">
+            <h2>🏆 Tokens & Emblems</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Rogue Run Tokens -->
+                <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; padding: 15px; border-radius: 8px;">
+                    <h3 style="color: #fbbf24; margin: 0 0 10px 0; font-size: 1em;">🎯 Rogue Run Tokens</h3>
+                    {% if player_data.get('rogue_run', {}).get('tokens', []) %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            {% for token in player_data.get('rogue_run', {}).get('tokens', []) %}
+                            <li style="padding: 8px; background: rgba(251, 191, 36, 0.15); margin-bottom: 5px; border-radius: 4px; color: #fbbf24; font-family: 'Orbitron', sans-serif; font-size: 0.9em;">
+                                🏅 {{ token }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #64748b; font-size: 0.85em; margin: 0;">No tokens earned yet. Defeat bosses in Rogue Run!</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Syndicate Emblems -->
+                <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; padding: 15px; border-radius: 8px;">
+                    <h3 style="color: #8b5cf6; margin: 0 0 10px 0; font-size: 1em;">⚔️ Syndicate Emblems</h3>
+                    {% if player_data.get('syndicate_data', {}).get('emblems', []) %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            {% for emblem in player_data.get('syndicate_data', {}).get('emblems', []) %}
+                            <li style="padding: 8px; background: rgba(139, 92, 246, 0.15); margin-bottom: 5px; border-radius: 4px; color: #8b5cf6; font-family: 'Orbitron', sans-serif; font-size: 0.9em;">
+                                🛡️ {{ emblem }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #64748b; font-size: 0.85em; margin: 0;">No emblems earned yet. Take on Syndicate bosses!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function addFriendQuick(playerId, username) {
+                if (confirm(`Send friend request to ${username} (${playerId})?`)) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/add_friend';
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'friend_identifier';
+                    input.value = playerId;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+            
+            function openLendModal(friendId) {
+                document.getElementById('lend-friend-id').value = friendId;
+                document.getElementById('lend-modal').style.display = 'block';
+            }
+            function closeLendModal() {
+                document.getElementById('lend-modal').style.display = 'none';
+                document.getElementById('lend-form').reset();
+                document.getElementById('interest-section').style.display = 'none';
+            }
+            document.querySelectorAll('input[name="lend_type"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('interest-section').style.display = this.value === 'loan' ? 'block' : 'none';
+                });
+            });
+            function submitLend(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                    friend_id: formData.get('friend_id'),
+                    amount: parseFloat(formData.get('amount')),
+                    lend_type: formData.get('lend_type'),
+                    interest_rate: formData.get('lend_type') === 'loan' ? parseFloat(formData.get('interest_rate')) : 0
+                };
+                fetch('/lend_money', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(result.message || 'Money sent successfully!');
+                        closeLendModal();
+                        location.reload();
+                    } else {
+                        alert(result.message || 'Failed to send money');
+                    }
+                });
+            }
+        </script>
+
+        <!-- Loan Shark -->
+        <div class="section loan-shark-section">
+            <h2 style="color:#fbbf24; border-color:#92400e;">The Loan Shark</h2>
+            <p style="color:#fed7aa; font-size:0.9em;">
+                "Need some quick liquidity? I can float you some cash... but don't ask about the interest."
+            </p>
+            <a href="/loan_shark" class="btn btn-danger" style="display:block; text-align:center; text-decoration:none;">Talk to the Shark</a>
+        </div>
+
+        <!-- Founding Traders -->
+        <div class="section" style="grid-column: 1 / -1; background: rgba(139, 92, 246, 0.15); border-color: #a78bfa;">
+            <h2 style="color:#a78bfa; border-color:#7c3aed;">⭐ Founding Traders</h2>
+            <p style="color:#c4b5fd; font-size:0.9em; margin-bottom: 15px;">
+                Exclusive VIP tier system for the elite traders who shaped the market.
+            </p>
+            <a href="/founding_traders" class="btn" style="display:block; text-align:center; text-decoration:none; background: rgba(139, 92, 246, 0.2); border-color: #a78bfa; color: #a78bfa; text-shadow: 0 0 5px rgba(167, 139, 250, 0.5);">Enter the Hall of Fame</a>
+        </div>
+
+        <!-- Filing Bankruptcy -->
+        <div class="section" style="grid-column: 1 / -1; background: rgba(239, 68, 68, 0.1); border-color: #ef4444;">
+            <h2 style="color:#ef4444; border-color:#7f1d1d;">Account Management</h2>
+            <p style="color:#fca5a5; font-size:0.9em; margin-bottom: 15px;">
+                File for bankruptcy to start fresh. This will reset all progress, including premises shown, and restore default settings. <strong style="color:#ef4444;">Warning: You will start with $75,000 instead of $100,000 as a bankruptcy penalty.</strong>
+            </p>
+            <form action="/reset_account" method="POST" onsubmit="return confirm('Are you sure you want to file for bankruptcy? This will reset all progress and you will start with $75,000 instead of $100,000. This cannot be undone!');">
+                <button type="submit" class="btn btn-danger">File Bankruptcy</button>
+            </form>
+        </div>
+
+        {% if is_admin %}
+        <!-- Admin Section -->
+        <div class="section" style="grid-column: 1 / -1; background: rgba(139, 92, 246, 0.1); border-color: #8b5cf6;">
+            <h2 style="color:#8b5cf6; border-color:#6d28d9;">🔐 Admin Panel</h2>
+            <p style="color:#c4b5fd; font-size:0.9em; margin-bottom: 15px;">
+                Access administrative tools and manage game content.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <a href="/admin/feedback" class="btn" style="display:block; text-align:center; text-decoration:none; background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; color: #8b5cf6; text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);">📝 View Player Feedback</a>
+                <a href="/admin/trading_buddy" class="btn" style="display:block; text-align:center; text-decoration:none; background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; color: #8b5cf6; text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);">🎬 Manage Videos & VFX</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="/">← Return to Main Menu</a>
+        </div>
+    </div>
+
+    <!-- Audio Logic -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            
+            // Check local storage for settings
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            // Apply Saved Settings
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            // Try to play BGM
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Autoplay prevented'));
+            }
+
+            // Mute toggle
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            // Save time periodically
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            // Save time on unload
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Button Hover Sounds
+            const buttons = document.querySelectorAll('button, a, .ability-item');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+
+            // Selection Sounds (Select Ability in list)
+            const abilities = document.querySelectorAll('.ability-item');
+            abilities.forEach(item => {
+                item.addEventListener('click', function() {
+                    selectSound.currentTime = 0;
+                    selectSound.play().catch(e => {});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

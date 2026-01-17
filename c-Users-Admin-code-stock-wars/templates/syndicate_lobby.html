@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Syndicate Tournament - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0f172a;
+            color: #e0e0e0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 { color: #c084fc; font-size: 2.5em; text-transform: uppercase; margin-bottom: 5px; }
+        .subtitle { color: #94a3b8; font-size: 1.2em; margin-bottom: 30px; }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+        }
+
+        .score { font-size: 4em; font-weight: 900; }
+        .player-score { color: #22c55e; }
+        .enemy-score { color: #ef4444; }
+        .vs { font-size: 2em; color: #64748b; font-style: italic; }
+
+        .fighter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .fighter-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .fighter-card:hover { border-color: #c084fc; transform: translateY(-5px); }
+        .fighter-card input[type="radio"] { display: none; }
+        .fighter-card.selected { border-color: #c084fc; background: rgba(192, 132, 252, 0.1); }
+
+        .fighter-name { font-size: 1.2em; font-weight: bold; color: #f8fafc; }
+        .fighter-type { color: #94a3b8; font-size: 0.9em; margin-bottom: 10px; text-transform: uppercase; }
+        .fighter-stats { font-size: 0.9em; color: #cbd5e1; }
+
+        .btn-fight {
+            background: #c084fc;
+            color: #0f172a;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: transform 0.2s;
+        }
+        
+        .btn-fight:hover { transform: scale(1.05); }
+        .btn-fight:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .history-pills { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .pill { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .pill-W { background: #22c55e; color: #0f172a; }
+        .pill-L { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ syndicate.name }}</h1>
+        <div class="subtitle">Tournament - {{ syndicate.desc }}</div>
+
+        <div class="score-board">
+            <div class="score player-score">{{ tournament.wins }}</div>
+            <div class="vs">VS</div>
+            <div class="score enemy-score">{{ tournament.losses }}</div>
+        </div>
+        
+        <div class="history-pills">
+            {% for result in tournament.history %}
+            <div class="pill pill-{{ result }}">{{ result }}</div>
+            {% endfor %}
+        </div>
+
+        <h2 style="margin-top: 40px; color: #e2e8f0;">Select Your Fighter for Next Round</h2>
+        
+        <form action="/syndicate/start_match" method="POST">
+            <input type="hidden" name="syndicate_id" value="{{ syndicate.id }}">
+            <input type="hidden" name="fighter_id" id="selected-fighter">
+            
+            <div class="fighter-grid">
+                {% for f in fighters %}
+                <div class="fighter-card" onclick="selectFighter(this, '{{ f.id }}')">
+                    <div class="fighter-name">{{ f.name }}</div>
+                    <div class="fighter-type">{{ f.type }}</div>
+                    {% if f.type == 'Avatar' %}
+                    <div class="fighter-stats">Your main character. Uses your equipped Loadout.</div>
+                    {% else %}
+                    <div class="fighter-stats">
+                        <div><strong>Passive:</strong> {{ f.passive }}</div>
+                        <div style="margin-top:5px; font-style:italic;">Specialized Loadout</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" id="btn-start" class="btn-fight" disabled>START ROUND</button>
+        </form>
+        
+        <a href="/rogue/menu" style="color: #94a3b8; display: block; margin-top: 20px;">Back to Menu (Forfeit Tournament)</a>
+    </div>
+
+    <!-- Audio Logic -->
+    <script>
+        function selectFighter(card, id) {
+            document.querySelectorAll('.fighter-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.getElementById('selected-fighter').value = id;
+            document.getElementById('btn-start').disabled = false;
+            
+            // Play select sound
+            const sound = document.getElementById('select-sound');
+            if(sound) { sound.currentTime = 0; sound.play().catch(e=>{}); }
+        }
+    </script>
+    
+    <!-- Audio Elements (Copied for consistency) -->
+    <audio id="select-sound" src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}"></audio>
+    <!-- Basic bgm setup omitted for brevity in this specific file, usually included via inheritance or js -->
+</body>
+</html>
+
+
+

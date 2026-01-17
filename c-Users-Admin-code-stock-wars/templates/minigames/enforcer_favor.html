@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enforcer Favor Job - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #050b14;
+            color: #e0f2fe;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #fbbf24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+        }
+        
+        h1 {
+            color: #fbbf24;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 2em;
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #22c55e;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .instructions {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid #fbbf24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #fef3c7;
+        }
+        
+        .game-area {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .direction-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            overflow: hidden;
+        }
+        
+        .direction-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, currentColor, transparent);
+            animation: rotate-border 3s linear infinite;
+            opacity: 0.3;
+        }
+        
+        .direction-button::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: -1;
+        }
+        
+        @keyframes rotate-border {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .direction-button.active {
+            border-width: 4px;
+            transform: scale(1.2);
+            animation: pulse-glow-tech 0.5s infinite, scan-line 2s linear infinite;
+            box-shadow: 0 0 30px currentColor, inset 0 0 20px currentColor;
+        }
+        
+        @keyframes pulse-glow-tech {
+            0%, 100% { 
+                box-shadow: 0 0 20px currentColor, inset 0 0 20px currentColor;
+                filter: brightness(1);
+            }
+            50% { 
+                box-shadow: 0 0 50px currentColor, 0 0 80px currentColor, inset 0 0 30px currentColor;
+                filter: brightness(1.5);
+            }
+        }
+        
+        @keyframes scan-line {
+            0%, 100% { 
+                background-position: 0% 0%;
+            }
+            50% { 
+                background-position: 100% 100%;
+            }
+        }
+        
+        .btn-up {
+            border-color: #00d4ff;
+            color: #00d4ff;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+            text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
+        }
+        
+        .btn-down {
+            border-color: #ff006e;
+            color: #ff006e;
+            background: radial-gradient(circle, rgba(255, 0, 110, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+            text-shadow: 0 0 10px #ff006e, 0 0 20px #ff006e;
+        }
+        
+        .btn-left {
+            border-color: #00ff88;
+            color: #00ff88;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+        }
+        
+        .btn-right {
+            border-color: #ffd700;
+            color: #ffd700;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+        }
+        
+        .direction-button span {
+            position: relative;
+            z-index: 1;
+            font-family: 'Orbitron', sans-serif;
+            filter: drop-shadow(0 0 5px currentColor);
+        }
+        
+        .direction-button.hit {
+            animation: hit-flash 0.3s;
+        }
+        
+        @keyframes hit-flash {
+            0% { transform: scale(1.2); }
+            50% { transform: scale(1.5); background: rgba(34, 197, 94, 0.8); }
+            100% { transform: scale(1); }
+        }
+        
+        .direction-button.miss {
+            animation: miss-shake 0.3s;
+        }
+        
+        @keyframes miss-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+        
+        .key-hint {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+        
+        .key-hint kbd {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #475569;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 0 5px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        
+        .feedback-good { color: #22c55e; }
+        .feedback-bad { color: #ef4444; }
+        .feedback-warning { color: #fbbf24; }
+        
+        .combo {
+            text-align: center;
+            font-size: 1.5em;
+            color: #fbbf24;
+            margin: 10px 0;
+            font-family: 'Orbitron', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Enforcer Favor</h1>
+        <div class="instructions">
+            <strong>Instructions:</strong> Use arrow keys (↑ ↓ ← →) to hit the active button when it lights up! Buttons move around - stay focused! Build combos for bonus points. Miss too many → partial debt cleared only.
+        </div>
+        
+        <div class="timer" id="timer">75</div>
+        <div class="score">Hits: <span id="score">0</span> | Misses: <span id="misses">0</span></div>
+        <div class="combo" id="combo" style="display: none;">Combo: <span id="combo-count">0</span>x</div>
+        
+        <div class="game-area" id="game-area">
+            <div class="direction-button btn-up" id="btn-up" data-key="ArrowUp">
+                <span>↑</span>
+            </div>
+            <div class="direction-button btn-down" id="btn-down" data-key="ArrowDown">
+                <span>↓</span>
+            </div>
+            <div class="direction-button btn-left" id="btn-left" data-key="ArrowLeft">
+                <span>←</span>
+            </div>
+            <div class="direction-button btn-right" id="btn-right" data-key="ArrowRight">
+                <span>→</span>
+            </div>
+        </div>
+        
+        <div class="key-hint">
+            Press: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="endJob()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Abandon Job
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Overlay -->
+    {% include 'minigames/tutorial_overlay.html' %}
+    
+    <!-- Audio Elements -->
+    <audio id="sound-hit" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-miss" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-combo" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/pop-win-casino-winning-398059.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-activate" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ability-activated-6104.mp3') }}" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        const jobData = {{ job | tojson }};
+        let score = 0;
+        let misses = 0;
+        let combo = 0;
+        let timeRemaining = jobData.time_limit_seconds;
+        let gameActive = true;
+        let activeButton = null;
+        let activeTimeout = null;
+        let moveInterval = null;
+        
+        const buttons = {
+            'ArrowUp': document.getElementById('btn-up'),
+            'ArrowDown': document.getElementById('btn-down'),
+            'ArrowLeft': document.getElementById('btn-left'),
+            'ArrowRight': document.getElementById('btn-right')
+        };
+        
+        const sounds = {
+            hit: document.getElementById('sound-hit'),
+            miss: document.getElementById('sound-miss'),
+            combo: document.getElementById('sound-combo'),
+            activate: document.getElementById('sound-activate')
+        };
+        
+        // Set volume for sounds
+        Object.values(sounds).forEach(sound => {
+            const savedVol = localStorage.getItem('sfx_volume');
+            if (savedVol !== null) sound.volume = parseFloat(savedVol);
+        });
+        
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Sound play failed:', e));
+            }
+        }
+        
+        function randomPosition() {
+            const area = document.getElementById('game-area');
+            const areaRect = area.getBoundingClientRect();
+            const buttonSize = 120;
+            return {
+                x: Math.random() * (areaRect.width - buttonSize - 80) + 40,
+                y: Math.random() * (areaRect.height - buttonSize - 80) + 40
+            };
+        }
+        
+        function positionButtons() {
+            Object.values(buttons).forEach(btn => {
+                const pos = randomPosition();
+                btn.style.left = pos.x + 'px';
+                btn.style.top = pos.y + 'px';
+            });
+        }
+        
+        function activateRandomButton() {
+            if (!gameActive) return;
+            
+            // Deactivate current button
+            if (activeButton) {
+                activeButton.classList.remove('active');
+            }
+            
+            // Choose random button
+            const keys = Object.keys(buttons);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            activeButton = buttons[randomKey];
+            
+            // Move button to random position
+            const pos = randomPosition();
+            activeButton.style.left = pos.x + 'px';
+            activeButton.style.top = pos.y + 'px';
+            
+            // Activate
+            activeButton.classList.add('active');
+            playSound('activate');
+            
+            // Deactivate after short window
+            activeTimeout = setTimeout(() => {
+                if (activeButton && activeButton.classList.contains('active')) {
+                    miss();
+                }
+            }, 800);
+        }
+        
+        function handleKeyPress(key) {
+            if (!gameActive) return;
+            
+            const pressedButton = buttons[key];
+            if (!pressedButton) return;
+            
+            if (activeButton && activeButton === pressedButton && activeButton.classList.contains('active')) {
+                // Hit!
+                clearTimeout(activeTimeout);
+                activeButton.classList.remove('active');
+                activeButton.classList.add('hit');
+                playSound(combo >= 3 ? 'combo' : 'hit');
+                
+                score++;
+                combo++;
+                document.getElementById('score').textContent = score;
+                
+                if (combo >= 3) {
+                    showFeedback(`Combo x${combo}!`, 'good');
+                } else {
+                    showFeedback('Hit!', 'good');
+                }
+                
+                setTimeout(() => {
+                    if (activeButton) {
+                        activeButton.classList.remove('hit');
+                    }
+                }, 300);
+                
+                updateCombo();
+                activeButton = null;
+            } else {
+                // Miss or wrong button
+                if (pressedButton) {
+                    pressedButton.classList.add('miss');
+                    playSound('miss');
+                    setTimeout(() => {
+                        pressedButton.classList.remove('miss');
+                    }, 300);
+                }
+                
+                misses++;
+                combo = 0;
+                document.getElementById('misses').textContent = misses;
+                showFeedback('Miss!', 'bad');
+                updateCombo();
+            }
+        }
+        
+        function miss() {
+            if (!activeButton || !activeButton.classList.contains('active')) return;
+            
+            activeButton.classList.remove('active');
+            activeButton.classList.add('miss');
+            playSound('miss');
+            
+            misses++;
+            combo = 0;
+            document.getElementById('misses').textContent = misses;
+            showFeedback('Missed!', 'bad');
+            updateCombo();
+            
+            setTimeout(() => {
+                if (activeButton) {
+                    activeButton.classList.remove('miss');
+                }
+            }, 500);
+            
+            activeButton = null;
+        }
+        
+        function updateCombo() {
+            const comboEl = document.getElementById('combo');
+            const comboCountEl = document.getElementById('combo-count');
+            
+            if (combo >= 3) {
+                comboEl.style.display = 'block';
+                comboCountEl.textContent = combo;
+            } else {
+                comboEl.style.display = 'none';
+            }
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback feedback-${type}`;
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 1500);
+        }
+        
+        function endJob() {
+            if (confirm('Abandon this job? You will receive no payout.')) {
+                gameActive = false;
+                const accuracy = (score + misses) > 0 ? score / (score + misses) : 0;
+                const comboBonus = combo >= 5 ? 0.1 : combo >= 3 ? 0.05 : 0;
+                const finalScore = accuracy + comboBonus;
+                submitJob(Math.min(1, finalScore));
+            }
+        }
+        
+        function submitJob(score) {
+            const timeTaken = jobData.time_limit_seconds - timeRemaining;
+            fetch('/loan_shark/job/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    score: score,
+                    time_taken: timeTaken
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/loan_shark';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+        
+        // Keyboard event listener
+        document.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                handleKeyPress(e.key);
+            }
+        });
+        
+        // Move buttons periodically
+        function startMovingButtons() {
+            moveInterval = setInterval(() => {
+                if (gameActive) {
+                    // Move non-active buttons
+                    Object.values(buttons).forEach(btn => {
+                        if (btn !== activeButton || !btn.classList.contains('active')) {
+                            const pos = randomPosition();
+                            btn.style.transition = 'all 0.5s ease';
+                            btn.style.left = pos.x + 'px';
+                            btn.style.top = pos.y + 'px';
+                        }
+                    });
+                }
+            }, 2000);
+        }
+        
+        // Beat pattern (random intervals)
+        function scheduleNextBeat() {
+            if (!gameActive) return;
+            
+            const delay = 1000 + Math.random() * 2000; // 1-3 seconds
+            setTimeout(() => {
+                if (gameActive) {
+                    activateRandomButton();
+                    scheduleNextBeat();
+                }
+            }, delay);
+        }
+        
+        // Timer
+        const timerInterval = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(timerInterval);
+                clearInterval(moveInterval);
+                return;
+            }
+            
+            timeRemaining--;
+            document.getElementById('timer').textContent = timeRemaining;
+            
+            if (timeRemaining <= 0) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                clearInterval(moveInterval);
+                const accuracy = (score + misses) > 0 ? score / (score + misses) : 0;
+                const comboBonus = combo >= 5 ? 0.1 : combo >= 3 ? 0.05 : 0;
+                const finalScore = accuracy + comboBonus;
+                submitJob(Math.min(1, finalScore));
+            }
+        }, 1000);
+        
+        // Tutorial Steps (scoped to avoid conflict with tutorial overlay)
+        const enforcerFavorTutorialSteps = [
+            {
+                title: "Enforcer Favor Tutorial",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎯 Objective</h3>
+                        <p>Use arrow keys (<strong style="color: #00d4ff;">↑</strong> <strong style="color: #ff006e;">↓</strong> <strong style="color: #00ff88;">←</strong> <strong style="color: #ffd700;">→</strong>) to hit the active button when it lights up! Buttons move around - stay focused!</p>
+                    </div>
+                `,
+                highlight: '#game-area'
+            },
+            {
+                title: "The Four Buttons",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎮 Button Colors</h3>
+                        <p>There are 4 colored buttons, each corresponding to an arrow key:</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                            <div style="text-align: center; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 2px solid #00d4ff; border-radius: 4px;">
+                                <div style="font-size: 2em; color: #00d4ff;">↑</div>
+                                <div style="color: #94a3b8; font-size: 0.9em;">Arrow Up</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255, 0, 110, 0.1); border: 2px solid #ff006e; border-radius: 4px;">
+                                <div style="font-size: 2em; color: #ff006e;">↓</div>
+                                <div style="color: #94a3b8; font-size: 0.9em;">Arrow Down</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(0, 255, 136, 0.1); border: 2px solid #00ff88; border-radius: 4px;">
+                                <div style="font-size: 2em; color: #00ff88;">←</div>
+                                <div style="color: #94a3b8; font-size: 0.9em;">Arrow Left</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255, 215, 0, 0.1); border: 2px solid #ffd700; border-radius: 4px;">
+                                <div style="font-size: 2em; color: #ffd700;">→</div>
+                                <div style="color: #94a3b8; font-size: 0.9em;">Arrow Right</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Active Button",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>✨ When a Button Activates</h3>
+                        <p>One button will light up and start pulsing. This is your target! Press the corresponding arrow key quickly.</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Tip:</strong> The active button glows brightly and pulses. You have about 0.8 seconds to hit it!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Moving Buttons",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🔄 Buttons Move!</h3>
+                        <p>The buttons constantly move around the game area. Keep your eyes on the active button and don't lose track of it!</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Combo Bonus:</strong> Hit 3+ in a row for bonus points! Misses reset your combo.
+                        </div>
+                    </div>
+                `
+            }
+        ];
+        
+        function onTutorialComplete() {
+            positionButtons();
+            startMovingButtons();
+            scheduleNextBeat();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialSeen = sessionStorage.getItem('enforcer_favor_tutorial_seen');
+            if (!tutorialSeen) {
+                setTimeout(() => {
+                    if (typeof initTutorial === 'function') {
+                        initTutorial(enforcerFavorTutorialSteps);
+                    } else {
+                        onTutorialComplete();
+                    }
+                }, 500);
+            } else {
+                onTutorialComplete();
+            }
+            
+            // Initialize tooltips
+            setTimeout(() => {
+                if (typeof addTooltip === 'function') {
+                    document.querySelectorAll('[data-tooltip]').forEach(el => {
+                        addTooltip(el, el.getAttribute('data-tooltip'));
+                    });
+                }
+            }, 1000);
+        });
+        
+        function skipTutorial() {
+            sessionStorage.setItem('enforcer_favor_tutorial_seen', 'true');
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            highlightElements.forEach(el => {
+                if (el) el.classList.remove('tutorial-highlight');
+            });
+            highlightElements = [];
+            onTutorialComplete();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Trader Multiplayer - Battle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            /* Darker trading floor theme */
+            background: var(--theme-bg);
+            color: var(--theme-text);
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--theme-border);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--theme-accent); /* Neon Cyan */
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--theme-accent);
+        }
+
+        #game-tick-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #94a3b8;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: row; /* Default to 3-column row for desktop */
+            gap: 20px;
+            flex: 1;
+            min-height: 0; /* Important for scrolling flex children */
+        }
+
+        .panel {
+            background: var(--theme-panel-bg); /* Dark Slate */
+            border-radius: 8px; /* Sharper corners */
+            padding: 20px;
+            border: 1px solid var(--theme-border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            flex: 1; /* Equal width base */
+        }
+
+        /* Market Panel (Center) - slightly wider on desktop */
+        #market-panel {
+            flex: 1.5;
+            align-items: center;
+            position: relative;
+        }
+
+        .panel-title {
+            color: #64748b;
+            font-weight: 900;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--theme-border);
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            width: 100%;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-family: 'Roboto Mono', monospace;
+            color: #f1f5f9;
+        }
+        
+        .positive { color: #4ade80; text-shadow: 0 0 5px rgba(74, 222, 128, 0.2); }
+        .negative { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.2); }
+
+        #price-display-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #price-display {
+            font-size: 3em;
+            font-weight: 900;
+            color: #f8fafc;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 250px;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .log-box {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #94a3b8;
+            box-sizing: border-box;
+        }
+        
+        .log-box div { margin-bottom: 4px; border-bottom: 1px solid #0f172a; padding-bottom: 2px; }
+
+        .controls-section {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .btn-buy { 
+            background: transparent; 
+            border: 2px solid #22c55e; 
+            color: #22c55e; 
+        }
+        .btn-buy:hover { background: #22c55e; color: #020617; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+
+        .btn-sell { 
+            background: transparent; 
+            border: 2px solid #ef4444; 
+            color: #ef4444; 
+        }
+        .btn-sell:hover { background: #ef4444; color: #020617; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+
+        .abilities-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ability-btn {
+            background: var(--btn-bg);
+            color: var(--btn-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: var(--btn-border);
+            border-left: var(--btn-border-left);
+            font-weight: bold;
+            text-shadow: var(--btn-shadow);
+        }
+
+        
+        .ability-rare { border-left-color: #3b82f6; } /* Blue */
+        .ability-epic { border-left-color: #a855f7; } /* Purple */
+        .ability-legendary { border-left-color: #eab308; background: #422006; } /* Gold */
+        
+        .ability-btn:hover:not(:disabled) {
+            background: #475569;
+        }
+        
+        .ability-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-left-color: #64748b;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 900px) {
+            body {
+                height: 100vh;
+                min-height: 100vh;
+                padding: 10px;
+                overflow: hidden;
+            }
+
+            header {
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+            }
+
+            h1 { font-size: 1.2em; }
+            #game-timer-display { font-size: 1em !important; }
+
+            .panel {
+                width: 100%;
+                box-sizing: border-box; /* Ensure padding doesn't overflow width */
+                padding: 10px;
+            }
+            
+            .panel-title {
+                font-size: 0.8em;
+                margin-bottom: 5px;
+                padding-bottom: 5px;
+            }
+            
+            .stat-row {
+                font-size: 0.9em;
+                margin-bottom: 2px;
+            }
+            
+            #price-display {
+                font-size: 2em;
+                margin: 5px 0;
+            }
+            
+            .btn {
+                padding: 10px; /* Larger buttons for touch */
+                font-size: 0.9em;
+            }
+
+            .btn-grid {
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+            
+            .ability-btn {
+                padding: 5px;
+                font-size: 0.8em;
+            }
+            
+            .abilities-section { gap: 5px; }
+        }
+
+        /* Portrait Mobile - Stacked but fitted */
+        @media (max-width: 900px) and (orientation: portrait) {
+            #game-container {
+                flex-direction: column;
+                gap: 10px;
+                height: calc(100vh - 60px); /* Adjust for header */
+            }
+            
+            #market-panel {
+                order: -1;
+                flex: 1.2; /* Give market slightly more space */
+                min-height: 0;
+            }
+            
+            .trader-panel {
+                flex: 1;
+                min-height: 0;
+            }
+            
+            #chart-container {
+                flex: 1; /* Chart fills market panel */
+                height: auto;
+                min-height: 100px;
+                margin-bottom: 5px;
+            }
+            
+            .log-box {
+                display: none; /* Hide logs on portrait mobile to save space, or make very small */
+            }
+        }
+
+        /* Landscape Mobile - Row layout */
+        @media (max-width: 900px) and (orientation: landscape) {
+            #game-container {
+                flex-direction: row;
+                gap: 10px;
+                height: calc(100vh - 50px);
+            }
+            
+            .panel {
+                flex: 1;
+                overflow-y: auto;
+            }
+            
+            #market-panel {
+                flex: 1.5;
+            }
+            
+            #chart-container {
+                height: 150px;
+                margin-bottom: 5px;
+            }
+            
+            .log-box {
+                height: 50px;
+                font-size: 0.7em;
+            }
+        }
+
+        .effect-frozen {
+            filter: blur(2px) grayscale(100%);
+            pointer-events: none;
+            position: relative;
+        }
+        .effect-frozen::after {
+            content: "❄️ FROZEN ❄️";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #bae6fd;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 0 0 10px blue;
+        }
+
+        .effect-pump {
+            animation: pulse-green 0.5s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+            100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .effect-dump {
+            animation: pulse-red 0.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+            100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+
+    <!-- NEW TUTORIAL STYLES -->
+    <style>
+        .tutorial-highlight {
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 0 0 4px #fbbf24, 0 0 50px rgba(251, 191, 36, 0.5) !important;
+            animation: pulse-highlight 2s infinite;
+        }
+        
+        @keyframes pulse-highlight {
+            0% { box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 0 6px #fbbf24, 0 0 40px rgba(251, 191, 36, 0.8); }
+            100% { box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.5); }
+        }
+
+        .tutorial-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            pointer-events: none;
+            display: none; /* Hidden by default */
+        }
+        
+        .tutorial-msg {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 2px solid #fbbf24;
+            color: #fbbf24;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+
+        #back-to-academy {
+            position: fixed;
+            top: 80px; /* Below header */
+            left: 20px;
+            z-index: 1100;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: block; /* Visible by default in mock */
+        }
+    </style>
+</head>
+<body style="
+    --theme-bg: {{ theme.bg if theme else '#0b0e14' }};
+    --theme-panel-bg: {{ theme.panel_bg if theme else '#1e293b' }};
+    --theme-border: {{ theme.border if theme else '#334155' }};
+    --theme-text: {{ theme.text if theme else '#e2e8f0' }};
+    --theme-accent: {{ theme.accent if theme else '#22d3ee' }};
+    --btn-bg: {{ theme.btn_bg if theme and theme.btn_bg else '#334155' }};
+    --btn-color: {{ '#000' if theme and theme.btn_bg else '#e2e8f0' }};
+    --btn-border: {{ '1px solid #000' if theme and theme.btn_bg else 'none' }};
+    --btn-border-left: {{ '1px solid #000' if theme and theme.btn_bg else '4px solid #94a3b8' }};
+    --btn-shadow: none;
+">
+    
+    <div id="tutorial-overlay" class="tutorial-overlay"></div>
+    <div id="tutorial-msg" class="tutorial-msg"></div>
+    <button id="back-to-academy" onclick="window.location.href='/trader_academy'">⬅ Back to Academy</button>
+
+    <header>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <h1>Stock Wars: Live Market</h1>
+            <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e; animation: blink 1s infinite;"></div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:20px;">
+            <div id="game-timer-display" style="font-family:'Roboto Mono', monospace; font-size:1.5em; color:#94a3b8; font-weight:bold;">
+                Time Remaining: <span id="game-timer" style="color:#e2e8f0;">5:00</span>
+            </div>
+            
+            <div style="position: relative;">
+                <button id="settings-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #94a3b8;">⚙️</button>
+                <div id="settings-menu" style="display: none; position: absolute; top: 100%; right: 0; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; z-index: 1000; min-width: 150px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                    <button id="mute-btn" style="display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: none; color: #e2e8f0; padding: 8px; cursor: pointer; text-align: left; font-family: inherit;">
+                        <span id="mute-icon">🔊</span> Mute Music
+                    </button>
+                    <div style="height: 1px; background: #334155; margin: 5px 0;"></div>
+                    <a href="/" style="display: flex; align-items: center; gap: 10px; width: 100%; color: #ef4444; text-decoration: none; padding: 8px; font-weight: bold;">
+                        <span>🚪</span> Quit Match
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <style>
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .tooltip-highlight {
+            position: relative;
+            animation: tooltip-pulse 1.5s infinite;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.8) !important;
+            border: 2px solid #0ea5e9 !important;
+            z-index: 9999;
+            transform: scale(1.02);
+        }
+        
+        @keyframes tooltip-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(14, 165, 233, 0.8), 0 0 40px rgba(14, 165, 233, 0.4);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(14, 165, 233, 1), 0 0 60px rgba(14, 165, 233, 0.6);
+            }
+        }
+    </style>
+    
+    <div id="game-container">
+        <!-- Player Panel -->
+        <div class="panel trader-panel" id="player-panel">
+            <div class="panel-title">Your Portfolio</div>
+            
+            <div class="stat-row">
+                <span>Cash</span>
+                <span class="stat-value" id="player-cash" data-tooltip="Your available cash. Use this to buy stocks. You start with $100,000.">$0.00</span>
+            </div>
+            <div class="stat-row">
+                <span>Stock</span>
+                <span class="stat-value" id="player-stock" data-tooltip="Number of shares you currently own. Buy stocks to increase this, sell to decrease it.">0</span>
+            </div>
+            <div class="stat-row">
+                <span>PnL</span>
+                <span class="stat-value" id="player-pnl" data-tooltip="Profit and Loss. This is your score for the match. Higher PnL wins! Green = profit, Red = loss.">$0.00</span>
+            </div>
+
+            <div class="controls-section">
+                <div class="panel-title" style="margin-top: 20px;">Trading Desk</div>
+                
+                <!-- Custom Trade Amount -->
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="number" id="custom-amount" value="50" min="1" style="flex: 1; padding: 10px; background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; font-weight: bold; font-family: 'Roboto Mono', monospace;">
+                    <button class="btn btn-buy" style="padding: 10px 20px;" onclick="buyCustom()">Buy</button>
+                    <button class="btn btn-sell" style="padding: 10px 20px;" onclick="sellCustom()">Sell</button>
+                </div>
+
+                <div class="btn-grid">
+                    <button class="btn btn-buy" onclick="buyStock(10)">Buy 10</button>
+                    <button class="btn btn-sell" onclick="sellStock(10)">Sell 10</button>
+                    <button class="btn btn-buy" onclick="buyStock(100)">Buy 100</button>
+                    <button class="btn btn-sell" onclick="sellStock(100)">Sell 100</button>
+                </div>
+
+                <div class="panel-title">Abilities</div>
+                <div id="ability-container" class="abilities-section">
+                    <!-- Abilities injected here -->
+                </div>
+            </div>
+            <div class="log-box" id="player-log" style="height: 100px; margin-top: 10px; border-top: 1px solid #334155;"></div>
+        </div>
+
+        <!-- Market Panel -->
+        <div class="panel" id="market-panel">
+            <div class="panel-title">Market Feed</div>
+            
+            <div id="price-display-container">
+                <div id="price-display">$100.00</div>
+            </div>
+
+            <div id="chart-container" data-tooltip="Price chart showing the stock price over time. Green candles = price went up, Red candles = price went down. Use this to predict future price movements!">
+                <canvas id="price-chart"></canvas>
+                <div class="chart-controls">
+                    <button class="zoom-btn" onclick="adjustZoom(10)">+</button>
+                    <button class="zoom-btn" onclick="adjustZoom(-10)">-</button>
+                </div>
+            </div>
+
+            <style>
+                .chart-controls {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    display: flex;
+                    gap: 5px;
+                }
+                .zoom-btn {
+                    background: rgba(30, 41, 59, 0.8);
+                    color: #e2e8f0;
+                    border: 1px solid #475569;
+                    border-radius: 4px;
+                    width: 30px;
+                    height: 30px;
+                    font-size: 1.2em;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .zoom-btn:hover {
+                    background: #334155;
+                }
+                
+                /* Shake Animation */
+                @keyframes shake {
+                    0% { transform: translate(1px, 1px) rotate(0deg); }
+                    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+                    20% { transform: translate(-3px, 0px) rotate(1deg); }
+                    30% { transform: translate(3px, 2px) rotate(0deg); }
+                    40% { transform: translate(1px, -1px) rotate(1deg); }
+                    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+                    60% { transform: translate(-3px, 1px) rotate(0deg); }
+                    70% { transform: translate(3px, 1px) rotate(-1deg); }
+                    80% { transform: translate(-1px, -1px) rotate(1deg); }
+                    90% { transform: translate(1px, 2px) rotate(0deg); }
+                    100% { transform: translate(1px, -2px) rotate(-1deg); }
+                }
+                
+                .shake-effect {
+                    animation: shake 0.5s; 
+                    animation-iteration-count: 3; /* 1.5s total */
+                    border: 2px solid red !important;
+                    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+                }
+            </style>
+
+            <div class="log-box" id="game-log"></div>
+        </div>
+
+        <!-- Audio Elements -->
+        <audio id="sound-buy" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+        <audio id="sound-sell" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+        <audio id="sound-ability" src="{{ url_for('static', filename='sounds/ability-activated-6104.mp3') }}" preload="auto"></audio>
+        <audio id="sound-bg-music" src="{{ url_for('static', filename='sounds/amapiano-loop-base-banny-fernandes-297939.mp3') }}" loop preload="auto"></audio>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio = document.getElementById('sound-bg-music');
+                var settingsBtn = document.getElementById('settings-btn');
+                var settingsMenu = document.getElementById('settings-menu');
+                var muteBtn = document.getElementById('mute-btn');
+                var muteIcon = document.getElementById('mute-icon');
+
+                // Toggle Menu
+                settingsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (settingsMenu.style.display === 'block' && !settingsMenu.contains(e.target) && e.target !== settingsBtn) {
+                        settingsMenu.style.display = 'none';
+                    }
+                });
+
+                // Audio Logic
+                var audio = document.getElementById('sound-bg-music');
+                var sfxAbility = document.getElementById('sound-ability');
+                var sfxBuy = document.getElementById('sound-buy');
+                var sfxSell = document.getElementById('sound-sell');
+
+                var savedBgmVol = localStorage.getItem('bgm_volume');
+                var savedSfxVol = localStorage.getItem('sfx_volume');
+                
+                if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+                if(savedSfxVol !== null) {
+                    if(sfxAbility) sfxAbility.volume = parseFloat(savedSfxVol);
+                    if(sfxBuy) sfxBuy.volume = parseFloat(savedSfxVol);
+                    if(sfxSell) sfxSell.volume = parseFloat(savedSfxVol);
+                }
+
+                var isMuted = localStorage.getItem('bg_music_muted') === 'true'; // Use global mute key
+                
+                audio.muted = isMuted;
+                muteIcon.innerHTML = isMuted ? '🔇' : '🔊';
+
+                var playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => { console.log('Autoplay prevented'); });
+                }
+
+                muteBtn.addEventListener('click', function() {
+                    audio.muted = !audio.muted;
+                    localStorage.setItem('bg_music_muted', audio.muted); // Sync with Index page
+                    muteIcon.innerHTML = audio.muted ? '🔇' : '🔊';
+                    if (audio.paused && !audio.muted) audio.play();
+                });
+            });
+        </script>
+
+        <!-- Opponent Panel -->
+        <div class="panel trader-panel">
+            <div class="panel-title">Opponent</div>
+            
+            <div class="stat-row">
+                <span>Cash</span>
+                <span class="stat-value" id="ai-cash">$0.00</span>
+            </div>
+            <div class="stat-row">
+                <span>Stock</span>
+                <span class="stat-value" id="ai-stock">0</span>
+            </div>
+            <div class="stat-row">
+                <span>PnL</span>
+                <span class="stat-value" id="ai-pnl">$0.00</span>
+            </div>
+            <div class="stat-row" style="margin-top: 20px;">
+                <span>Status</span>
+                <span class="stat-value" id="ai-status" style="color:#60a5fa">Active</span>
+            </div>
+            <div class="log-box" id="ai-log" style="height: 100px; margin-top: 10px; border-top: 1px solid #334155;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tutorial State Logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const feature = urlParams.get('highlight');
+        
+        function setupTutorial() {
+            const overlay = document.getElementById('tutorial-overlay');
+            const msgBox = document.getElementById('tutorial-msg');
+            
+            let targetEl = null;
+            let message = "";
+
+            if (feature === 'goal') {
+                targetEl = document.querySelector('.stat-row:nth-child(3)'); // PnL Row
+                message = "This is your PnL (Score). Keep it GREEN to win!";
+            } else if (feature === 'time') {
+                targetEl = document.getElementById('game-timer-display');
+                message = "Ticks remaining. The match ends at 0:00!";
+            } else if (feature === 'trading') {
+                targetEl = document.querySelector('.controls-section');
+                message = "Buy Low, Sell High using these buttons!";
+            } else if (feature === 'abilities') {
+                targetEl = document.getElementById('ability-container');
+                message = "Use Abilities (Q, W, E) to manipulate the market!";
+            }
+
+            if (targetEl) {
+                targetEl.classList.add('tutorial-highlight');
+                msgBox.innerText = message;
+                msgBox.style.display = 'block';
+                // No overlay for now to allow interaction, or partial overlay
+            }
+        }
+        
+        // Mark as practice match and set practice match ID
+        {% if session.get('is_practice_match') %}
+        const isPracticeMatch = true;
+        sessionStorage.setItem('is_practice_match', 'true');
+        const practiceMatchId = '{{ session.get("practice_match_id", "") }}';
+        if (practiceMatchId) {
+            sessionStorage.setItem('practice_match_id', practiceMatchId);
+            // Clear dismissed tooltips for new practice match
+            const sessionKey = 'practice_tooltips_dismissed_' + practiceMatchId;
+            sessionStorage.removeItem(sessionKey);
+        }
+        {% else %}
+        const isPracticeMatch = false;
+        {% endif %}
+        
+        // Run Setup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure tutorial overlay is hidden by default
+            const overlay = document.getElementById('tutorial-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            
+            setupTutorial();
+            // Add tooltips to buttons and stats after a delay to ensure they're rendered
+            setTimeout(() => {
+                // Add tooltips to trading buttons
+                const buyBtns = document.querySelectorAll('.btn-buy');
+                const sellBtns = document.querySelectorAll('.btn-sell');
+                buyBtns.forEach(btn => {
+                    if (typeof addTooltip === 'function') {
+                        addTooltip(btn, 'Buy stocks. Purchase shares at the current price. You need cash to buy!');
+                    } else {
+                        btn.setAttribute('data-tooltip', 'Buy stocks. Purchase shares at the current price. You need cash to buy!');
+                    }
+                });
+                sellBtns.forEach(btn => {
+                    if (typeof addTooltip === 'function') {
+                        addTooltip(btn, 'Sell stocks. Sell your shares at the current price. You need to own stocks to sell!');
+                    } else {
+                        btn.setAttribute('data-tooltip', 'Sell stocks. Sell your shares at the current price. You need to own stocks to sell!');
+                    }
+                });
+                
+                // Add tooltips to stats (Cash, Stock, PnL, Chart)
+                const cashEl = document.getElementById('player-cash');
+                const stockEl = document.getElementById('player-stock');
+                const pnlEl = document.getElementById('player-pnl');
+                const chartEl = document.getElementById('chart-container');
+                
+                if (cashEl && typeof addTooltip === 'function') {
+                    addTooltip(cashEl, 'Your available cash. Use this to buy stocks. You start with $100,000.');
+                }
+                if (stockEl && typeof addTooltip === 'function') {
+                    addTooltip(stockEl, 'Number of shares you currently own. Buy stocks to increase this, sell to decrease it.');
+                }
+                if (pnlEl && typeof addTooltip === 'function') {
+                    addTooltip(pnlEl, 'Profit and Loss. This is your score for the match. Higher PnL wins! Green = profit, Red = loss.');
+                }
+                if (chartEl && typeof addTooltip === 'function') {
+                    addTooltip(chartEl, 'Price chart showing the stock price over time. Green candles = price went up, Red candles = price went down. Use this to predict future price movements!');
+                }
+            }, 1500);
+        });
+
+        function updateState() {
+            fetch('/state')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.player) return;
+
+                    // Update Market
+                    document.getElementById('price-display').innerText = '$' + data.current_stock_price.toFixed(2);
+                    
+                    // Update Timer
+                    const maxTicks = 300;
+                    const ticksRemaining = Math.max(0, maxTicks - data.current_tick);
+                    const mins = Math.floor(ticksRemaining / 60);
+                    const secs = (ticksRemaining % 60).toString().padStart(2, '0');
+                    const timerElem = document.getElementById('game-timer');
+                    if(timerElem) timerElem.innerText = `${mins}:${secs}`;
+                    
+                    // Update Player
+                    document.getElementById('player-cash').innerText = '$' + data.player.capital.toFixed(2);
+                    document.getElementById('player-stock').innerText = data.player.stock_held;
+                    
+                    const pPnl = document.getElementById('player-pnl');
+                    pPnl.innerText = (data.player.match_pnl >= 0 ? '+' : '') + data.player.match_pnl.toFixed(2);
+                    pPnl.className = 'stat-value ' + (data.player.match_pnl >= 0 ? 'positive' : 'negative');
+                    
+                    // Update AI
+                    document.getElementById('ai-cash').innerText = '$' + data.ai_bot.capital.toFixed(2);
+                    document.getElementById('ai-stock').innerText = data.ai_bot.stock_held;
+                    
+                    const aiPnl = document.getElementById('ai-pnl');
+                    aiPnl.innerText = (data.ai_bot.match_pnl >= 0 ? '+' : '') + data.ai_bot.match_pnl.toFixed(2);
+                    aiPnl.className = 'stat-value ' + (data.ai_bot.match_pnl >= 0 ? 'positive' : 'negative');
+
+                    // Update Log
+                    const logBox = document.getElementById('game-log');
+                    logBox.innerHTML = data.game_log.map(l => `<div>${l}</div>`).join('');
+                    logBox.scrollTop = logBox.scrollHeight;
+
+                    // Update Player Log
+                    if(data.player && data.player.game_log) {
+                        const pLog = document.getElementById('player-log');
+                        pLog.innerHTML = data.player.game_log.map(l => `<div>${l}</div>`).join('');
+                        pLog.scrollTop = pLog.scrollHeight;
+                    }
+
+                    // Update AI Log
+                    if(data.ai_bot && data.ai_bot.game_log) {
+                        const aLog = document.getElementById('ai-log');
+                        aLog.innerHTML = data.ai_bot.game_log.map(l => `<div>${l}</div>`).join('');
+                        aLog.scrollTop = aLog.scrollHeight;
+                    }
+
+                    // Apply Visual Effects based on Market Info
+                    const marketPanel = document.getElementById('market-panel');
+                    const playerPanel = document.querySelector('.trader-panel:first-child');
+                    const aiPanel = document.querySelector('.trader-panel:last-child'); // AI Panel
+
+                    // Clear effects first
+                    playerPanel.classList.remove('effect-frozen');
+                    aiPanel.classList.remove('effect-frozen');
+                    marketPanel.classList.remove('effect-pump', 'effect-dump');
+
+                    if (data.market_info.player_frozen || data.market_info.player_cant_sell || data.market_info.player_cant_buy) {
+                        playerPanel.classList.add('effect-frozen');
+                    }
+                    if (data.market_info.ai_bot_frozen || data.market_info.ai_bot_cant_sell) {
+                        aiPanel.classList.add('effect-frozen');
+                    }
+                    if (data.market_info.pump_effect) marketPanel.classList.add('effect-pump');
+                    if (data.market_info.dump_effect) marketPanel.classList.add('effect-dump');
+
+
+                    // Draw Chart
+                    if (data.price_history) {
+                        // Limit to last 30 candles
+                        const visibleHistory = data.price_history.slice(-30);
+                        drawChart(visibleHistory);
+                    }
+
+                    // Render Abilities
+                    const abilityContainer = document.getElementById('ability-container');
+                    abilityContainer.innerHTML = '';
+                    data.player.abilities_equipped.forEach(ab => {
+                        const onCooldown = data.player.abilities_cooldown[ab.id] > 0;
+                        const btn = document.createElement('button');
+                        
+                        // Determine class based on rarity/type
+                        let typeClass = 'ability-btn';
+                        if (ab.rarity === 'Rare') typeClass += ' ability-rare';
+                        if (ab.rarity === 'Epic') typeClass += ' ability-epic';
+                        if (ab.rarity === 'Legendary') typeClass += ' ability-legendary';
+                        
+                        btn.className = `btn ${typeClass}`;
+                        // Add icon or rarity color here if desired
+                        btn.innerHTML = `<span>${ab.name}</span> <span>${onCooldown ? data.player.abilities_cooldown[ab.id] + 's' : 'READY'}</span>`;
+                        btn.disabled = onCooldown;
+                        btn.onclick = () => useAbility(ab.id);
+                        abilityContainer.appendChild(btn);
+                    });
+
+                    if (data.round_over || data.match_over) {
+                         window.location.href = "/round_results";
+                    }
+                });
+        }
+
+        function buyStock(amount) {
+            if (!amount) amount = parseInt(document.getElementById('trade-amount').value) || 10;
+            fetch('/action/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-buy');
+        }
+
+        function sellStock(amount) {
+            if (!amount) amount = parseInt(document.getElementById('trade-amount').value) || 10;
+            fetch('/action/sell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-sell');
+        }
+
+        function buyCustom() {
+            const amt = parseInt(document.getElementById('custom-amount').value) || 0;
+            if(amt > 0) buyStock(amt);
+        }
+
+        function sellCustom() {
+            const amt = parseInt(document.getElementById('custom-amount').value) || 0;
+            if(amt > 0) sellStock(amt);
+        }
+
+        function playSound(id) {
+            const s = document.getElementById(id);
+            if(s) {
+                s.currentTime = 0;
+                s.play().catch(e => {});
+            }
+        }
+
+        function useAbility(id) {
+            fetch('/action/use_ability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ability_id: id })
+            });
+            const sound = document.getElementById('sound-ability');
+            if(sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio play failed", e));
+            }
+        }
+
+        function drawChart(priceHistory) {
+            const canvas = document.getElementById('price-chart');
+            const container = document.getElementById('chart-container');
+            const ctx = canvas.getContext('2d');
+            
+            // Resize canvas to fit container
+            if (canvas.width !== container.clientWidth || canvas.height !== container.clientHeight) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 30; // More padding for price labels
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Grid Background
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < width; i += 40) { ctx.moveTo(i, 0); ctx.lineTo(i, height); }
+            for (let i = 0; i < height; i += 40) { ctx.moveTo(0, i); ctx.lineTo(width, i); }
+            ctx.stroke();
+
+            if (!priceHistory || priceHistory.length === 0) {
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '14px Roboto';
+                ctx.fillText("Waiting for market data...", width / 2 - 70, height / 2);
+                return;
+            }
+
+            // Determine scale
+            let minPrice = Infinity;
+            let maxPrice = -Infinity;
+            
+            priceHistory.forEach(p => {
+                // Handle both old format (price only) and new format (OHLC) for compatibility
+                const high = p.high !== undefined ? p.high : p.price;
+                const low = p.low !== undefined ? p.low : p.price;
+                if (high > maxPrice) maxPrice = high;
+                if (low < minPrice) minPrice = low;
+            });
+            
+            const range = maxPrice - minPrice;
+            const safeRange = range === 0 ? 10 : range;
+            
+            minPrice -= safeRange * 0.1;
+            maxPrice += safeRange * 0.1;
+
+            const numCandles = Math.max(10, priceHistory.length); // Ensure candles have width even if few
+            const candleWidth = (width - padding) / numCandles * 0.6; 
+            const xScale = (width - padding) / numCandles;
+            const yScale = (height - padding * 2) / (maxPrice - minPrice);
+
+            // Draw Candles
+            priceHistory.forEach((point, index) => {
+                const open = point.open !== undefined ? point.open : point.price;
+                const close = point.close !== undefined ? point.close : point.price;
+                const high = point.high !== undefined ? point.high : Math.max(open, close);
+                const low = point.low !== undefined ? point.low : Math.min(open, close);
+                
+                const x = index * xScale + (xScale - candleWidth) / 2;
+                const yOpen = height - padding - (open - minPrice) * yScale;
+                const yClose = height - padding - (close - minPrice) * yScale;
+                const yHigh = height - padding - (high - minPrice) * yScale;
+                const yLow = height - padding - (low - minPrice) * yScale;
+
+                const isGreen = close >= open;
+                ctx.fillStyle = isGreen ? '#22c55e' : '#ef4444';
+                ctx.strokeStyle = isGreen ? '#22c55e' : '#ef4444';
+                ctx.lineWidth = 1;
+
+                // Wick
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, yHigh);
+                ctx.lineTo(x + candleWidth / 2, yLow);
+                ctx.stroke();
+
+                // Body
+                const bodyHeight = Math.max(1, Math.abs(yOpen - yClose));
+                const bodyY = Math.min(yOpen, yClose);
+                ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
+            });
+
+            // Draw Current Price Line
+            const currentPrice = priceHistory[priceHistory.length - 1].close || priceHistory[priceHistory.length - 1].price;
+            const currentY = height - padding - (currentPrice - minPrice) * yScale;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(0, currentY);
+            ctx.lineTo(width, currentY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Price Label
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(width - 50, currentY - 10, 50, 20);
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px monospace';
+            ctx.fillText(currentPrice.toFixed(2), width - 45, currentY + 4);
+        }
+
+        setInterval(updateState, 1000);
+    </script>
+</body>
+</html>
+
+
+
+
+

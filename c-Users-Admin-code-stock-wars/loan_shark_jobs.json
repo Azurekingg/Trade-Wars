@@ -1,0 +1,63 @@
+{
+  "jobs": [
+    {
+      "id": "market_manipulation",
+      "name": "Market Manipulation",
+      "description": "Execute a sequence of BUY/SELL orders under extreme volatility. Hit timing windows precisely.",
+      "difficulty": "hard",
+      "base_payout": 15000,
+      "max_payout": 25000,
+      "time_limit_seconds": 60,
+      "risk_level": "high",
+      "failure_penalty": "double_penalty",
+      "icon": "🧨",
+      "enabled": true
+    },
+    {
+      "id": "insider_cleanup",
+      "name": "Insider Cleanup",
+      "description": "Puzzle-based mini-game: Scrub fake data, hide illegal trades, avoid 'regulator' detection.",
+      "difficulty": "medium",
+      "base_payout": 10000,
+      "max_payout": 20000,
+      "time_limit_seconds": 90,
+      "risk_level": "medium",
+      "failure_penalty": "interest_increase",
+      "icon": "🧠",
+      "enabled": true
+    },
+    {
+      "id": "liquidity_run",
+      "name": "Liquidity Run",
+      "description": "Rapid-fire decision test: Choose which assets to dump, which to protect.",
+      "difficulty": "hard",
+      "base_payout": 20000,
+      "max_payout": 35000,
+      "time_limit_seconds": 45,
+      "risk_level": "extreme",
+      "failure_penalty": "portfolio_damage",
+      "icon": "⚡",
+      "enabled": true
+    },
+    {
+      "id": "enforcer_favor",
+      "name": "Enforcer Favor",
+      "description": "Reflex-based or rhythm-style mini-game. Miss too many inputs → partial debt cleared only.",
+      "difficulty": "medium",
+      "base_payout": 12000,
+      "max_payout": 22000,
+      "time_limit_seconds": 75,
+      "risk_level": "medium",
+      "failure_penalty": "partial_clear",
+      "icon": "🎯",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "perfect_bonus_multiplier": 1.5,
+    "success_threshold": 0.7,
+    "partial_threshold": 0.5
+  }
+}
+
+

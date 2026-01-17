@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Shark Jobs - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/backalley.png') }}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #ef4444;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        h1 {
+            color: #ef4444;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        
+        .loan-status {
+            background: rgba(127, 29, 29, 0.3);
+            border: 2px solid #7f1d1d;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .job-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid;
+            padding: 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .job-card:hover::before {
+            left: 100%;
+        }
+        
+        .job-card.hard { border-color: #ef4444; }
+        .job-card.medium { border-color: #fbbf24; }
+        .job-card.easy { border-color: #22c55e; }
+        
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .job-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .job-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3em;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .job-card.hard .job-name { color: #ef4444; }
+        .job-card.medium .job-name { color: #fbbf24; }
+        .job-card.easy .job-name { color: #22c55e; }
+        
+        .job-description {
+            color: #cbd5e1;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            text-align: center;
+            min-height: 60px;
+        }
+        
+        .job-payout {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .payout-amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #22c55e;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .payout-range {
+            font-size: 0.85em;
+            color: #86efac;
+            margin-top: 5px;
+        }
+        
+        .job-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.85em;
+            color: #94a3b8;
+        }
+        
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .difficulty-hard { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
+        .difficulty-medium { background: rgba(251, 191, 36, 0.2); color: #fef3c7; border: 1px solid #fbbf24; }
+        .difficulty-easy { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; }
+        
+        .btn-back {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+        
+        .btn-back:hover {
+            color: #fff;
+            border-color: #fff;
+            background: rgba(148, 163, 184, 0.1);
+        }
+        
+        .risk-level {
+            font-size: 0.85em;
+            color: #fca5a5;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 Loan Shark Jobs</h1>
+        <div class="subtitle">"You don't have the cash? Fine. You'll work."</div>
+        
+        {% if loan.active %}
+        <div class="loan-status">
+            <h3 style="color: #ef4444; margin-top: 0;">Active Debt: ${{ "{:,}".format(loan.amount) }}</h3>
+            <p style="color: #cbd5e1; margin-bottom: 0;">
+                Complete a job successfully to reduce or clear your debt. Failure makes it worse.
+            </p>
+        </div>
+        {% else %}
+        <div class="loan-status" style="border-color: #22c55e;">
+            <h3 style="color: #22c55e; margin-top: 0;">No Active Debt</h3>
+            <p style="color: #cbd5e1; margin-bottom: 0;">
+                Complete jobs to earn money. Perfect execution earns bonus payouts!
+            </p>
+        </div>
+        {% endif %}
+        
+        <div class="jobs-grid">
+            {% for job in jobs %}
+            <div class="job-card {{ job.difficulty }}" onclick="window.location.href='{{ url_for('start_job', job_id=job.id) }}'">
+                <div class="job-icon">{{ job.icon }}</div>
+                <div class="job-name">{{ job.name }}</div>
+                <div class="job-description">{{ job.description }}</div>
+                
+                <div class="job-payout">
+                    <div class="payout-amount">${{ "{:,}".format(job.base_payout) }}</div>
+                    <div class="payout-range">Up to ${{ "{:,}".format(job.max_payout) }} (Perfect)</div>
+                </div>
+                
+                <div class="job-details">
+                    <div>
+                        <span class="difficulty-badge difficulty-{{ job.difficulty }}">{{ job.difficulty }}</span>
+                    </div>
+                    <div>
+                        <span>⏱️ {{ job.time_limit_seconds }}s</span>
+                    </div>
+                </div>
+                
+                <div class="risk-level">
+                    Risk: <strong>{{ job.risk_level.upper() }}</strong>
+                    {% if job.failure_penalty == 'double_penalty' %}
+                    | Failure: Double Penalty
+                    {% elif job.failure_penalty == 'interest_increase' %}
+                    | Failure: Interest Increase
+                    {% elif job.failure_penalty == 'portfolio_damage' %}
+                    | Failure: Portfolio Damage
+                    {% elif job.failure_penalty == 'partial_clear' %}
+                    | Failure: Partial Clear Only
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="/loan_shark" class="btn-back">← Back to Loan Shark</a>
+        </div>
+    </div>
+    
+    <!-- Audio Logic -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Autoplay prevented'));
+            }
+
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            const jobCards = document.querySelectorAll('.job-card');
+            jobCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+                card.addEventListener('click', function() {
+                    selectSound.currentTime = 0;
+                    selectSound.play().catch(e => {});
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

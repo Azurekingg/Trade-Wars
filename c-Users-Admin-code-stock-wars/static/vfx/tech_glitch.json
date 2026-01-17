@@ -1,0 +1,69 @@
+{
+  "type": "animation",
+  "name": "Tech Glitch Effect",
+  "description": "Tech-themed glitch effect for special events",
+  "glitch": {
+    "intensity": "medium",
+    "duration_ms": 1000,
+    "glitch_count": 5,
+    "glitch_interval_ms": 200
+  },
+  "effects": [
+    {
+      "type": "rgb_split",
+      "intensity": 0.1,
+      "duration_ms": 100
+    },
+    {
+      "type": "scanline",
+      "speed": 10,
+      "opacity": 0.3
+    },
+    {
+      "type": "noise",
+      "intensity": 0.2,
+      "duration_ms": 50
+    }
+  ],
+  "color_shift": {
+    "enabled": true,
+    "hue_shift": 180,
+    "saturation_boost": 1.2
+  },
+  "keyframes": [
+    {
+      "time": 0,
+      "opacity": 1.0,
+      "glitch": false
+    },
+    {
+      "time": 200,
+      "opacity": 0.8,
+      "glitch": true
+    },
+    {
+      "time": 400,
+      "opacity": 1.0,
+      "glitch": false
+    },
+    {
+      "time": 600,
+      "opacity": 0.8,
+      "glitch": true
+    },
+    {
+      "time": 800,
+      "opacity": 1.0,
+      "glitch": false
+    },
+    {
+      "time": 1000,
+      "opacity": 1.0,
+      "glitch": false
+    }
+  ],
+  "easing": "linear"
+}
+
+
+

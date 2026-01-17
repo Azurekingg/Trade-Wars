@@ -1,0 +1,37 @@
+{
+  "type": "particle",
+  "name": "Profit Glow Effect",
+  "description": "Golden glowing particle effect for profit tips",
+  "particles": {
+    "count": 100,
+    "size": {
+      "min": 2,
+      "max": 8
+    },
+    "lifetime": {
+      "min": 500,
+      "max": 2000
+    },
+    "velocity": {
+      "x": {"min": -2, "max": 2},
+      "y": {"min": -2, "max": 2}
+    },
+    "gravity": 0.1,
+    "spread": 360
+  },
+  "colors": ["#fbbf24", "#f59e0b", "#fef3c7", "#fcd34d"],
+  "blend_mode": "additive",
+  "opacity": {
+    "start": 1.0,
+    "end": 0.0
+  },
+  "emitter": {
+    "type": "point",
+    "position": {"x": "center", "y": "center"},
+    "burst": true,
+    "burst_count": 100
+  }
+}
+
+
+

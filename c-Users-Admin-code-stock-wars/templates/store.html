@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Store - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            background-image: 
+                linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 40px;
+            border: 1px solid #1e293b;
+            border-left: 4px solid #fbbf24; /* Gold accent for store */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        h1 { 
+            margin: 0; 
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24; 
+            text-transform: uppercase;
+            font-size: 2.5em;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+            letter-spacing: 2px;
+        }
+        
+        .net-worth {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            color: #34d399;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+            background: rgba(6, 78, 59, 0.4);
+            padding: 10px 20px;
+            border: 1px solid #059669;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .ability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .item-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid #334155;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+        
+        .item-card:hover { 
+            transform: translateY(-5px); 
+            border-color: #fbbf24; 
+            background: rgba(30, 41, 59, 0.7);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .item-name { 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700; 
+            font-size: 1.3em; 
+            color: #f0f9ff;
+            letter-spacing: 1px;
+        }
+        
+        .item-rarity { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7em; 
+            padding: 4px 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .rarity-Common { background: rgba(71, 85, 105, 0.5); color: #cbd5e1; border-color: #64748b; }
+        .rarity-Rare { background: rgba(37, 99, 235, 0.3); color: #60a5fa; border-color: #3b82f6; text-shadow: 0 0 5px #3b82f6; }
+        .rarity-Epic { background: rgba(124, 58, 237, 0.3); color: #c084fc; border-color: #a855f7; text-shadow: 0 0 5px #a855f7; }
+        .rarity-Legendary { background: rgba(234, 88, 12, 0.3); color: #fb923c; border-color: #f97316; text-shadow: 0 0 5px #f97316; }
+
+        .item-desc { 
+            color: #94a3b8; 
+            font-size: 0.95em; 
+            line-height: 1.6;
+            margin-bottom: 20px; 
+            flex-grow: 1; 
+        }
+
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+
+        .item-cost { 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold; 
+            color: #fbbf24; 
+            font-size: 1.2em;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Tech Button Styles */
+        .btn-buy {
+            position: relative;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid #10b981;
+            padding: 10px 24px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.2s;
+        }
+        
+        .btn-buy:disabled { 
+            background: rgba(71, 85, 105, 0.1);
+            border-color: #475569;
+            color: #475569;
+            cursor: not-allowed; 
+            box-shadow: none;
+        }
+        
+        .btn-buy:hover:not(:disabled) { 
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .owned-tag {
+            font-family: 'Orbitron', sans-serif;
+            color: #64748b;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 5px 15px;
+            border: 1px solid #334155;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: #38bdf8; text-shadow: 0 0 5px #38bdf8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Menu</a>
+        
+        <header>
+            <h1>Ability Store</h1>
+            <div class="net-worth">
+                Funds: ${{ "%.2f"|format(player_data.net_worth) }}
+            </div>
+        </header>
+
+        <div class="ability-grid">
+            {% for ability in abilities %}
+            <div class="item-card">
+                <div class="item-header">
+                    <span class="item-name">{{ ability.name }}</span>
+                    <span class="item-rarity rarity-{{ ability.rarity }}">{{ ability.rarity }}</span>
+                </div>
+                <div class="item-desc">
+                    {{ ability.description }}
+                    <br><br>
+                    <small style="color:#64748b">Effect: {{ ability.function }}</small>
+                </div>
+                <div class="item-footer">
+                    <span class="item-cost">${{ ability.cost }}</span>
+                    {% if ability.id in owned_ids %}
+                        <span class="owned-tag">OWNED</span>
+                    {% else %}
+                        <form action="/buy_ability" method="POST">
+                            <input type="hidden" name="ability_id" value="{{ ability.id }}">
+                            <button type="submit" class="btn-buy" 
+                                {{ 'disabled' if player_data.net_worth < ability.cost else '' }}>
+                                Buy
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Audio Logic -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="buy-sound">
+        <source src="{{ url_for('static', filename='sounds/pop-win-casino-winning-398059.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="joke-sound"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var buySound = document.getElementById('buy-sound');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            var jokeSound = document.getElementById('joke-sound');
+            
+            // Load joke sound settings
+            var savedJokeVol = localStorage.getItem('joke_volume');
+            var savedMuteJoke = localStorage.getItem('mute_joke') === 'true';
+            if (savedJokeVol !== null) {
+                jokeSound.volume = parseFloat(savedJokeVol);
+            } else {
+                jokeSound.volume = 1.0;
+            }
+            
+            // Check local storage for settings
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            // Apply Saved Settings
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                buySound.volume = parseFloat(savedSfxVol);
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            // Try to play BGM
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Autoplay prevented'));
+            }
+
+            // Mute toggle
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            // Save time periodically
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            // Save time on unload
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Check for purchased flag to play sound
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('bought') === 'true') {
+                buySound.play().catch(e => console.log("Audio play error:", e));
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Button Hover Sounds
+            const buttons = document.querySelectorAll('button, a, .item-card');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    var savedSfxVol = localStorage.getItem('sfx_volume');
+                    if (savedSfxVol !== null) hoverSound.volume = parseFloat(savedSfxVol);
+                    hoverSound.play().catch(e => {});
+                });
+            });
+            
+            // Ability card hover - chance to play cost_money_joke (once per session)
+            var costMoneyJokePlayed = sessionStorage.getItem('cost_money_joke_played') === 'true';
+            const abilityCards = document.querySelectorAll('.item-card');
+            abilityCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    // 15% chance to play joke when hovering over ability, but only once per session
+                    if (!savedMuteJoke && !costMoneyJokePlayed && Math.random() < 0.15) {
+                        jokeSound.src = "{{ url_for('static', filename='sounds/Cost_money_joke.mp3') }}";
+                        jokeSound.play().catch(e => console.log('Cost money joke play error', e));
+                        costMoneyJokePlayed = true;
+                        sessionStorage.setItem('cost_money_joke_played', 'true');
+                    }
+                });
+            });
+
+            // Selection Sounds (for Buy Buttons click)
+            const buyBtns = document.querySelectorAll('.btn-buy');
+            buyBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectSound.currentTime = 0;
+                    selectSound.play().catch(e => {});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

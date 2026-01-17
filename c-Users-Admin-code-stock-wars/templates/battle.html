@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Stock Trader Multiplayer - Battle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            /* Darker trading floor theme */
+            background: var(--theme-bg);
+            background-size: var(--theme-bg-size, cover);
+            color: var(--theme-text);
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--theme-border);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--theme-accent); /* Neon Cyan */
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--theme-accent);
+        }
+
+        #game-tick-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #94a3b8;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: row; /* Default to 3-column row for desktop */
+            gap: 20px;
+            flex: 1;
+            min-height: 0; /* Important for scrolling flex children */
+        }
+        
+        /* Swap panel order for Player 2 (guest) in multiplayer - they see their panel on the right */
+        #game-container.player-2-view {
+            flex-direction: row-reverse;
+        }
+
+        .panel {
+            background: var(--theme-panel-bg); /* Dark Slate */
+            border-radius: 8px; /* Sharper corners */
+            padding: 20px;
+            border: 1px solid var(--theme-border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            flex: 1; /* Equal width base */
+        }
+
+        /* Market Panel (Center) - slightly wider on desktop */
+        #market-panel {
+            flex: 1.5;
+            align-items: center;
+            position: relative;
+        }
+
+        .panel-title {
+            color: #64748b;
+            font-weight: 900;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--theme-border);
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            width: 100%;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-family: 'Roboto Mono', monospace;
+            color: #f1f5f9;
+        }
+        
+        .positive { color: #4ade80; text-shadow: 0 0 5px rgba(74, 222, 128, 0.2); }
+        .negative { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.2); }
+
+        #price-display-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #price-display {
+            font-size: 3em;
+            font-weight: 900;
+            color: #f8fafc;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 250px;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .log-box {
+            width: 100%;
+            overflow-y: auto;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #94a3b8;
+            box-sizing: border-box;
+            height: 100px; /* Fixed height for box shape */
+            max-height: 100px; /* Prevent growing */
+            flex: 0 0 100px; /* Don't grow or shrink */
+        }
+        
+        .log-box div { margin-bottom: 4px; border-bottom: 1px solid #0f172a; padding-bottom: 2px; }
+
+        .controls-section {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .btn-buy { 
+            background: transparent; 
+            border: 2px solid #22c55e; 
+            color: #22c55e; 
+        }
+        .btn-buy:hover { background: #22c55e; color: #020617; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+
+        .btn-sell { 
+            background: transparent; 
+            border: 2px solid #ef4444; 
+            color: #ef4444; 
+        }
+        .btn-sell:hover { background: #ef4444; color: #020617; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+
+        .abilities-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ability-btn {
+            background: var(--btn-bg);
+            color: var(--btn-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: var(--btn-border);
+            border-left: var(--btn-border-left);
+            font-weight: bold;
+            text-shadow: var(--btn-shadow);
+        }
+
+        
+        .ability-rare { border-left-color: #3b82f6; } /* Blue */
+        .ability-epic { border-left-color: #a855f7; } /* Purple */
+        .ability-legendary { border-left-color: #eab308; background: #422006; } /* Gold */
+        
+        .ability-btn:hover:not(:disabled) {
+            background: #475569;
+        }
+        
+        .ability-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-left-color: #64748b;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 900px) {
+            body {
+                height: 100vh;
+                min-height: 100vh;
+                max-height: 100vh;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+                box-sizing: border-box;
+            }
+            
+            header {
+                flex-direction: row;
+                align-items: center;
+                gap: 3px;
+                margin-bottom: 3px;
+                padding: 3px 5px;
+                height: 35px;
+                min-height: 35px;
+                max-height: 35px;
+            }
+
+            h1 { 
+                font-size: 0.9em; 
+                margin: 0;
+            }
+            #game-timer-display { 
+                font-size: 0.75em !important; 
+            }
+            #game-timer {
+                font-size: 0.9em;
+            }
+
+            #game-container {
+                height: calc(100vh - 38px);
+                max-height: calc(100vh - 38px);
+                overflow: hidden;
+                gap: 3px;
+            }
+
+            .panel {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 5px;
+                min-height: 0;
+                overflow: hidden;
+            }
+            
+            .panel-title {
+                font-size: 0.65em;
+                margin-bottom: 2px;
+                padding-bottom: 2px;
+            }
+            
+            .stat-row {
+                font-size: 0.7em;
+                margin-bottom: 1px;
+            }
+            
+            #price-display {
+                font-size: 1.2em;
+                margin: 2px 0;
+            }
+            
+            .btn {
+                padding: 4px 6px;
+                font-size: 0.7em;
+            }
+
+            .btn-grid {
+                gap: 2px;
+                margin-bottom: 3px;
+            }
+            
+            .ability-btn {
+                padding: 3px 5px;
+                font-size: 0.65em;
+            }
+            
+            .abilities-section { 
+                gap: 2px; 
+            }
+            
+            .controls-section {
+                margin-top: 3px;
+            }
+        }
+
+        /* Portrait Mobile - Simple vertical stack */
+        @media (max-width: 900px) and (orientation: portrait) {
+            body {
+                height: 100dvh;
+                max-height: 100dvh;
+                overflow: hidden;
+                padding: 0;
+                margin: 0;
+            }
+            
+            header {
+                height: 8vh;
+                min-height: 8vh;
+                max-height: 8vh;
+                margin-bottom: 1vh;
+                padding: 1vh 2vw;
+                flex-shrink: 0;
+            }
+            
+            h1 { 
+                font-size: clamp(0.7em, 2.5vw, 0.9em); 
+            }
+            #game-timer-display { 
+                font-size: clamp(0.6em, 2vw, 0.8em) !important; 
+            }
+            #game-timer {
+                font-size: clamp(0.7em, 2.2vw, 0.9em);
+            }
+            
+            #game-container {
+                flex-direction: column;
+                gap: 1vh;
+                height: calc(100dvh - 9vh);
+                max-height: calc(100dvh - 9vh);
+                overflow-y: auto;
+                flex-shrink: 1;
+            }
+            
+            .panel {
+                padding: 1vh 1vw;
+                min-height: auto;
+                overflow-y: visible;
+                flex-shrink: 0;
+            }
+            
+            #market-panel {
+                order: 0;
+                flex: 0 0 auto;
+            }
+            
+            .trader-panel {
+                flex: 0 0 auto;
+            }
+            
+            /* Ensure player panels appear after market panel (chart) */
+            #player-1-panel {
+                order: 1;
+            }
+            
+            #player-2-panel {
+                order: 2;
+            }
+            
+            /* Ensure player 2 trading desk is visible on mobile in multiplayer */
+            #player-2-trading-desk {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Hide AI view on mobile when in multiplayer */
+            #player-2-ai-view {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            
+            /* Ensure all player 2 controls are visible on mobile */
+            #player-2-panel .controls-section {
+                display: flex !important;
+                flex-direction: column !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            #chart-container {
+                height: 20vh;
+                max-height: 20vh;
+                min-height: 20vh;
+                margin-bottom: 1vh;
+                flex-shrink: 0;
+            }
+            
+            .panel-title {
+                font-size: clamp(0.55em, 1.8vw, 0.7em);
+                margin-bottom: 0.5vh;
+                padding-bottom: 0.5vh;
+            }
+            
+            .stat-row {
+                font-size: clamp(0.6em, 2vw, 0.75em);
+                margin-bottom: 0.3vh;
+            }
+            
+            #price-display {
+                font-size: clamp(1em, 4vw, 1.3em);
+                margin: 0.5vh 0;
+            }
+            
+            .btn {
+                padding: 1vh 2vw;
+                font-size: clamp(0.6em, 2vw, 0.75em);
+            }
+            
+            .btn-grid {
+                gap: 1vw;
+                margin-bottom: 1vh;
+            }
+            
+            input[type="number"] {
+                padding: 1vh 1vw !important;
+                font-size: clamp(0.65em, 2vw, 0.8em) !important;
+            }
+            
+            .log-box {
+                height: 10vh;
+                max-height: 10vh;
+                flex: 0 0 10vh;
+                font-size: clamp(0.55em, 1.6vw, 0.7em);
+                padding: 0.5vh;
+            }
+            
+            .ability-btn {
+                padding: 0.8vh 1.5vw;
+                font-size: clamp(0.55em, 1.8vw, 0.7em);
+            }
+            
+            .controls-section {
+                margin-top: 1vh;
+            }
+        }
+
+        /* Landscape Mobile - Row layout */
+        @media (max-width: 900px) and (orientation: landscape) {
+            body {
+                height: 100dvh;
+                max-height: 100dvh;
+                overflow: hidden;
+                padding: 0;
+                margin: 0;
+            }
+            
+            header {
+                height: 10vh;
+                min-height: 10vh;
+                max-height: 10vh;
+                padding: 1vh 1vw;
+                margin-bottom: 0.5vh;
+                flex-shrink: 0;
+            }
+            
+            h1 { 
+                font-size: clamp(0.65em, 2vw, 0.85em); 
+                margin: 0;
+            }
+            #game-timer-display { 
+                font-size: clamp(0.55em, 1.8vw, 0.75em) !important; 
+            }
+            #game-timer {
+                font-size: clamp(0.7em, 2vw, 0.9em);
+            }
+            
+            #game-container {
+                flex-direction: row;
+                gap: 0.5vw;
+                height: calc(100dvh - 10.5vh);
+                max-height: calc(100dvh - 10.5vh);
+                overflow: hidden;
+                flex-shrink: 1;
+            }
+            
+            .panel {
+                flex: 1;
+                overflow-y: auto;
+                min-width: 0;
+                padding: 0.8vh 0.8vw;
+                min-height: 0;
+                flex-shrink: 1;
+            }
+            
+            #market-panel {
+                flex: 1.5;
+            }
+            
+            #chart-container {
+                height: 20vh;
+                max-height: 20vh;
+                min-height: 20vh;
+                margin-bottom: 0.5vh;
+                flex-shrink: 0;
+            }
+            
+            .panel-title {
+                font-size: clamp(0.5em, 1.5vw, 0.65em);
+                margin-bottom: 0.3vh;
+                padding-bottom: 0.3vh;
+            }
+            
+            .stat-row {
+                font-size: clamp(0.55em, 1.6vw, 0.7em);
+                margin-bottom: 0.2vh;
+            }
+            
+            #price-display {
+                font-size: clamp(0.9em, 3vw, 1.2em);
+                margin: 0.3vh 0;
+            }
+            
+            .btn {
+                padding: 0.8vh 1.2vw;
+                font-size: clamp(0.55em, 1.6vw, 0.7em);
+            }
+            
+            .btn-grid {
+                gap: 0.5vw;
+                margin-bottom: 0.5vh;
+            }
+            
+            .ability-btn {
+                padding: 0.6vh 1vw;
+                font-size: clamp(0.5em, 1.4vw, 0.65em);
+            }
+            
+            input[type="number"] {
+                padding: 0.6vh 0.8vw !important;
+                font-size: clamp(0.6em, 1.6vw, 0.75em) !important;
+            }
+            
+            .log-box {
+                height: 12vh;
+                max-height: 12vh;
+                flex: 0 0 12vh;
+                font-size: clamp(0.5em, 1.4vw, 0.65em);
+                padding: 0.5vh;
+            }
+            
+            .controls-section {
+                margin-top: 0.5vh;
+            }
+        }
+
+        .effect-frozen {
+            filter: blur(2px);
+            pointer-events: none;
+            position: relative;
+            animation: freeze-pulse 1.5s infinite;
+        }
+        @keyframes freeze-pulse {
+            0% { box-shadow: 0 0 20px rgba(147, 197, 253, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(147, 197, 253, 0.8), inset 0 0 30px rgba(147, 197, 253, 0.2); }
+            100% { box-shadow: 0 0 20px rgba(147, 197, 253, 0.3); }
+        }
+        .effect-frozen::after {
+            content: "❄️ FROZEN ❄️";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #93c5fd;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(147, 197, 253, 0.8);
+            animation: freeze-text-pulse 1.5s infinite;
+        }
+        @keyframes freeze-text-pulse {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .effect-pump {
+            animation: pulse-green 0.5s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+            100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .effect-dump {
+            animation: pulse-red 0.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+            100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Chart Malfunctioning Effect (Sparks) */
+        .chart-malfunction {
+            position: relative;
+            overflow: visible;
+        }
+        .chart-malfunction::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 100, 0, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 200, 0, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            animation: spark-flicker 0.3s infinite;
+            z-index: 10;
+        }
+        @keyframes spark-flicker {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            25% { opacity: 0.6; transform: scale(1.05); }
+            50% { opacity: 0.4; transform: scale(0.98); }
+            75% { opacity: 0.7; transform: scale(1.02); }
+        }
+        .chart-malfunction::after {
+            content: '⚡';
+            position: absolute;
+            font-size: 2em;
+            color: #ff6b6b;
+            text-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff6b6b;
+            animation: spark-move 2s infinite;
+            pointer-events: none;
+            z-index: 11;
+        }
+        @keyframes spark-move {
+            0% { top: 10%; left: 15%; opacity: 0; }
+            10% { opacity: 1; }
+            20% { top: 30%; left: 60%; opacity: 0.8; }
+            40% { top: 70%; left: 25%; opacity: 1; }
+            60% { top: 40%; left: 80%; opacity: 0.7; }
+            80% { top: 80%; left: 50%; opacity: 0.9; }
+            100% { top: 20%; left: 90%; opacity: 0; }
+        }
+
+        /* Button Glitch Effect */
+        .btn-glitch {
+            animation: glitch-effect 0.5s infinite;
+            position: relative;
+        }
+        @keyframes glitch-effect {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            10% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+            20% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+            30% { transform: translate(-2px, -2px); filter: hue-rotate(270deg); }
+            40% { transform: translate(2px, 2px); filter: hue-rotate(360deg); }
+            50% { transform: translate(0); filter: hue-rotate(0deg); }
+            60% { transform: translate(-1px, 1px); }
+            70% { transform: translate(1px, -1px); }
+            80% { transform: translate(-1px, -1px); }
+            90% { transform: translate(1px, 1px); }
+            100% { transform: translate(0); }
+        }
+        .btn-glitch::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent 48%, rgba(255,255,255,0.3) 50%, transparent 52%);
+            animation: flash-scan 0.3s infinite;
+            pointer-events: none;
+        }
+        @keyframes flash-scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Frozen effect on trade desk buttons */
+        .btn-frozen-effect {
+            animation: button-freeze 1s infinite;
+            opacity: 0.6;
+            cursor: not-allowed;
+            position: relative;
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
+        }
+        
+        @keyframes button-freeze {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+                border-color: #60a5fa;
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(96, 165, 250, 0.8);
+                border-color: #3b82f6;
+            }
+        }
+        
+        .btn-frozen-effect::after {
+            content: '❄️';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.8em;
+            animation: pulse 1s infinite;
+        }
+        
+        /* Trend Lines Button Flashing */
+        .flash-green {
+            animation: flash-green 0.5s infinite;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.8) !important;
+        }
+        @keyframes flash-green {
+            0%, 100% { background-color: #22c55e; border-color: #16a34a; }
+            50% { background-color: #4ade80; border-color: #22c55e; }
+        }
+        
+        .flash-red {
+            animation: flash-red 0.5s infinite;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.8) !important;
+        }
+        @keyframes flash-red {
+            0%, 100% { background-color: #ef4444; border-color: #dc2626; }
+            50% { background-color: #f87171; border-color: #ef4444; }
+        }
+    </style>
+</head>
+<body style="
+    --theme-bg: {{ theme.bg if theme else '#0b0e14' }};
+    --theme-bg-size: {{ theme.bg_size if theme and theme.bg_size else 'cover' }};
+    --theme-panel-bg: {{ theme.panel_bg if theme else '#1e293b' }};
+    --theme-border: {{ theme.border if theme else '#334155' }};
+    --theme-text: {{ theme.text if theme else '#e2e8f0' }};
+    --theme-accent: {{ theme.accent if theme else '#22d3ee' }};
+    --btn-bg: {{ theme.btn_bg if theme and theme.btn_bg else '#334155' }};
+    --btn-color: {{ '#000' if theme and theme.btn_bg else '#e2e8f0' }};
+    --btn-border: {{ '1px solid #000' if theme and theme.btn_bg else 'none' }};
+    --btn-border-left: {{ '1px solid #000' if theme and theme.btn_bg else '4px solid #94a3b8' }};
+    --btn-shadow: none;
+">
+    <header>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <h1>Stock Wars: Live Market</h1>
+            <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e; animation: blink 1s infinite;"></div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:20px;">
+            <div id="game-timer-display" style="font-family:'Roboto Mono', monospace; font-size:1.5em; color:#94a3b8; font-weight:bold;">
+                Time Remaining: <span id="game-timer" style="color:#e2e8f0;">5:00</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button id="chat-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; position: relative;">
+                    💬
+                    <span id="chat-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center;">0</span>
+                </button>
+                <div style="position: relative;">
+                    <button id="settings-btn" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #94a3b8;">⚙️</button>
+                    <div id="settings-menu" style="display: none; position: absolute; top: 100%; right: 0; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; z-index: 1000; min-width: 150px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        <button id="mute-btn" style="display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: none; color: #e2e8f0; padding: 8px; cursor: pointer; text-align: left; font-family: inherit;">
+                            <span id="mute-icon">🔊</span> Mute Music
+                        </button>
+                        <div style="height: 1px; background: #334155; margin: 5px 0;"></div>
+                        <a href="/" id="quit-match-link" style="display: flex; align-items: center; gap: 10px; width: 100%; color: #ef4444; text-decoration: none; padding: 8px; font-weight: bold;">
+                            <span>🚪</span> Quit Match
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <style>
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+    
+    <div id="game-container">
+        <!-- Player Panel -->
+        <div class="panel trader-panel" id="player-1-panel">
+            <div class="panel-title" id="player-1-title">Your Portfolio</div>
+            
+            <div class="stat-row">
+                <span>Cash</span>
+                <span class="stat-value" id="player-cash">$0.00</span>
+            </div>
+            <div class="stat-row">
+                <span>Stock</span>
+                <span class="stat-value" id="player-stock">0</span>
+            </div>
+            <div class="stat-row">
+                <span>PnL</span>
+                <span class="stat-value" id="player-pnl">$0.00</span>
+            </div>
+
+            <div class="controls-section">
+                <div class="panel-title" style="margin-top: 20px;">Trading Desk</div>
+                
+                <!-- Custom Trade Amount -->
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="number" id="custom-amount" value="50" min="1" style="flex: 1; padding: 10px; background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; font-weight: bold; font-family: 'Roboto Mono', monospace;">
+                    <button class="btn btn-buy" style="padding: 10px 20px;" onclick="buyCustom(); playSound('sound-buy');">Buy</button>
+                    <button class="btn btn-sell" style="padding: 10px 20px;" onclick="sellCustom(); playSound('sound-sell');">Sell</button>
+                </div>
+
+                <div class="btn-grid">
+                    <button class="btn btn-buy" onclick="buyStock(10); playSound('sound-buy');">Buy 10</button>
+                    <button class="btn btn-sell" onclick="sellStock(10); playSound('sound-sell');">Sell 10</button>
+                    <button class="btn btn-buy" onclick="buyStock(100); playSound('sound-buy');">Buy 100</button>
+                    <button class="btn btn-sell" onclick="sellStock(100); playSound('sound-sell');">Sell 100</button>
+                </div>
+
+                <div class="panel-title">Abilities</div>
+                <div id="ability-container" class="abilities-section">
+                    <!-- Abilities injected here -->
+                </div>
+            </div>
+            <div class="log-box" id="player-log" style="height: 100px; margin-top: 10px; border-top: 1px solid #334155;"></div>
+        </div>
+
+        <!-- Market Panel -->
+        <div class="panel" id="market-panel">
+            <div class="panel-title">Market Feed</div>
+            
+            <div id="price-display-container">
+                <div id="price-display">$100.00</div>
+            </div>
+
+            <div id="chart-container">
+                <canvas id="price-chart"></canvas>
+                <div class="chart-controls">
+                    <button class="zoom-btn" onclick="adjustZoom(10)">+</button>
+                    <button class="zoom-btn" onclick="adjustZoom(-10)">-</button>
+                </div>
+            </div>
+
+            <style>
+                .chart-controls {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    display: flex;
+                    gap: 5px;
+                }
+                .zoom-btn {
+                    background: rgba(30, 41, 59, 0.8);
+                    color: #e2e8f0;
+                    border: 1px solid #475569;
+                    border-radius: 4px;
+                    width: 30px;
+                    height: 30px;
+                    font-size: 1.2em;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .zoom-btn:hover {
+                    background: #334155;
+                }
+                
+                /* Shake Animation */
+                @keyframes shake {
+                    0% { transform: translate(1px, 1px) rotate(0deg); }
+                    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+                    20% { transform: translate(-3px, 0px) rotate(1deg); }
+                    30% { transform: translate(3px, 2px) rotate(0deg); }
+                    40% { transform: translate(1px, -1px) rotate(1deg); }
+                    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+                    60% { transform: translate(-3px, 1px) rotate(0deg); }
+                    70% { transform: translate(3px, 1px) rotate(-1deg); }
+                    80% { transform: translate(-1px, -1px) rotate(1deg); }
+                    90% { transform: translate(1px, 2px) rotate(0deg); }
+                    100% { transform: translate(1px, -2px) rotate(-1deg); }
+                }
+                
+                .shake-effect {
+                    animation: shake 0.5s; 
+                    animation-iteration-count: 3; /* 1.5s total */
+                    border: 2px solid red !important;
+                    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+                }
+            </style>
+
+            <div class="log-box" id="game-log"></div>
+            
+            <!-- Oracle Guidance Box -->
+            <div id="oracle-guidance" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); border: 2px solid #fbbf24; border-radius: 10px; padding: 20px; z-index: 1000; color: #fbbf24; font-size: 1.2em; text-align: center; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+                🔮 THE ORACLE
+            </div>
+            
+            <!-- Volume Spy Info Box -->
+            <div id="volume-spy-info" style="display: none; position: absolute; top: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); border: 2px solid #3b82f6; border-radius: 8px; padding: 15px; z-index: 1000; color: #60a5fa; font-size: 0.9em; max-width: 250px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);">
+                🔍 VOLUME SPY
+            </div>
+        </div>
+
+        <!-- Audio Elements -->
+        <audio id="sound-buy" src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" preload="auto"></audio>
+        <audio id="sound-sell" src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" preload="auto"></audio>
+        <audio id="sound-ability" src="{{ url_for('static', filename='sounds/ability-activated-6104.mp3') }}" preload="auto"></audio>
+        <audio id="sound-bg-music" src="{{ url_for('static', filename='sounds/amapiano-loop-base-banny-fernandes-297939.mp3') }}" loop preload="auto"></audio>
+        <audio id="joke-sound"></audio>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var bgMusic = document.getElementById('sound-bg-music');
+                var savedBattleMusic = localStorage.getItem('battle_music');
+                
+                // Check if this is Mr. X boss battle - override with Neon Shark
+                var bossId = "{{ boss_id|default('') }}";
+                if (bossId === 'boss_1') {
+                    bgMusic.src = "{{ url_for('static', filename='sounds/Neon Shark Algorithms.mp3') }}";
+                    bgMusic.load();
+                } else if (savedBattleMusic) {
+                    // Use selected battle music if available, otherwise use default
+                    bgMusic.src = "{{ url_for('static', filename='') }}" + savedBattleMusic;
+                    bgMusic.load();
+                }
+                
+                // Always start battle music from beginning
+                bgMusic.currentTime = 0;
+            });
+            
+            // Setup joke sound
+            document.addEventListener('DOMContentLoaded', function() {
+                var jokeSound = document.getElementById('joke-sound');
+                var savedJokeVol = localStorage.getItem('joke_volume');
+                var savedMuteJoke = localStorage.getItem('mute_joke') === 'true';
+                if (savedJokeVol !== null) {
+                    jokeSound.volume = parseFloat(savedJokeVol);
+                } else {
+                    jokeSound.volume = 1.0;
+                }
+                
+                // Track last action time for inactivity joke (once per session)
+                var pickWiselyJokePlayed = sessionStorage.getItem('pick_wisely_joke_played') === 'true';
+                var lastActionTime = Date.now();
+                
+                // Update last action time on any player action
+                function recordAction() {
+                    lastActionTime = Date.now();
+                }
+                
+                // Listen for all player actions
+                document.addEventListener('click', recordAction);
+                document.addEventListener('keydown', recordAction);
+                
+                // Check for inactivity every second
+                setInterval(function() {
+                    var timeSinceLastAction = Date.now() - lastActionTime;
+                    // If 10+ seconds of inactivity and joke hasn't played this session
+                    if (timeSinceLastAction >= 10000 && !pickWiselyJokePlayed && !savedMuteJoke) {
+                        // 20% chance to play joke
+                        if (Math.random() < 0.2) {
+                            jokeSound.src = "{{ url_for('static', filename='sounds/Pick_wisely_joke.mp3') }}";
+                            jokeSound.play().catch(e => console.log('Pick wisely joke play error', e));
+                            pickWiselyJokePlayed = true;
+                            sessionStorage.setItem('pick_wisely_joke_played', 'true');
+                        }
+                    }
+                }, 1000);
+                
+                // Quit match joke sound (once per session)
+                var quitJokePlayed = sessionStorage.getItem('quit_joke_played') === 'true';
+                var quitLink = document.getElementById('quit-match-link');
+                if (quitLink) {
+                    quitLink.addEventListener('click', function(e) {
+                        if (!savedMuteJoke && !quitJokePlayed) {
+                            var quitJokes = [
+                                "{{ url_for('static', filename='sounds/Quitting_joke.mp3') }}",
+                                "{{ url_for('static', filename='sounds/Quitting_valid_joke.mp3') }}"
+                            ];
+                            jokeSound.src = quitJokes[Math.floor(Math.random() * quitJokes.length)];
+                            jokeSound.play().catch(e => console.log('Quit joke play error', e));
+                            sessionStorage.setItem('quit_joke_played', 'true');
+                            // Don't prevent navigation, just play sound
+                        }
+                    });
+                }
+            });
+        </script>
+        <script>
+            // Get player role from template
+            const PLAYER_ROLE = "{{ player_role|default('host') }}";
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio = document.getElementById('sound-bg-music');
+                var settingsBtn = document.getElementById('settings-btn');
+                var settingsMenu = document.getElementById('settings-menu');
+                var muteBtn = document.getElementById('mute-btn');
+                var muteIcon = document.getElementById('mute-icon');
+
+                // Toggle Menu
+                settingsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (settingsMenu.style.display === 'block' && !settingsMenu.contains(e.target) && e.target !== settingsBtn) {
+                        settingsMenu.style.display = 'none';
+                    }
+                });
+
+                // Audio Logic
+                var audio = document.getElementById('sound-bg-music');
+                var sfxAbility = document.getElementById('sound-ability');
+                var sfxBuy = document.getElementById('sound-buy');
+                var sfxSell = document.getElementById('sound-sell');
+
+                var savedBgmVol = localStorage.getItem('bgm_volume');
+                var savedSfxVol = localStorage.getItem('sfx_volume');
+                
+                if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+                if(savedSfxVol !== null) {
+                    if(sfxAbility) sfxAbility.volume = parseFloat(savedSfxVol);
+                    if(sfxBuy) sfxBuy.volume = parseFloat(savedSfxVol);
+                    if(sfxSell) sfxSell.volume = parseFloat(savedSfxVol);
+                }
+
+                var isMuted = localStorage.getItem('bg_music_muted') === 'true'; // Use global mute key
+                
+                audio.muted = isMuted;
+                muteIcon.innerHTML = isMuted ? '🔇' : '🔊';
+
+                var playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => { console.log('Autoplay prevented'); });
+                }
+
+                muteBtn.addEventListener('click', function() {
+                    audio.muted = !audio.muted;
+                    localStorage.setItem('bg_music_muted', audio.muted); // Sync with Index page
+                    muteIcon.innerHTML = audio.muted ? '🔇' : '🔊';
+                    if (audio.paused && !audio.muted) audio.play();
+                });
+            });
+        </script>
+
+        <!-- Opponent/Player 2 Panel -->
+        <div class="panel trader-panel" id="player-2-panel">
+            <div class="panel-title" id="player-2-title">Opponent</div>
+            
+            <!-- Player 2 Controls Section - Everything together (stats, trading, abilities, log) -->
+            <div class="controls-section" id="player-2-trading-desk" style="display: none; visibility: visible;">
+                <!-- Stats -->
+                <div class="stat-row">
+                    <span>Cash</span>
+                    <span class="stat-value" id="ai-cash">$0.00</span>
+                </div>
+                <div class="stat-row">
+                    <span>Stock</span>
+                    <span class="stat-value" id="ai-stock">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>PnL</span>
+                    <span class="stat-value" id="ai-pnl">$0.00</span>
+                </div>
+
+                <div class="panel-title" style="margin-top: 20px;">Trading Desk</div>
+                
+                <!-- Custom Trade Amount -->
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="number" id="opponent-custom-amount" value="50" min="1" style="flex: 1; padding: 10px; background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 4px; font-weight: bold; font-family: 'Roboto Mono', monospace;">
+                    <button class="btn btn-buy" style="padding: 10px 20px;" onclick="buyCustomOpponent(); playSound('sound-buy');">Buy</button>
+                    <button class="btn btn-sell" style="padding: 10px 20px;" onclick="sellCustomOpponent(); playSound('sound-sell');">Sell</button>
+                </div>
+
+                <div class="btn-grid">
+                    <button class="btn btn-buy" onclick="buyStockOpponent(10); playSound('sound-buy');">Buy 10</button>
+                    <button class="btn btn-sell" onclick="sellStockOpponent(10); playSound('sound-sell');">Sell 10</button>
+                    <button class="btn btn-buy" onclick="buyStockOpponent(100); playSound('sound-buy');">Buy 100</button>
+                    <button class="btn btn-sell" onclick="sellStockOpponent(100); playSound('sound-sell');">Sell 100</button>
+                </div>
+
+                <div class="panel-title">Abilities</div>
+                <div id="opponent-ability-container" class="abilities-section">
+                    <!-- Abilities will be rendered here based on role -->
+                </div>
+                
+                <div class="log-box" id="ai-log" style="height: 100px; margin-top: 10px; border-top: 1px solid #334155;"></div>
+            </div>
+            
+            <!-- For AI matches (non-multiplayer), show stats and log outside controls-section -->
+            <div id="player-2-ai-view">
+                <div class="stat-row">
+                    <span>Cash</span>
+                    <span class="stat-value" id="ai-cash-view">$0.00</span>
+                </div>
+                <div class="stat-row">
+                    <span>Stock</span>
+                    <span class="stat-value" id="ai-stock-view">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>PnL</span>
+                    <span class="stat-value" id="ai-pnl-view">$0.00</span>
+                </div>
+                <div class="log-box" id="ai-log-view" style="height: 100px; margin-top: 10px; border-top: 1px solid #334155;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 350px; max-width: 90vw; height: 500px; max-height: 70vh; background: rgba(15, 23, 42, 0.95); border: 2px solid #334155; border-radius: 12px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="background: #1e293b; padding: 15px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="chat-global-btn" class="chat-tab-btn active" style="background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Global</button>
+                <button id="chat-private-btn" class="chat-tab-btn" style="background: #475569; color: #94a3b8; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Private</button>
+            </div>
+            <button id="close-chat-btn" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">×</button>
+        </div>
+        <div id="chat-content" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+            <div id="global-chat" class="chat-section">
+                <div id="global-messages" style="flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 300px;">
+                    <!-- Global messages will appear here -->
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: auto;">
+                    <input type="text" id="global-message-input" placeholder="Type message..." style="flex: 1; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 14px;">
+                    <button id="send-global-btn" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Send</button>
+                </div>
+            </div>
+            <div id="private-chat" class="chat-section" style="display: none;">
+                <div id="friends-list" style="margin-bottom: 10px; max-height: 150px; overflow-y: auto;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">Select Friend:</div>
+                    <div id="friends-list-content">
+                        <!-- Friends will be listed here -->
+                    </div>
+                </div>
+                <div id="private-messages" style="flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 200px;">
+                    <!-- Private messages will appear here -->
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: auto;">
+                    <input type="text" id="private-message-input" placeholder="Type message..." style="flex: 1; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 14px;" disabled>
+                    <button id="send-private-btn" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 10px; background: #1e293b; border-top: 1px solid #334155; border-radius: 0 0 12px 12px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: space-between;">
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">😀</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">😎</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">🔥</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">💪</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">🎯</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">💰</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">📈</button>
+                <button class="emoji-btn" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">📉</button>
+            </div>
+            <button id="invite-friend-btn" style="background: #10b981; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; white-space: nowrap;">📨 Invite</button>
+        </div>
+    </div>
+
+    <script>
+        function updateState() {
+            fetch('/state')
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('State fetch failed:', response.status);
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || !data.player) {
+                        console.log('No game data available yet');
+                        return;
+                    }
+
+                    // Update Market
+                    document.getElementById('price-display').innerText = '$' + data.current_stock_price.toFixed(2);
+                    
+                    // Update Timer
+                    const maxTicks = 300;
+                    const currentTick = data.current_tick || 0;
+                    const ticksRemaining = Math.max(0, maxTicks - currentTick);
+                    const mins = Math.floor(ticksRemaining / 60);
+                    const secs = (ticksRemaining % 60).toString().padStart(2, '0');
+                    const timerElem = document.getElementById('game-timer');
+                    if(timerElem) {
+                        timerElem.innerText = `${mins}:${secs}`;
+                    }
+                    
+                    // Determine which player data to show based on role
+                    let myPlayerData = data.player;
+                    let opponentData = data.ai_bot;
+                    
+                    // In multiplayer, guest sees their data in ai_bot (swapped)
+                    if (data.is_multiplayer && PLAYER_ROLE === 'guest') {
+                        // For guest, their data is in ai_bot after swap
+                        myPlayerData = data.ai_bot;
+                        opponentData = data.player;
+                    }
+                    
+                    // Update Player (always show current player's data)
+                    const playerCashEl = document.getElementById('player-cash');
+                    const playerStockEl = document.getElementById('player-stock');
+                    const playerPnlEl = document.getElementById('player-pnl');
+                    if (playerCashEl && myPlayerData) {
+                        playerCashEl.innerText = '$' + myPlayerData.capital.toFixed(2);
+                    }
+                    if (playerStockEl && myPlayerData) {
+                        playerStockEl.innerText = myPlayerData.stock_held;
+                    }
+                    if (playerPnlEl && myPlayerData) {
+                        const pnlValue = myPlayerData.match_pnl || ((myPlayerData.capital + (myPlayerData.stock_held * data.current_stock_price)) - 10000);
+                        playerPnlEl.innerText = (pnlValue >= 0 ? '+' : '') + pnlValue.toFixed(2);
+                        playerPnlEl.className = 'stat-value ' + (pnlValue >= 0 ? 'positive' : 'negative');
+                    }
+                    
+                    // Update Player 2/Opponent - sync to both views (multiplayer and AI view)
+                    const opponentCash = '$' + opponentData.capital.toFixed(2);
+                    const opponentStock = opponentData.stock_held;
+                    const opponentPnlValue = opponentData.match_pnl || ((opponentData.capital + (opponentData.stock_held * data.current_stock_price)) - 10000);
+                    const opponentPnlText = (opponentPnlValue >= 0 ? '+' : '') + opponentPnlValue.toFixed(2);
+                    const opponentPnlClass = 'stat-value ' + (opponentPnlValue >= 0 ? 'positive' : 'negative');
+                    
+                    // Update multiplayer view (inside controls-section)
+                    const aiCashEl = document.getElementById('ai-cash');
+                    const aiStockEl = document.getElementById('ai-stock');
+                    const aiPnlEl = document.getElementById('ai-pnl');
+                    if (aiCashEl) aiCashEl.innerText = opponentCash;
+                    if (aiStockEl) aiStockEl.innerText = opponentStock;
+                    if (aiPnlEl) {
+                        aiPnlEl.innerText = opponentPnlText;
+                        aiPnlEl.className = opponentPnlClass;
+                    }
+                    
+                    // Update AI-only view (outside controls-section)
+                    const aiCashViewEl = document.getElementById('ai-cash-view');
+                    const aiStockViewEl = document.getElementById('ai-stock-view');
+                    const aiPnlViewEl = document.getElementById('ai-pnl-view');
+                    if (aiCashViewEl) aiCashViewEl.innerText = opponentCash;
+                    if (aiStockViewEl) aiStockViewEl.innerText = opponentStock;
+                    if (aiPnlViewEl) {
+                        aiPnlViewEl.innerText = opponentPnlText;
+                        aiPnlViewEl.className = opponentPnlClass;
+                    }
+                    
+                    // Update Player 3 and Player 4 if they exist
+                    if (data.player3) {
+                        const p3Cash = '$' + data.player3.capital.toFixed(2);
+                        const p3Stock = data.player3.stock_held;
+                        const p3PnlValue = data.player3.match_pnl || ((data.player3.capital + (data.player3.stock_held * data.current_stock_price)) - 10000);
+                        const p3PnlText = (p3PnlValue >= 0 ? '+' : '') + p3PnlValue.toFixed(2);
+                        const p3PnlClass = 'stat-value ' + (p3PnlValue >= 0 ? 'positive' : 'negative');
+                        const p3CashEl = document.getElementById('player-3-cash');
+                        const p3StockEl = document.getElementById('player-3-stock');
+                        const p3PnlEl = document.getElementById('player-3-pnl');
+                        if (p3CashEl) p3CashEl.innerText = p3Cash;
+                        if (p3StockEl) p3StockEl.innerText = p3Stock;
+                        if (p3PnlEl) {
+                            p3PnlEl.innerText = p3PnlText;
+                            p3PnlEl.className = p3PnlClass;
+                        }
+                    }
+                    
+                    if (data.player4) {
+                        const p4Cash = '$' + data.player4.capital.toFixed(2);
+                        const p4Stock = data.player4.stock_held;
+                        const p4PnlValue = data.player4.match_pnl || ((data.player4.capital + (data.player4.stock_held * data.current_stock_price)) - 10000);
+                        const p4PnlText = (p4PnlValue >= 0 ? '+' : '') + p4PnlValue.toFixed(2);
+                        const p4PnlClass = 'stat-value ' + (p4PnlValue >= 0 ? 'positive' : 'negative');
+                        const p4CashEl = document.getElementById('player-4-cash');
+                        const p4StockEl = document.getElementById('player-4-stock');
+                        const p4PnlEl = document.getElementById('player-4-pnl');
+                        if (p4CashEl) p4CashEl.innerText = p4Cash;
+                        if (p4StockEl) p4StockEl.innerText = p4Stock;
+                        if (p4PnlEl) {
+                            p4PnlEl.innerText = p4PnlText;
+                            p4PnlEl.className = p4PnlClass;
+                        }
+                    }
+
+                    // Update Log
+                    const logBox = document.getElementById('game-log');
+                    logBox.innerHTML = data.game_log.map(l => `<div>${l}</div>`).join('');
+                    logBox.scrollTop = logBox.scrollHeight;
+
+                    // Update Player Log (use myPlayerData for correct log)
+                    if(myPlayerData && myPlayerData.game_log) {
+                        const pLog = document.getElementById('player-log');
+                        if(pLog) {
+                            pLog.innerHTML = myPlayerData.game_log.map(l => `<div>${l}</div>`).join('');
+                            pLog.scrollTop = pLog.scrollHeight;
+                        }
+                    }
+
+                    // Update Player 2/Opponent Log - sync to both views
+                    if(opponentData && opponentData.game_log) {
+                        const logContent = opponentData.game_log.map(l => `<div>${l}</div>`).join('');
+                        const aLog = document.getElementById('ai-log');
+                        if(aLog) {
+                            aLog.innerHTML = logContent;
+                            aLog.scrollTop = aLog.scrollHeight;
+                        }
+                        const aLogView = document.getElementById('ai-log-view');
+                        if(aLogView) {
+                            aLogView.innerHTML = logContent;
+                            aLogView.scrollTop = aLogView.scrollHeight;
+                        }
+                    }
+                    
+                    // Update Player 3 and Player 4 logs if they exist
+                    if (data.player3 && data.player3.game_log) {
+                        const p3Log = document.getElementById('player-3-log');
+                        if (p3Log) {
+                            p3Log.innerHTML = data.player3.game_log.map(l => `<div>${l}</div>`).join('');
+                            p3Log.scrollTop = p3Log.scrollHeight;
+                        }
+                    }
+                    
+                    if (data.player4 && data.player4.game_log) {
+                        const p4Log = document.getElementById('player-4-log');
+                        if (p4Log) {
+                            p4Log.innerHTML = data.player4.game_log.map(l => `<div>${l}</div>`).join('');
+                            p4Log.scrollTop = p4Log.scrollHeight;
+                        }
+                    }
+
+                    // Apply Visual Effects based on Market Info
+                    const marketPanel = document.getElementById('market-panel');
+                    const chartContainer = document.getElementById('chart-container');
+                    const player1Panel = document.getElementById('player-1-panel');
+                    const player2Panel = document.getElementById('player-2-panel');
+                    
+                    // Determine which panel is "yours" and which is opponent based on role (only in multiplayer)
+                    const yourPanel = (PLAYER_ROLE === 'guest' && data.is_multiplayer) ? player2Panel : player1Panel;
+                    const opponentPanel = (PLAYER_ROLE === 'guest' && data.is_multiplayer) ? player1Panel : player2Panel;
+
+                    // Clear effects first
+                    if (yourPanel) yourPanel.classList.remove('effect-frozen');
+                    if (opponentPanel) opponentPanel.classList.remove('effect-frozen');
+                    if (marketPanel) marketPanel.classList.remove('effect-pump', 'effect-dump');
+                    if (chartContainer) chartContainer.classList.remove('chart-malfunction');
+
+                    // Chart malfunctioning (negative effects) - check both players' status
+                    const anyFrozen = data.market_info.player_frozen || data.market_info.ai_bot_frozen;
+                    const anyAudit = (data.market_info.player_audit && data.market_info.player_audit > 0) ||
+                                     (data.market_info.ai_bot_audit && data.market_info.ai_bot_audit > 0);
+                    if (chartContainer && (data.market_info.dump_effect || anyFrozen || anyAudit)) {
+                        chartContainer.classList.add('chart-malfunction');
+                    }
+
+                    // Apply frozen effects - need to check correct keys based on role
+                    const yourFrozen = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.ai_bot_frozen || data.market_info.ai_bot_cant_sell || data.market_info.ai_bot_cant_buy)
+                        : (data.market_info.player_frozen || data.market_info.player_cant_sell || data.market_info.player_cant_buy);
+                    const opponentFrozen = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.player_frozen || data.market_info.player_cant_sell || data.market_info.player_cant_buy)
+                        : (data.market_info.ai_bot_frozen || data.market_info.ai_bot_cant_sell || data.market_info.ai_bot_cant_buy);
+                    
+                    if (yourPanel && yourFrozen) {
+                        yourPanel.classList.add('effect-frozen');
+                    } else if (yourPanel) {
+                        yourPanel.classList.remove('effect-frozen');
+                    }
+                    if (opponentPanel && opponentFrozen) {
+                        opponentPanel.classList.add('effect-frozen');
+                    } else if (opponentPanel) {
+                        opponentPanel.classList.remove('effect-frozen');
+                    }
+                    if (marketPanel && data.market_info.pump_effect) marketPanel.classList.add('effect-pump');
+                    if (marketPanel && data.market_info.dump_effect) marketPanel.classList.add('effect-dump');
+
+
+                    // Smoke Screen: Hide chart from current player only if opponent used it on them
+                    // Check based on player role - hide if opponent's smoke screen affects this player
+                    const chartHidden = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.player_chart_hidden && data.market_info.player_chart_hidden > 0)
+                        : (data.market_info.ai_bot_chart_hidden && data.market_info.ai_bot_chart_hidden > 0);
+                    
+                    if (chartHidden) {
+                        chartContainer.style.opacity = '0';
+                        chartContainer.style.pointerEvents = 'none';
+                        chartContainer.style.filter = 'blur(10px)';
+                    } else {
+                        chartContainer.style.opacity = '1';
+                        chartContainer.style.pointerEvents = 'auto';
+                        chartContainer.style.filter = 'none';
+                    }
+                    
+                    // Trend Lines: Flash buttons based on prediction - only on YOUR panel
+                    const yourBuyBtns = yourPanel ? yourPanel.querySelectorAll('.btn-buy, button[onclick*="buy"], button[onclick*="Buy"]') : [];
+                    const yourSellBtns = yourPanel ? yourPanel.querySelectorAll('.btn-sell, button[onclick*="sell"], button[onclick*="Sell"]') : [];
+                    if (data.market_info.trend_lines_active && data.market_info.trend_lines_active > 0) {
+                        if (data.market_info.trend_lines_good) {
+                            // Good ticks coming - flash buy button green
+                            yourBuyBtns.forEach(btn => {
+                                if (btn && btn.classList) {
+                                    btn.classList.add('flash-green');
+                                    btn.classList.remove('flash-red');
+                                }
+                            });
+                            yourSellBtns.forEach(btn => {
+                                if (btn && btn.classList) {
+                                    btn.classList.remove('flash-red');
+                                }
+                            });
+                        } else {
+                            // Bad ticks coming - flash sell button red
+                            yourSellBtns.forEach(btn => {
+                                if (btn && btn.classList) {
+                                    btn.classList.add('flash-red');
+                                    btn.classList.remove('flash-green');
+                                }
+                            });
+                            yourBuyBtns.forEach(btn => {
+                                if (btn && btn.classList) {
+                                    btn.classList.remove('flash-green');
+                                }
+                            });
+                        }
+                    } else {
+                        yourBuyBtns.forEach(btn => {
+                            if (btn && btn.classList) {
+                                btn.classList.remove('flash-green', 'flash-red');
+                            }
+                        });
+                        yourSellBtns.forEach(btn => {
+                            if (btn && btn.classList) {
+                                btn.classList.remove('flash-green', 'flash-red');
+                            }
+                        });
+                    }
+                    
+                    // Opponent ability effects on YOUR trade desk buttons only
+                    // Player 1 uses ability -> affects Player 2 (ai_bot in state)
+                    // Player 2 uses ability -> affects Player 1 (player in state, swapped for guest)
+                    // Reuse existing panel variables from above
+                    
+                    // Determine which panel is "yours" based on role (only swap in multiplayer)
+                    // yourPanel and opponentPanel are already defined above, reuse them
+                    
+                    // Check if YOU are affected by opponent abilities
+                    // In state: player = you, ai_bot = opponent (swapped for guest in backend)
+                    // But market_info keys are NOT swapped, so we need to check the correct key based on role
+                    // For host: check player_* keys (they are player in backend)
+                    // For guest: check ai_bot_* keys (they are ai_bot in backend, but player in swapped frontend state)
+                    const playerCantBuy = (PLAYER_ROLE === 'guest' && data.is_multiplayer) 
+                        ? (data.market_info.ai_bot_cant_buy || false)
+                        : (data.market_info.player_cant_buy || false);
+                    const playerCantSell = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.ai_bot_cant_sell || false)
+                        : (data.market_info.player_cant_sell || false);
+                    const playerFrozen = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.ai_bot_frozen || false)
+                        : (data.market_info.player_frozen || false);
+                    const playerAudit = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? (data.market_info.ai_bot_audit && data.market_info.ai_bot_audit > 0)
+                        : (data.market_info.player_audit && data.market_info.player_audit > 0);
+                    
+                    // Apply visual effects to YOUR buttons when affected
+                    if (yourBuyBtns && yourSellBtns && yourBuyBtns.length > 0 && yourSellBtns.length > 0) {
+                        if (playerCantBuy || playerFrozen) {
+                            yourBuyBtns.forEach(btn => {
+                                if (btn && btn.classList) {
+                                    btn.classList.add('btn-frozen-effect');
+                                    btn.disabled = true;
+                                }
+                            });
+                    } else {
+                        yourBuyBtns.forEach(btn => {
+                            if (btn && btn.classList) {
+                                btn.classList.remove('btn-frozen-effect');
+                                btn.disabled = false;
+                            }
+                        });
+                    }
+                    
+                    if (playerCantSell || playerFrozen) {
+                        yourSellBtns.forEach(btn => {
+                            if (btn && btn.classList) {
+                                btn.classList.add('btn-frozen-effect');
+                                btn.disabled = true;
+                            }
+                        });
+                    } else {
+                        yourSellBtns.forEach(btn => {
+                            if (btn && btn.classList) {
+                                btn.classList.remove('btn-frozen-effect');
+                                btn.disabled = false;
+                            }
+                        });
+                    }
+                    }
+                    
+                    // Audit effect - glitch effect on buttons
+                    if (playerAudit) {
+                        yourBuyBtns.forEach(btn => btn.classList.add('btn-glitch'));
+                        yourSellBtns.forEach(btn => btn.classList.add('btn-glitch'));
+                    } else {
+                        yourBuyBtns.forEach(btn => btn.classList.remove('btn-glitch'));
+                        yourSellBtns.forEach(btn => btn.classList.remove('btn-glitch'));
+                    }
+                    
+                    // The Oracle: Show guidance text box
+                    const oracleBox = document.getElementById('oracle-guidance');
+                    if (oracleBox) {
+                        if (data.market_info.oracle_active && !data.market_info.oracle_used) {
+                            const currentTick = data.current_tick;
+                            const buyTime = data.market_info.oracle_buy_time;
+                            const sellTime = data.market_info.oracle_sell_time;
+                            
+                            if (currentTick < buyTime) {
+                                oracleBox.style.display = 'block';
+                                oracleBox.innerHTML = `🔮 THE ORACLE: Buy at tick ${buyTime}, then sell at tick ${sellTime}`;
+                            } else if (currentTick >= buyTime && currentTick < sellTime) {
+                                oracleBox.style.display = 'block';
+                                oracleBox.innerHTML = `🔮 THE ORACLE: SELL NOW at tick ${sellTime}`;
+                            } else if (currentTick >= sellTime) {
+                                oracleBox.style.display = 'none';
+                                // Mark as used
+                                data.market_info.oracle_used = true;
+                            }
+                        } else {
+                            oracleBox.style.display = 'none';
+                        }
+                    }
+                    
+                    // Volume Spy: Show revealed ability info
+                    const volumeSpyBox = document.getElementById('volume-spy-info');
+                    if (volumeSpyBox) {
+                        const spyReveal = data.market_info.player_volume_spy_reveal;
+                        if (spyReveal) {
+                            volumeSpyBox.style.display = 'block';
+                            volumeSpyBox.innerHTML = `🔍 VOLUME SPY: Opponent has <strong>${spyReveal.name}</strong> (${spyReveal.rarity})<br><small>${spyReveal.description || ''}</small>`;
+                        } else {
+                            volumeSpyBox.style.display = 'none';
+                        }
+                    }
+                    
+                    // Draw Chart - ensure it's called every update
+                    if (data.price_history && data.price_history.length > 0) {
+                        // Limit to last 30 candles
+                        const visibleHistory = data.price_history.slice(-30);
+                        drawChart(visibleHistory);
+                    } else {
+                        // Draw empty chart if no data yet
+                        const canvas = document.getElementById('price-chart');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#94a3b8';
+                            ctx.font = '14px Roboto';
+                            ctx.fillText("Waiting for market data...", canvas.width / 2 - 70, canvas.height / 2);
+                        }
+                    }
+
+                    // Panel swap ONLY for multiplayer - Player 2 (guest) sees their panel on the right
+                    const gameContainer = document.getElementById('game-container');
+                    if (data.is_multiplayer) {
+                        // Get game mode first before using it
+                        const gameMode = data.game_mode || 'one_v_one';
+                        
+                        // Multiplayer: Swap panels for guest so they see their interface on the right
+                        // Use actual usernames instead of "Host"/"Guest"
+                        var p1Username = data.host_username || data.players?.[0]?.username || 'Player 1';
+                        var p2Username = data.guest_username || data.players?.[1]?.username || 'Player 2';
+                        
+                        // For free-for-all, all players have the same layout (no swap)
+                        // For other modes, swap for guest
+                        if (gameMode === 'free_for_all') {
+                            gameContainer.classList.remove('player-2-view');
+                            document.getElementById('player-1-title').innerText = p1Username;
+                            document.getElementById('player-2-title').innerText = p2Username;
+                        } else if (PLAYER_ROLE === 'guest') {
+                            gameContainer.classList.add('player-2-view');
+                            document.getElementById('player-1-title').innerText = p1Username;
+                            document.getElementById('player-2-title').innerText = p2Username;
+                        } else {
+                            gameContainer.classList.remove('player-2-view');
+                            document.getElementById('player-1-title').innerText = p1Username;
+                            document.getElementById('player-2-title').innerText = p2Username;
+                        }
+                        // Show Player 2 trading desk in multiplayer, hide AI view
+                        const opponentTradingDesk = document.getElementById('player-2-trading-desk');
+                        const aiView = document.getElementById('player-2-ai-view');
+                        if (opponentTradingDesk) {
+                            opponentTradingDesk.style.display = 'block';
+                            opponentTradingDesk.style.visibility = 'visible';
+                            opponentTradingDesk.style.opacity = '1';
+                            opponentTradingDesk.style.position = 'relative';
+                            // Force visibility on mobile with important flag
+                            opponentTradingDesk.style.setProperty('display', 'block', 'important');
+                            opponentTradingDesk.style.setProperty('visibility', 'visible', 'important');
+                            opponentTradingDesk.style.setProperty('opacity', '1', 'important');
+                        }
+                        if (aiView) {
+                            aiView.style.display = 'none';
+                            aiView.style.visibility = 'hidden';
+                        }
+                        
+                        // Show/hide Player 3 and 4 panels based on game mode (gameMode already declared above)
+                        const player3Panel = document.getElementById('player-3-panel');
+                        const player4Panel = document.getElementById('player-4-panel');
+                        
+                        if (gameMode === 'free_for_all' || gameMode === 'coop') {
+                            // Show player 3 and 4 panels if players exist
+                            if (player3Panel) {
+                                const p3Username = data.p3_username || data.players?.[2]?.username;
+                                if (p3Username) {
+                                    player3Panel.style.display = 'flex';
+                                    document.getElementById('player-3-title').innerText = p3Username;
+                                }
+                            }
+                            if (player4Panel) {
+                                const p4Username = data.p4_username || data.players?.[3]?.username;
+                                if (p4Username) {
+                                    player4Panel.style.display = 'flex';
+                                    document.getElementById('player-4-title').innerText = p4Username;
+                                }
+                            }
+                        } else {
+                            // Hide for 1v1
+                            if (player3Panel) player3Panel.style.display = 'none';
+                            if (player4Panel) player4Panel.style.display = 'none';
+                        }
+                    } else {
+                        // AI match: Normal layout, no swap - show AI view, hide trading desk
+                        gameContainer.classList.remove('player-2-view');
+                        document.getElementById('player-1-title').innerText = 'Your Portfolio';
+                        document.getElementById('player-2-title').innerText = 'Opponent';
+                        const opponentTradingDesk = document.getElementById('player-2-trading-desk');
+                        const aiView = document.getElementById('player-2-ai-view');
+                        if (opponentTradingDesk) opponentTradingDesk.style.display = 'none';
+                        if (aiView) aiView.style.display = 'block';
+                    }
+                    
+                    // Render Abilities - each player sees their own abilities
+                    // For host: ability-container (left panel)
+                    // For guest: opponent-ability-container (right panel after swap)
+                    const yourAbilityContainer = (PLAYER_ROLE === 'guest' && data.is_multiplayer) 
+                        ? document.getElementById('opponent-ability-container') 
+                        : document.getElementById('ability-container');
+                    const opponentAbilityContainer = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                        ? document.getElementById('ability-container')
+                        : document.getElementById('opponent-ability-container');
+                    
+                    // Render YOUR abilities
+                    if (yourAbilityContainer && data.player) {
+                        if (data.player.abilities_equipped && Array.isArray(data.player.abilities_equipped) && data.player.abilities_equipped.length > 0) {
+                            yourAbilityContainer.innerHTML = '';
+                            data.player.abilities_equipped.forEach(ab => {
+                                const onCooldown = data.player.abilities_cooldown && data.player.abilities_cooldown[ab.id] > 0;
+                            const btn = document.createElement('button');
+                            
+                            // Determine class based on rarity/type
+                            let typeClass = 'ability-btn';
+                            if (ab.rarity === 'Rare') typeClass += ' ability-rare';
+                            if (ab.rarity === 'Epic') typeClass += ' ability-epic';
+                            if (ab.rarity === 'Legendary') typeClass += ' ability-legendary';
+                            
+                            btn.className = `btn ${typeClass}`;
+                            btn.innerHTML = `<span>${ab.name}</span> <span>${onCooldown ? data.player.abilities_cooldown[ab.id] + 's' : 'READY'}</span>`;
+                            btn.disabled = onCooldown;
+                            btn.onclick = () => useAbility(ab.id);
+                            
+                            // Apply glitch effect if button is affected by negative ability
+                            // Check correct keys based on role
+                            const isAffected = (PLAYER_ROLE === 'guest' && data.is_multiplayer)
+                                ? (data.market_info.ai_bot_frozen || 
+                                   data.market_info.ai_bot_cant_buy || 
+                                   data.market_info.ai_bot_cant_sell ||
+                                   (data.market_info.ai_bot_audit && data.market_info.ai_bot_audit > 0))
+                                : (data.market_info.player_frozen || 
+                                   data.market_info.player_cant_buy || 
+                                   data.market_info.player_cant_sell ||
+                                   (data.market_info.player_audit && data.market_info.player_audit > 0));
+                            if (isAffected && onCooldown) {
+                                btn.classList.add('btn-glitch');
+                            }
+                            
+                            yourAbilityContainer.appendChild(btn);
+                            });
+                        } else {
+                            // No abilities equipped
+                            yourAbilityContainer.innerHTML = '<div style="color: #64748b; font-size: 0.9em; text-align: center; padding: 10px;">No abilities equipped</div>';
+                        }
+                    }
+                    
+                    // Opponent abilities are always hidden
+                    if (opponentAbilityContainer) {
+                        opponentAbilityContainer.innerHTML = '<div style="color: #64748b; font-size: 0.9em; text-align: center; padding: 10px;">Opponent Abilities Hidden</div>';
+                    }
+
+                    if (data.round_over || data.match_over) {
+                         window.location.href = "/round_results";
+                    }
+                });
+        }
+
+        function buyStock(amount) {
+            if (!amount) amount = parseInt(document.getElementById('trade-amount').value) || 10;
+            fetch('/action/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-buy');
+        }
+
+        function sellStock(amount) {
+            if (!amount) amount = parseInt(document.getElementById('trade-amount').value) || 10;
+            fetch('/action/sell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-sell');
+        }
+
+        function buyCustom() {
+            const amt = parseInt(document.getElementById('custom-amount').value) || 0;
+            if(amt > 0) {
+                buyStock(amt);
+                playSound('sound-buy');
+            }
+        }
+
+        function sellCustom() {
+            const amt = parseInt(document.getElementById('custom-amount').value) || 0;
+            if(amt > 0) {
+                sellStock(amt);
+                playSound('sound-sell');
+            }
+        }
+
+        function playSound(id) {
+            const s = document.getElementById(id);
+            if(s) {
+                s.currentTime = 0;
+                s.play().catch(e => {});
+            }
+        }
+
+        function buyStockOpponent(amount) {
+            if (!amount) amount = parseInt(document.getElementById('opponent-custom-amount').value) || 10;
+            fetch('/action/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-buy');
+        }
+
+        function sellStockOpponent(amount) {
+            if (!amount) amount = parseInt(document.getElementById('opponent-custom-amount').value) || 10;
+            fetch('/action/sell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: amount })
+            });
+            playSound('sound-sell');
+        }
+
+        function buyCustomOpponent() {
+            const amt = parseInt(document.getElementById('opponent-custom-amount').value) || 0;
+            if(amt > 0) {
+                buyStockOpponent(amt);
+                playSound('sound-buy');
+            }
+        }
+
+        function sellCustomOpponent() {
+            const amt = parseInt(document.getElementById('opponent-custom-amount').value) || 0;
+            if(amt > 0) {
+                sellStockOpponent(amt);
+                playSound('sound-sell');
+            }
+        }
+
+        function useAbilityOpponent(id) {
+            fetch('/action/use_ability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ability_id: id })
+            });
+            playSound('sound-ability');
+        }
+
+        function useAbility(id) {
+            fetch('/action/use_ability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ability_id: id })
+            });
+            const sound = document.getElementById('sound-ability');
+            if(sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio play failed", e));
+            }
+        }
+
+        function drawChart(priceHistory) {
+            const canvas = document.getElementById('price-chart');
+            const container = document.getElementById('chart-container');
+            const ctx = canvas.getContext('2d');
+            
+            // Resize canvas to fit container
+            if (canvas.width !== container.clientWidth || canvas.height !== container.clientHeight) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 30; // More padding for price labels
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Grid Background
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < width; i += 40) { ctx.moveTo(i, 0); ctx.lineTo(i, height); }
+            for (let i = 0; i < height; i += 40) { ctx.moveTo(0, i); ctx.lineTo(width, i); }
+            ctx.stroke();
+
+            if (!priceHistory || priceHistory.length === 0) {
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '14px Roboto';
+                ctx.fillText("Waiting for market data...", width / 2 - 70, height / 2);
+                return;
+            }
+
+            // Determine scale
+            let minPrice = Infinity;
+            let maxPrice = -Infinity;
+            
+            priceHistory.forEach(p => {
+                // Handle both old format (price only) and new format (OHLC) for compatibility
+                const high = p.high !== undefined ? p.high : p.price;
+                const low = p.low !== undefined ? p.low : p.price;
+                if (high > maxPrice) maxPrice = high;
+                if (low < minPrice) minPrice = low;
+            });
+            
+            const range = maxPrice - minPrice;
+            const safeRange = range === 0 ? 10 : range;
+            
+            minPrice -= safeRange * 0.1;
+            maxPrice += safeRange * 0.1;
+
+            const numCandles = Math.max(10, priceHistory.length); // Ensure candles have width even if few
+            const candleWidth = (width - padding) / numCandles * 0.6; 
+            const xScale = (width - padding) / numCandles;
+            const yScale = (height - padding * 2) / (maxPrice - minPrice);
+
+            // Draw Candles
+            priceHistory.forEach((point, index) => {
+                const open = point.open !== undefined ? point.open : point.price;
+                const close = point.close !== undefined ? point.close : point.price;
+                const high = point.high !== undefined ? point.high : Math.max(open, close);
+                const low = point.low !== undefined ? point.low : Math.min(open, close);
+                
+                const x = index * xScale + (xScale - candleWidth) / 2;
+                const yOpen = height - padding - (open - minPrice) * yScale;
+                const yClose = height - padding - (close - minPrice) * yScale;
+                const yHigh = height - padding - (high - minPrice) * yScale;
+                const yLow = height - padding - (low - minPrice) * yScale;
+
+                const isGreen = close >= open;
+                ctx.fillStyle = isGreen ? '#22c55e' : '#ef4444';
+                ctx.strokeStyle = isGreen ? '#22c55e' : '#ef4444';
+                ctx.lineWidth = 1;
+
+                // Wick
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, yHigh);
+                ctx.lineTo(x + candleWidth / 2, yLow);
+                ctx.stroke();
+
+                // Body
+                const bodyHeight = Math.max(1, Math.abs(yOpen - yClose));
+                const bodyY = Math.min(yOpen, yClose);
+                ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
+            });
+
+            // Draw Current Price Line
+            const currentPrice = priceHistory[priceHistory.length - 1].close || priceHistory[priceHistory.length - 1].price;
+            const currentY = height - padding - (currentPrice - minPrice) * yScale;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(0, currentY);
+            ctx.lineTo(width, currentY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Price Label
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(width - 50, currentY - 10, 50, 20);
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px monospace';
+            ctx.fillText(currentPrice.toFixed(2), width - 45, currentY + 4);
+        }
+
+        setInterval(updateState, 1000);
+        
+        // Chat System
+        const chatBtn = document.getElementById('chat-btn');
+        const chatModal = document.getElementById('chat-modal');
+        const closeChatBtn = document.getElementById('close-chat-btn');
+        const chatGlobalBtn = document.getElementById('chat-global-btn');
+        const chatPrivateBtn = document.getElementById('chat-private-btn');
+        const globalChat = document.getElementById('global-chat');
+        const privateChat = document.getElementById('private-chat');
+        const globalMessages = document.getElementById('global-messages');
+        const privateMessages = document.getElementById('private-messages');
+        const globalInput = document.getElementById('global-message-input');
+        const privateInput = document.getElementById('private-message-input');
+        const sendGlobalBtn = document.getElementById('send-global-btn');
+        const sendPrivateBtn = document.getElementById('send-private-btn');
+        const friendsListContent = document.getElementById('friends-list-content');
+        let selectedFriend = null;
+        let unreadCount = 0;
+        
+        // Chat toggle
+        if (chatBtn) {
+            chatBtn.addEventListener('click', function() {
+                if (chatModal) {
+                    const isOpen = chatModal.style.display === 'flex';
+                    chatModal.style.display = isOpen ? 'none' : 'flex';
+                    chatModal.style.flexDirection = 'column';
+                    if (!isOpen) {
+                        unreadCount = 0;
+                        updateChatBadge();
+                        loadFriends();
+                    }
+                }
+            });
+        }
+        
+        if (closeChatBtn) {
+            closeChatBtn.addEventListener('click', function() {
+                chatModal.style.display = 'none';
+            });
+        }
+        
+        // Tab switching
+        if (chatGlobalBtn) {
+            chatGlobalBtn.addEventListener('click', function() {
+                chatGlobalBtn.classList.add('active');
+                chatGlobalBtn.style.background = '#3b82f6';
+                chatGlobalBtn.style.color = 'white';
+                chatPrivateBtn.classList.remove('active');
+                chatPrivateBtn.style.background = '#475569';
+                chatPrivateBtn.style.color = '#94a3b8';
+                globalChat.style.display = 'flex';
+                privateChat.style.display = 'none';
+            });
+        }
+        
+        if (chatPrivateBtn) {
+            chatPrivateBtn.addEventListener('click', function() {
+                chatPrivateBtn.classList.add('active');
+                chatPrivateBtn.style.background = '#3b82f6';
+                chatPrivateBtn.style.color = 'white';
+                chatGlobalBtn.classList.remove('active');
+                chatGlobalBtn.style.background = '#475569';
+                chatGlobalBtn.style.color = '#94a3b8';
+                globalChat.style.display = 'none';
+                privateChat.style.display = 'flex';
+                loadFriends();
+            });
+        }
+        
+        // Emoji buttons
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const emoji = this.textContent;
+                const activeInput = globalChat.style.display !== 'none' ? globalInput : privateInput;
+                if (activeInput && !activeInput.disabled) {
+                    activeInput.value += emoji;
+                    activeInput.focus();
+                }
+            });
+        });
+        
+        // Send global message
+        if (sendGlobalBtn) {
+            sendGlobalBtn.addEventListener('click', sendGlobalMessage);
+        }
+        if (globalInput) {
+            globalInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendGlobalMessage();
+            });
+        }
+        
+        function sendGlobalMessage() {
+            const message = globalInput.value.trim();
+            if (message) {
+                fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: 'global',
+                        message: message
+                    })
+                });
+                globalInput.value = '';
+            }
+        }
+        
+        // Send private message
+        if (sendPrivateBtn) {
+            sendPrivateBtn.addEventListener('click', sendPrivateMessage);
+        }
+        if (privateInput) {
+            privateInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !privateInput.disabled) sendPrivateMessage();
+            });
+        }
+        
+        function sendPrivateMessage() {
+            if (!selectedFriend) return;
+            const message = privateInput.value.trim();
+            if (message) {
+                fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: 'private',
+                        friend_id: selectedFriend,
+                        message: message
+                    })
+                });
+                privateInput.value = '';
+            }
+        }
+        
+        // Load friends for private chat
+        function loadFriends() {
+            fetch('/chat/friends')
+                .then(res => res.json())
+                .then(data => {
+                    if (friendsListContent) {
+                        friendsListContent.innerHTML = '';
+                        if (data.friends && data.friends.length > 0) {
+                            data.friends.forEach(friend => {
+                                const friendBtn = document.createElement('button');
+                                friendBtn.textContent = friend.username || friend.player_id;
+                                friendBtn.style.cssText = 'width: 100%; padding: 8px; margin-bottom: 5px; background: #334155; border: 1px solid #475569; border-radius: 6px; color: white; cursor: pointer; text-align: left;';
+                                friendBtn.addEventListener('click', function() {
+                                    selectedFriend = friend.player_id;
+                                    if (privateInput) privateInput.disabled = false;
+                                    if (sendPrivateBtn) sendPrivateBtn.disabled = false;
+                                    document.querySelectorAll('#friends-list-content button').forEach(b => {
+                                        b.style.background = '#334155';
+                                    });
+                                    this.style.background = '#3b82f6';
+                                    loadPrivateMessages(friend.player_id);
+                                });
+                                friendsListContent.appendChild(friendBtn);
+                            });
+                        } else {
+                            friendsListContent.innerHTML = '<div style="color: #94a3b8; font-size: 12px; padding: 10px;">No friends added yet</div>';
+                        }
+                    }
+                });
+        }
+        
+        function loadPrivateMessages(friendId) {
+            fetch(`/chat/private/${friendId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (privateMessages) {
+                        privateMessages.innerHTML = '';
+                        if (data.messages) {
+                            data.messages.forEach(msg => {
+                                addMessageToPrivate(msg);
+                            });
+                        }
+                    }
+                });
+        }
+        
+        function addMessageToPrivate(msg) {
+            if (!privateMessages) return;
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = 'padding: 8px; background: #1e293b; border-radius: 6px; margin-bottom: 5px;';
+            msgDiv.innerHTML = `<strong style="color: #60a5fa;">${msg.sender}:</strong> <span style="color: #e2e8f0;">${msg.message}</span>`;
+            privateMessages.appendChild(msgDiv);
+            privateMessages.scrollTop = privateMessages.scrollHeight;
+        }
+        
+        // Poll for new messages
+        setInterval(function() {
+            if (chatModal && chatModal.style.display === 'flex') {
+                fetch('/chat/messages')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.global && globalMessages) {
+                            globalMessages.innerHTML = '';
+                            data.global.forEach(msg => {
+                                const msgDiv = document.createElement('div');
+                                msgDiv.style.cssText = 'padding: 8px; background: #1e293b; border-radius: 6px; margin-bottom: 5px;';
+                                msgDiv.innerHTML = `<strong style="color: #60a5fa;">${msg.sender}:</strong> <span style="color: #e2e8f0;">${msg.message}</span>`;
+                                globalMessages.appendChild(msgDiv);
+                            });
+                            globalMessages.scrollTop = globalMessages.scrollHeight;
+                        }
+                    });
+            } else {
+                // Check for unread
+                fetch('/chat/unread')
+                    .then(res => res.json())
+                    .then(data => {
+                        unreadCount = data.count || 0;
+                        updateChatBadge();
+                    });
+            }
+        }, 2000);
+        
+        function updateChatBadge() {
+            const badge = document.getElementById('chat-badge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        
+        // Invite friend button
+        const inviteBtn = document.getElementById('invite-friend-btn');
+        if (inviteBtn) {
+            inviteBtn.addEventListener('click', function() {
+                // Get room code and player info
+                const roomCode = '{{ session.get("room_code", "") }}' || window.location.search.match(/room=(\d+)/)?.[1];
+                const playerUsername = '{{ p1_username|default("Player") }}';
+                const playerId = '{{ player_data.get("player_id", "") if player_data else "" }}';
+                
+                if (roomCode) {
+                    // Create invite with both username and ID options
+                    const inviteText = `Join my Stock Wars match!\n\nRoom Code: ${roomCode}\n\nAdd me as a friend:\nUsername: ${playerUsername}\nPlayer ID: ${playerId}`;
+                    
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Stock Wars Invite',
+                            text: inviteText
+                        });
+                    } else {
+                        // Fallback: copy to clipboard
+                        navigator.clipboard.writeText(inviteText).then(() => {
+                            alert('Invite copied to clipboard!\n\nRoom Code: ' + roomCode + '\nUsername: ' + playerUsername + '\nPlayer ID: ' + playerId);
+                        }).catch(() => {
+                            // Fallback if clipboard fails
+                            prompt('Copy this invite:', inviteText);
+                        });
+                    }
+                } else {
+                    alert('No active room to invite to');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

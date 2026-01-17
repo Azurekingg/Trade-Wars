@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquidity Run Job - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #050b14;
+            color: #e0f2fe;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #ef4444;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        h1 {
+            color: #ef4444;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 2em;
+            font-family: 'Orbitron', sans-serif;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #22c55e;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .instructions {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #fca5a5;
+        }
+        
+        .decision-panel {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .asset-name {
+            font-size: 2em;
+            font-family: 'Orbitron', sans-serif;
+            color: #0ea5e9;
+            margin-bottom: 20px;
+        }
+        
+        .asset-info {
+            font-size: 1.2em;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+        }
+        
+        .decision-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .decision-btn {
+            padding: 20px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: 3px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            min-width: 180px;
+        }
+        
+        .btn-dump {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .btn-dump:hover {
+            background: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn-protect {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        
+        .btn-protect:hover {
+            background: rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        
+        .feedback-good { color: #22c55e; }
+        .feedback-bad { color: #ef4444; }
+        
+        .portfolio-damage {
+            color: #ef4444;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⚡ Liquidity Run</h1>
+        <div class="instructions">
+            <strong>Instructions:</strong> Rapid-fire decisions! Choose which assets to DUMP and which to PROTECT. Wrong choices permanently damage your portfolio. You have 3 seconds per decision!
+        </div>
+        
+        <div class="timer" id="timer">45</div>
+        <div class="score">Correct: <span id="score">0</span> / <span id="total">0</span></div>
+        
+        <div class="decision-panel" id="decision-panel">
+            <div class="asset-name" id="asset-name">Loading...</div>
+            <div class="asset-info" id="asset-info"></div>
+            <div class="decision-buttons">
+                <button class="decision-btn btn-dump" onclick="makeDecision('dump')" data-tooltip="Dump this asset. Sell it quickly before it crashes! Use for risky assets.">DUMP</button>
+                <button class="decision-btn btn-protect" onclick="makeDecision('protect')" data-tooltip="Protect this asset. Keep it safe! Use for stable or valuable assets.">PROTECT</button>
+            </div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        <div class="portfolio-damage" id="damage" style="display: none;"></div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="endJob()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Abandon Job
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Overlay -->
+    {% include 'minigames/tutorial_overlay.html' %}
+    
+    <!-- Audio Elements -->
+    <audio id="sound-correct" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/pop-win-casino-winning-398059.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-wrong" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-dump" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-protect" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ability-activated-6104.mp3') }}" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Sound effects
+        const sounds = {
+            correct: document.getElementById('sound-correct'),
+            wrong: document.getElementById('sound-wrong'),
+            dump: document.getElementById('sound-dump'),
+            protect: document.getElementById('sound-protect')
+        };
+        
+        // Set volume for sounds
+        Object.values(sounds).forEach(sound => {
+            const savedVol = localStorage.getItem('sfx_volume');
+            if (savedVol !== null) sound.volume = parseFloat(savedVol);
+        });
+        
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Sound play failed:', e));
+            }
+        }
+        const jobData = {{ job | tojson }};
+        const assets = [
+            {name: 'Tech Stocks', volatility: 'high', shouldDump: true, reason: 'Market crash incoming'},
+            {name: 'Crypto', volatility: 'extreme', shouldDump: true, reason: 'Regulatory crackdown'},
+            {name: 'Bonds', volatility: 'low', shouldDump: false, reason: 'Safe haven asset'},
+            {name: 'Gold', volatility: 'medium', shouldDump: false, reason: 'Hedge against inflation'},
+            {name: 'Oil', volatility: 'high', shouldDump: true, reason: 'Supply glut'},
+            {name: 'Real Estate', volatility: 'medium', shouldDump: false, reason: 'Stable value'},
+            {name: 'Penny Stocks', volatility: 'extreme', shouldDump: true, reason: 'Bubble bursting'},
+            {name: 'Forex', volatility: 'high', shouldDump: true, reason: 'Currency crisis'},
+            {name: 'Commodities', volatility: 'medium', shouldDump: false, reason: 'Supply shortage'},
+            {name: 'Energy', volatility: 'high', shouldDump: true, reason: 'Market collapse'}
+        ];
+        
+        let score = 0;
+        let total = 0;
+        let timeRemaining = jobData.time_limit_seconds;
+        let gameActive = true;
+        let currentAsset = null;
+        let decisionTimeout = null;
+        let portfolioDamage = 0;
+        
+        function showNextAsset() {
+            if (!gameActive) return;
+            
+            currentAsset = assets[Math.floor(Math.random() * assets.length)];
+            document.getElementById('asset-name').textContent = currentAsset.name;
+            document.getElementById('asset-info').textContent = 
+                `Volatility: ${currentAsset.volatility.toUpperCase()} | ${currentAsset.reason}`;
+            
+            total++;
+            document.getElementById('total').textContent = total;
+            
+            // Auto-fail after 3 seconds
+            decisionTimeout = setTimeout(() => {
+                makeDecision('timeout');
+            }, 3000);
+        }
+        
+        function makeDecision(choice) {
+            if (!gameActive || !currentAsset) return;
+            
+            clearTimeout(decisionTimeout);
+            
+            const correct = currentAsset.shouldDump;
+            let decision = choice;
+            
+            if (choice === 'timeout') {
+                decision = 'dump'; // Default to dump on timeout
+                playSound('wrong');
+                showFeedback('Too slow! Wrong choice!', 'bad');
+                portfolioDamage += 1000;
+            } else if ((choice === 'dump' && correct) || (choice === 'protect' && !correct)) {
+                score++;
+                playSound('correct');
+                playSound(choice === 'dump' ? 'dump' : 'protect');
+                showFeedback('Correct decision!', 'good');
+            } else {
+                playSound('wrong');
+                showFeedback('Wrong choice! Portfolio damaged!', 'bad');
+                portfolioDamage += 2000;
+            }
+            
+            document.getElementById('score').textContent = score;
+            if (portfolioDamage > 0) {
+                document.getElementById('damage').style.display = 'block';
+                document.getElementById('damage').textContent = 
+                    `Portfolio Damage: -$${portfolioDamage.toLocaleString()}`;
+            }
+            
+            // Show next asset after brief delay
+            setTimeout(() => {
+                if (gameActive) showNextAsset();
+            }, 1500);
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback feedback-${type}`;
+        }
+        
+        function endJob() {
+            if (confirm('Abandon this job? You will receive no payout.')) {
+                gameActive = false;
+                const finalScore = total > 0 ? (score / total) - (portfolioDamage / 50000) : 0;
+                submitJob(Math.max(0, Math.min(1, finalScore)));
+            }
+        }
+        
+        function submitJob(score) {
+            const timeTaken = jobData.time_limit_seconds - timeRemaining;
+            fetch('/loan_shark/job/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    score: score,
+                    time_taken: timeTaken
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/loan_shark';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+        
+        // Timer
+        const timerInterval = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(timerInterval);
+                return;
+            }
+            
+            timeRemaining--;
+            document.getElementById('timer').textContent = timeRemaining;
+            
+            if (timeRemaining <= 0) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                const finalScore = total > 0 ? (score / total) - (portfolioDamage / 50000) : 0;
+                submitJob(Math.max(0, Math.min(1, finalScore)));
+            }
+        }, 1000);
+        
+        // Tutorial Steps (scoped to avoid conflict with tutorial overlay)
+        const liquidityRunTutorialSteps = [
+            {
+                title: "Liquidity Run Tutorial",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎯 Objective</h3>
+                        <p>Make rapid-fire decisions! Choose which assets to <strong style="color: #ef4444;">DUMP</strong> and which to <strong style="color: #22c55e;">PROTECT</strong>. You have only 3 seconds per decision!</p>
+                    </div>
+                `,
+                highlight: '#decision-panel'
+            },
+            {
+                title: "Understanding Assets",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>📊 Asset Information</h3>
+                        <p>Each asset shows its name, volatility level, and a reason. Use this information to decide whether to dump or protect it.</p>
+                        <div class="demo-element">
+                            <div style="font-size: 1.5em; color: #0ea5e9; margin-bottom: 10px;">Tech Stocks</div>
+                            <div style="color: #cbd5e1;">Volatility: HIGH | Market crash incoming</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "DUMP vs PROTECT",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>⚡ Decision Making</h3>
+                        <p><strong style="color: #ef4444;">DUMP</strong> assets that are about to crash or lose value.</p>
+                        <p><strong style="color: #22c55e;">PROTECT</strong> assets that are safe havens or will hold value.</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Warning:</strong> Wrong choices permanently damage your portfolio! You have only 3 seconds per decision!
+                        </div>
+                    </div>
+                `,
+                highlight: '.decision-buttons'
+            },
+            {
+                title: "Time Pressure",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>⏰ Speed Matters</h3>
+                        <p>If you don't make a decision within 3 seconds, it counts as a wrong choice! Stay focused and make quick decisions.</p>
+                        <div class="highlight-box">
+                            <strong style="color: #ef4444;">Remember:</strong> Portfolio damage is permanent. Choose wisely and quickly!
+                        </div>
+                    </div>
+                `
+            }
+        ];
+        
+        function onTutorialComplete() {
+            showNextAsset();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialSeen = sessionStorage.getItem('liquidity_run_tutorial_seen');
+            if (!tutorialSeen) {
+                setTimeout(() => {
+                    if (typeof initTutorial === 'function') {
+                        initTutorial(liquidityRunTutorialSteps);
+                    } else {
+                        onTutorialComplete();
+                    }
+                }, 500);
+            } else {
+                onTutorialComplete();
+            }
+            
+            // Initialize tooltips
+            setTimeout(() => {
+                if (typeof addTooltip === 'function') {
+                    document.querySelectorAll('[data-tooltip]').forEach(el => {
+                        addTooltip(el, el.getAttribute('data-tooltip'));
+                    });
+                }
+            }, 1000);
+        });
+        
+        function skipTutorial() {
+            sessionStorage.setItem('liquidity_run_tutorial_seen', 'true');
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            highlightElements.forEach(el => {
+                if (el) el.classList.remove('tutorial-highlight');
+            });
+            highlightElements = [];
+            onTutorialComplete();
+        }
+    </script>
+</body>
+</html>
+

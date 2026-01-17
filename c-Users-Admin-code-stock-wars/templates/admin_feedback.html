@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Feedback - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #8b5cf6;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        
+        .stat-box .number {
+            font-size: 2em;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .stat-box .label {
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+        
+        .stat-box.unread .number { color: #fbbf24; }
+        .stat-box.resolved .number { color: #10b981; }
+        .stat-box.total .number { color: #8b5cf6; }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: white;
+        }
+        
+        .feedback-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .feedback-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        
+        .feedback-card:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+        
+        .feedback-card.unread {
+            border-left: 4px solid #fbbf24;
+        }
+        
+        .feedback-card.resolved {
+            opacity: 0.7;
+            border-left: 4px solid #10b981;
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .feedback-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .feedback-user {
+            font-weight: bold;
+            color: #e0f2fe;
+        }
+        
+        .feedback-id {
+            font-family: 'Orbitron', sans-serif;
+            color: #8b5cf6;
+            font-size: 0.85em;
+        }
+        
+        .feedback-time {
+            color: #64748b;
+            font-size: 0.85em;
+        }
+        
+        .feedback-type {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .type-bug { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .type-suggestion { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+        .type-question { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; }
+        .type-other { background: rgba(148, 163, 184, 0.2); color: #94a3b8; border: 1px solid #94a3b8; }
+        
+        .feedback-message {
+            background: rgba(5, 11, 20, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.read {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+        
+        .action-btn.resolve {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-link a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        
+        .back-link a:hover {
+            color: #8b5cf6;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #64748b;
+        }
+        
+        .empty-state h2 {
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Player Feedback</h1>
+        
+        <div class="stats-bar">
+            <div class="stat-box unread">
+                <div class="number" id="unread-count">{{ feedback|selectattr('read', 'equalto', false)|list|length }}</div>
+                <div class="label">Unread</div>
+            </div>
+            <div class="stat-box resolved">
+                <div class="number">{{ feedback|selectattr('resolved', 'equalto', true)|list|length }}</div>
+                <div class="label">Resolved</div>
+            </div>
+            <div class="stat-box total">
+                <div class="number">{{ feedback|length }}</div>
+                <div class="label">Total</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterFeedback('all')">All</button>
+            <button class="filter-btn" onclick="filterFeedback('unread')">Unread</button>
+            <button class="filter-btn" onclick="filterFeedback('bug')">🐛 Bugs</button>
+            <button class="filter-btn" onclick="filterFeedback('suggestion')">💡 Suggestions</button>
+            <button class="filter-btn" onclick="filterFeedback('question')">❓ Questions</button>
+            <button class="filter-btn" onclick="filterFeedback('resolved')">✓ Resolved</button>
+        </div>
+        
+        <div class="feedback-list" id="feedback-list">
+            {% if feedback %}
+                {% for fb in feedback %}
+                <div class="feedback-card {{ 'unread' if not fb.read else '' }} {{ 'resolved' if fb.resolved else '' }}" 
+                     data-type="{{ fb.type }}" 
+                     data-read="{{ 'true' if fb.read else 'false' }}"
+                     data-resolved="{{ 'true' if fb.resolved else 'false' }}"
+                     id="feedback-{{ fb.id }}">
+                    <div class="feedback-header">
+                        <div class="feedback-meta">
+                            <span class="feedback-user">{{ fb.username }}</span>
+                            <span class="feedback-id">{{ fb.player_id }} • {{ fb.email }}</span>
+                            <span class="feedback-time">{{ fb.timestamp|int|string }}</span>
+                        </div>
+                        <span class="feedback-type type-{{ fb.type }}">
+                            {% if fb.type == 'bug' %}🐛 Bug Report
+                            {% elif fb.type == 'suggestion' %}💡 Suggestion
+                            {% elif fb.type == 'question' %}❓ Question
+                            {% else %}📌 Other{% endif %}
+                        </span>
+                    </div>
+                    <div class="feedback-message">{{ fb.message }}</div>
+                    <div class="feedback-actions">
+                        {% if not fb.read %}
+                        <button class="action-btn read" onclick="markRead({{ fb.id }})">Mark Read</button>
+                        {% endif %}
+                        {% if not fb.resolved %}
+                        <button class="action-btn resolve" onclick="markResolved({{ fb.id }})">Mark Resolved</button>
+                        {% endif %}
+                        <button class="action-btn delete" onclick="deleteFeedback({{ fb.id }})">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h2>No feedback yet</h2>
+                    <p>Player feedback will appear here</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="back-link">
+            <a href="/">← Back to Main Menu</a>
+        </div>
+    </div>
+    
+    <script>
+        // Convert timestamps to readable dates
+        document.querySelectorAll('.feedback-time').forEach(el => {
+            const timestamp = parseInt(el.textContent);
+            if (!isNaN(timestamp)) {
+                const date = new Date(timestamp * 1000);
+                el.textContent = date.toLocaleString();
+            }
+        });
+        
+        function filterFeedback(filter) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            document.querySelectorAll('.feedback-card').forEach(card => {
+                const type = card.dataset.type;
+                const isRead = card.dataset.read === 'true';
+                const isResolved = card.dataset.resolved === 'true';
+                
+                let show = true;
+                if (filter === 'unread') show = !isRead;
+                else if (filter === 'resolved') show = isResolved;
+                else if (filter !== 'all') show = type === filter;
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+        
+        function markRead(id) {
+            fetch(`/admin/feedback/mark_read/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const card = document.getElementById(`feedback-${id}`);
+                        card.classList.remove('unread');
+                        card.dataset.read = 'true';
+                        card.querySelector('.action-btn.read')?.remove();
+                        updateUnreadCount();
+                    }
+                });
+        }
+        
+        function markResolved(id) {
+            fetch(`/admin/feedback/mark_resolved/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const card = document.getElementById(`feedback-${id}`);
+                        card.classList.add('resolved');
+                        card.dataset.resolved = 'true';
+                        card.querySelector('.action-btn.resolve')?.remove();
+                    }
+                });
+        }
+        
+        function deleteFeedback(id) {
+            if (!confirm('Are you sure you want to delete this feedback?')) return;
+            
+            fetch(`/admin/feedback/delete/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`feedback-${id}`).remove();
+                        updateUnreadCount();
+                    }
+                });
+        }
+        
+        function updateUnreadCount() {
+            const unreadCards = document.querySelectorAll('.feedback-card[data-read="false"]');
+            document.getElementById('unread-count').textContent = unreadCards.length;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,151 @@
+<!-- Tutorial Overlay Component -->
+<div id="tutorial-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 10000; display: none; align-items: center; justify-content: center;">
+    <div style="max-width: 800px; width: 90%; background: rgba(15, 23, 42, 0.98); border: 2px solid #fbbf24; padding: 40px; border-radius: 8px; box-shadow: 0 0 50px rgba(251, 191, 36, 0.5); position: relative; max-height: 90vh; overflow-y: auto;">
+        <h2 id="tutorial-title" style="color: #fbbf24; font-family: 'Orbitron', sans-serif; text-align: center; margin-top: 0; text-transform: uppercase;"></h2>
+        <div id="tutorial-content" style="color: #e2e8f0; line-height: 1.6;"></div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="tutorial-next" style="background: #fbbf24; color: #000; border: none; padding: 15px 40px; font-size: 1.1em; font-weight: bold; border-radius: 4px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                Next
+            </button>
+            <button id="tutorial-skip" onclick="skipTutorial()" style="background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 15px 40px; font-size: 1em; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                Skip Tutorial
+            </button>
+        </div>
+        <div id="tutorial-step-indicator" style="text-align: center; margin-top: 20px; color: #64748b; font-size: 0.9em;"></div>
+    </div>
+</div>
+
+<style>
+    .tutorial-highlight {
+        position: relative;
+        animation: highlight-pulse 1s infinite;
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.8) !important;
+        border: 2px solid #fbbf24 !important;
+        z-index: 9999;
+    }
+    
+    @keyframes highlight-pulse {
+        0%, 100% { 
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+        }
+        50% { 
+            box-shadow: 0 0 30px rgba(251, 191, 36, 1), 0 0 60px rgba(251, 191, 36, 0.6);
+        }
+    }
+    
+    .tutorial-step {
+        margin-bottom: 25px;
+    }
+    
+    .tutorial-step h3 {
+        color: #fbbf24;
+        margin-top: 0;
+        font-size: 1.3em;
+    }
+    
+    .tutorial-step .highlight-box {
+        background: rgba(251, 191, 36, 0.1);
+        border-left: 4px solid #fbbf24;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    
+    .tutorial-step .demo-element {
+        background: rgba(30, 41, 59, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        text-align: center;
+        border: 2px dashed #fbbf24;
+    }
+</style>
+
+<script>
+    let tutorialSteps = [];
+    let currentStep = 0;
+    let highlightElements = [];
+    
+    function initTutorial(steps) {
+        tutorialSteps = steps;
+        currentStep = 0;
+        
+        // Set up next button click handler
+        const nextBtn = document.getElementById('tutorial-next');
+        if (nextBtn) {
+            nextBtn.onclick = function() {
+                if (currentStep === tutorialSteps.length - 1) {
+                    // Last step - start the job
+                    skipTutorial();
+                } else {
+                    nextTutorialStep();
+                }
+            };
+        }
+        
+        showTutorialStep(0);
+        document.getElementById('tutorial-overlay').style.display = 'flex';
+    }
+    
+    function showTutorialStep(stepIndex) {
+        if (stepIndex >= tutorialSteps.length) {
+            skipTutorial();
+            return;
+        }
+        
+        const step = tutorialSteps[stepIndex];
+        document.getElementById('tutorial-title').textContent = step.title || 'Tutorial';
+        document.getElementById('tutorial-content').innerHTML = step.content;
+        document.getElementById('tutorial-step-indicator').textContent = `Step ${stepIndex + 1} of ${tutorialSteps.length}`;
+        
+        // Clear previous highlights
+        highlightElements.forEach(el => {
+            if (el) el.classList.remove('tutorial-highlight');
+        });
+        highlightElements = [];
+        
+        // Highlight elements if specified
+        if (step.highlight) {
+            const elements = typeof step.highlight === 'string' 
+                ? [document.querySelector(step.highlight)]
+                : step.highlight.map(sel => document.querySelector(sel)).filter(el => el);
+            
+            elements.forEach(el => {
+                if (el) {
+                    el.classList.add('tutorial-highlight');
+                    highlightElements.push(el);
+                    // Scroll into view
+                    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                }
+            });
+        }
+        
+        // Update button text
+        const nextBtn = document.getElementById('tutorial-next');
+        if (nextBtn) {
+            if (stepIndex === tutorialSteps.length - 1) {
+                nextBtn.textContent = 'Start Job';
+            } else {
+                nextBtn.textContent = 'Next';
+            }
+        }
+    }
+    
+    function nextTutorialStep() {
+        currentStep++;
+        showTutorialStep(currentStep);
+    }
+    
+    function skipTutorial() {
+        document.getElementById('tutorial-overlay').style.display = 'none';
+        highlightElements.forEach(el => {
+            if (el) el.classList.remove('tutorial-highlight');
+        });
+        highlightElements = [];
+        // Mark tutorial as seen
+        if (typeof onTutorialComplete === 'function') {
+            onTutorialComplete();
+        }
+    }
+</script>
+

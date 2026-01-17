@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter {{ chapter }} Premise - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #000000;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body.last-slide {
+            background-image: url("{{ url_for('static', filename='images/Chapter_' + chapter|string + '.png') }}");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        /* Mobile devices - use scroll attachment for better performance */
+        @media (max-width: 900px) {
+            body.last-slide {
+                background-size: cover;
+                background-position: center center;
+                background-attachment: scroll;
+            }
+        }
+        
+        /* Landscape orientation - ensure proper aspect ratio */
+        @media (orientation: landscape) {
+            body.last-slide {
+                background-size: cover;
+                background-position: center center;
+                background-attachment: scroll;
+            }
+        }
+        
+        /* Portrait orientation - ensure proper aspect ratio */
+        @media (orientation: portrait) {
+            body.last-slide {
+                background-size: cover;
+                background-position: center center;
+                background-attachment: scroll;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 480px) {
+            body.last-slide {
+                background-size: cover;
+                background-position: center center;
+            }
+        }
+        
+        /* Large screens - use fixed attachment */
+        @media (min-width: 901px) {
+            body.last-slide {
+                background-attachment: fixed;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                height: 100vh;
+                width: 100vw;
+            }
+            
+            .premise-container {
+                padding: 20px;
+                height: 100%;
+                width: 100%;
+            }
+            
+            .text-bubble {
+                font-size: 1.1em;
+                padding: 25px;
+                max-width: 95%;
+                min-height: auto;
+            }
+            
+            .chapter-title {
+                font-size: 1.2em;
+                top: 10px;
+                left: 10px;
+            }
+            
+            .slide-counter {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8em;
+            }
+            
+            .controls {
+                bottom: 20px;
+                flex-direction: column;
+                width: 90%;
+                gap: 10px;
+            }
+            
+            .btn-premise {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .text-bubble {
+                font-size: 1em;
+                padding: 20px;
+                max-width: 90%;
+            }
+            
+            .chapter-title {
+                font-size: 1em;
+            }
+            
+            .controls {
+                bottom: 10px;
+            }
+        }
+
+        .premise-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 40px;
+        }
+
+        .text-bubble {
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #0ea5e9;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            text-align: center;
+            font-size: 1.5em;
+            line-height: 1.8;
+            color: #e0f2fe;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+            animation: fadeIn 0.5s ease-in;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #64748b;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .btn-premise {
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 1.1em;
+            border: 2px solid;
+            border-radius: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-next {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+            color: #10b981;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-next:hover {
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-skip {
+            background: rgba(148, 163, 184, 0.1);
+            border-color: #94a3b8;
+            color: #94a3b8;
+        }
+
+        .btn-skip:hover {
+            background: rgba(148, 163, 184, 0.2);
+            box-shadow: 0 0 20px rgba(148, 163, 184, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .chapter-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            color: #0ea5e9;
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="premise-container">
+        <div class="chapter-title">Chapter {{ chapter }}</div>
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">{{ premises|length }}</span>
+        </div>
+        
+        <div class="text-bubble" id="text-bubble">
+            {{ premises[0] }}
+        </div>
+
+        <div class="controls">
+            <button class="btn-premise btn-skip" onclick="skipPremise()">Skip</button>
+            <button class="btn-premise btn-next" onclick="handleNext()" id="next-btn">Next</button>
+        </div>
+    </div>
+
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const premises = {{ premises|tojson }};
+        let currentSlide = 0;
+        const textBubble = document.getElementById('text-bubble');
+        const currentSlideSpan = document.getElementById('current-slide');
+        const nextBtn = document.getElementById('next-btn');
+        const hoverSound = document.getElementById('hover-sound');
+        const selectSound = document.getElementById('select-sound');
+
+        // Load saved SFX volume
+        const savedSfxVol = localStorage.getItem('sfx_volume');
+        if(savedSfxVol !== null) {
+            hoverSound.volume = parseFloat(savedSfxVol);
+            selectSound.volume = parseFloat(savedSfxVol);
+        }
+        
+        // Check if we're on the last slide initially
+        if (premises.length === 1) {
+            document.body.classList.add('last-slide');
+            nextBtn.textContent = 'Begin';
+        } else if (premises.length > 1 && currentSlide === premises.length - 1) {
+            // If somehow we start on last slide
+            document.body.classList.add('last-slide');
+            nextBtn.textContent = 'Begin';
+        }
+
+        function handleNext() {
+            // If button says "Begin", complete premise immediately
+            if (nextBtn.textContent === 'Begin') {
+                completePremise();
+                return;
+            }
+            // Otherwise, go to next slide
+            nextSlide();
+        }
+        
+        function nextSlide() {
+            selectSound.currentTime = 0;
+            selectSound.play().catch(e => {});
+            
+            currentSlide++;
+            if (currentSlide >= premises.length) {
+                // Shouldn't happen, but safety check
+                completePremise();
+                return;
+            }
+            
+            textBubble.textContent = premises[currentSlide];
+            currentSlideSpan.textContent = currentSlide + 1;
+            
+            // Check if this is the last slide
+            if (currentSlide === premises.length - 1) {
+                nextBtn.textContent = 'Begin';
+                // Add background image for last slide
+                document.body.classList.add('last-slide');
+            }
+        }
+
+        function skipPremise() {
+            selectSound.currentTime = 0;
+            selectSound.play().catch(e => {});
+            completePremise();
+        }
+
+        function completePremise() {
+            fetch('/premise/complete/{{ chapter }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                window.location.href = '/rogue/menu';
+            });
+        }
+
+        // Button hover sounds
+        document.querySelectorAll('.btn-premise').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                hoverSound.currentTime = 0;
+                hoverSound.play().catch(e => {});
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Enter') {
+                handleNext();
+            } else if (e.key === 'Escape') {
+                skipPremise();
+            }
+        });
+    </script>
+</body>
+</html>
+

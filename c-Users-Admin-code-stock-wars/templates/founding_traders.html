@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founding Traders - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        @keyframes glitch-text {
+            0%, 100% { 
+                text-shadow: 0 0 5px #0ea5e9, 0 0 10px #0ea5e9, 0 0 15px #0ea5e9;
+                transform: translate(0);
+            }
+            20% { 
+                text-shadow: -2px 0 #ef4444, 2px 0 #10b981;
+                transform: translate(-1px, 1px);
+            }
+            40% { 
+                text-shadow: 2px 0 #ef4444, -2px 0 #10b981;
+                transform: translate(1px, -1px);
+            }
+            60% { 
+                text-shadow: -2px 0 #a78bfa, 2px 0 #fbbf24;
+                transform: translate(-1px, 1px);
+            }
+            80% { 
+                text-shadow: 2px 0 #a78bfa, -2px 0 #fbbf24;
+                transform: translate(1px, -1px);
+            }
+        }
+        
+        .glitch-name {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            animation: glitch-text 3s infinite;
+            color: #0ea5e9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+            background-image: 
+                linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px;
+            border-radius: 0;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #0ea5e9;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.6);
+            margin-bottom: 30px;
+        }
+        
+        .tier-section {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tier-1 { border-color: #64748b; }
+        .tier-2 { border-color: #3b82f6; }
+        .tier-3 { border-color: #8b5cf6; }
+        .tier-4 { border-color: #fbbf24; }
+        .tier-5 { border-color: #ef4444; }
+        
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+        
+        .tier-1 .tier-header { border-color: #64748b; }
+        .tier-2 .tier-header { border-color: #3b82f6; }
+        .tier-3 .tier-header { border-color: #8b5cf6; }
+        .tier-4 .tier-header { border-color: #fbbf24; }
+        .tier-5 .tier-header { border-color: #ef4444; }
+        
+        .tier-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+        
+        .tier-1 .tier-title { color: #64748b; }
+        .tier-2 .tier-title { color: #3b82f6; }
+        .tier-3 .tier-title { color: #8b5cf6; }
+        .tier-4 .tier-title { color: #fbbf24; }
+        .tier-5 .tier-title { color: #ef4444; }
+        
+        .tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        
+        .tier-features li {
+            padding: 8px 0;
+            color: #cbd5e1;
+            font-size: 0.95em;
+        }
+        
+        .tier-features li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .traders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .trader-card {
+            background: rgba(5, 11, 20, 0.6);
+            padding: 15px;
+            border: 1px solid;
+            border-radius: 4px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .tier-1 .trader-card { border-color: #64748b; }
+        .tier-2 .trader-card { border-color: #3b82f6; }
+        .tier-3 .trader-card { border-color: #8b5cf6; }
+        .tier-4 .trader-card { border-color: #fbbf24; }
+        .tier-5 .trader-card { border-color: #ef4444; }
+        
+        .trader-frame {
+            border: 3px solid;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .tier-2 .trader-frame, .tier-3 .trader-frame, .tier-4 .trader-frame, .tier-5 .trader-frame {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        }
+        
+        .trader-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(14, 165, 233, 0.2);
+            border: 1px solid #0ea5e9;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-top: 8px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .trader-title {
+            color: #fbbf24;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .settings-section {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            margin-top: 30px;
+            border: 2px solid #0ea5e9;
+            border-radius: 0;
+        }
+        
+        .settings-section h2 {
+            color: #0ea5e9;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            border-bottom: 2px solid #0ea5e9;
+            padding-bottom: 10px;
+        }
+        
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        
+        .setting-item label {
+            display: block;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .setting-item select, .setting-item input[type="checkbox"] {
+            padding: 8px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid #0ea5e9;
+            color: #e0f2fe;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .setting-item select {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #0ea5e9;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .systemic-risk-info {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        
+        .systemic-risk-info h3 {
+            color: #ef4444;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        
+        .systemic-risk-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #fca5a5;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-link a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link a:hover {
+            color: #fff;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid #0ea5e9;
+            background: rgba(14, 165, 233, 0.1);
+            color: #0ea5e9;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: rgba(14, 165, 233, 0.2);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭐ Founding Traders Hall of Fame ⭐</h1>
+        {% if is_admin %}
+        <div style="background: rgba(139, 92, 246, 0.2); border: 2px solid #a78bfa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <strong style="color: #a78bfa; font-size: 1.1em;">🔐 ADMIN ACCESS: You have full Tier 5 access to all features!</strong>
+        </div>
+        {% endif %}
+        <p style="text-align: center; color: #94a3b8; margin-bottom: 30px;">
+            Exclusive VIP tiers for the elite traders who shaped the market
+        </p>
+        
+        <!-- Tier 1 -->
+        <div class="tier-section tier-1">
+            <div class="tier-header">
+                <h2 class="tier-title">Tier 1: Foundation</h2>
+                <span class="trader-badge" style="border-color: #64748b; color: #64748b;">TIER 1</span>
+            </div>
+            <ul class="tier-features">
+                <li>Glitching tech font name display</li>
+                <li>Exclusive Founding Trader badge</li>
+            </ul>
+            <div class="traders-list">
+                {% for trader in founding_traders_by_tier[1] %}
+                <div class="trader-card">
+                    <div class="glitch-name">{{ trader.username }}</div>
+                    <div class="trader-badge" style="border-color: #64748b; color: #64748b;">Founding Trader</div>
+                </div>
+                {% endfor %}
+                {% if founding_traders_by_tier[1]|length == 0 %}
+                <p style="color: #64748b; text-align: center; grid-column: 1 / -1;">No traders in this tier yet</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tier 2 -->
+        <div class="tier-section tier-2">
+            <div class="tier-header">
+                <h2 class="tier-title">Tier 2: Enhanced</h2>
+                <span class="trader-badge" style="border-color: #3b82f6; color: #3b82f6;">TIER 2</span>
+            </div>
+            <ul class="tier-features">
+                <li>Everything from Tier 1</li>
+                <li>Tech-themed framed profile image</li>
+                <li>Enhanced badge</li>
+            </ul>
+            <div class="traders-list">
+                {% for trader in founding_traders_by_tier[2] %}
+                <div class="trader-card">
+                    <div class="trader-frame">
+                        <div class="glitch-name">{{ trader.username }}</div>
+                    </div>
+                    <div class="trader-badge" style="border-color: #3b82f6; color: #3b82f6;">Enhanced Founding Trader</div>
+                </div>
+                {% endfor %}
+                {% if founding_traders_by_tier[2]|length == 0 %}
+                <p style="color: #3b82f6; text-align: center; grid-column: 1 / -1;">No traders in this tier yet</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tier 3 -->
+        <div class="tier-section tier-3">
+            <div class="tier-header">
+                <h2 class="tier-title">Tier 3: Elite</h2>
+                <span class="trader-badge" style="border-color: #8b5cf6; color: #8b5cf6;">TIER 3</span>
+            </div>
+            <ul class="tier-features">
+                <li>Everything from Tier 2</li>
+                <li>Access to unique soundtracks (replaces default music on all pages)</li>
+                <li>Trading Buddy (coach bot) - Custom trading videos and tips after matches (toggleable)</li>
+                <li>Elite badge</li>
+            </ul>
+            <div class="traders-list">
+                {% for trader in founding_traders_by_tier[3] %}
+                <div class="trader-card">
+                    <div class="trader-frame">
+                        <div class="glitch-name">{{ trader.username }}</div>
+                    </div>
+                    <div class="trader-badge" style="border-color: #8b5cf6; color: #8b5cf6;">Elite Founding Trader</div>
+                </div>
+                {% endfor %}
+                {% if founding_traders_by_tier[3]|length == 0 %}
+                <p style="color: #8b5cf6; text-align: center; grid-column: 1 / -1;">No traders in this tier yet</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tier 4 -->
+        <div class="tier-section tier-4">
+            <div class="tier-header">
+                <h2 class="tier-title">Tier 4: Market Menace</h2>
+                <span class="trader-badge" style="border-color: #fbbf24; color: #fbbf24;">TIER 4</span>
+            </div>
+            <ul class="tier-features">
+                <li>Everything from Tier 3</li>
+                <li>Exclusive "Market Menace" title</li>
+                <li>Unique narrator line/joke</li>
+                <li>Market Menace badge</li>
+            </ul>
+            <div class="traders-list">
+                {% for trader in founding_traders_by_tier[4] %}
+                <div class="trader-card">
+                    <div class="trader-frame">
+                        <div class="glitch-name">{{ trader.username }}</div>
+                    </div>
+                    {% if trader.title %}
+                    <div class="trader-title">{{ trader.title }}</div>
+                    {% endif %}
+                    <div class="trader-badge" style="border-color: #fbbf24; color: #fbbf24;">Market Menace</div>
+                </div>
+                {% endfor %}
+                {% if founding_traders_by_tier[4]|length == 0 %}
+                <p style="color: #fbbf24; text-align: center; grid-column: 1 / -1;">No traders in this tier yet</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tier 5 -->
+        <div class="tier-section tier-5">
+            <div class="tier-header">
+                <h2 class="tier-title">Tier 5: Legendary</h2>
+                <span class="trader-badge" style="border-color: #ef4444; color: #ef4444;">TIER 5</span>
+            </div>
+            <ul class="tier-features">
+                <li>Everything from Tier 4</li>
+                <li>Unique ending after defeating Chapter 3 bosses</li>
+                <li>SYSTEMIC RISK MODE - Special game modifier (toggleable)</li>
+                <li>Legendary badge</li>
+            </ul>
+            <div class="traders-list">
+                {% for trader in founding_traders_by_tier[5] %}
+                <div class="trader-card">
+                    <div class="trader-frame">
+                        <div class="glitch-name">{{ trader.username }}</div>
+                    </div>
+                    {% if trader.title %}
+                    <div class="trader-title">{{ trader.title }}</div>
+                    {% endif %}
+                    <div class="trader-badge" style="border-color: #ef4444; color: #ef4444;">Legendary Founding Trader</div>
+                </div>
+                {% endfor %}
+                {% if founding_traders_by_tier[5]|length == 0 %}
+                <p style="color: #ef4444; text-align: center; grid-column: 1 / -1;">No traders in this tier yet</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Settings Section (for Tier 3+ or Admin) -->
+        {% set ft = player_data.get('founding_trader', {}) %}
+        {% set ft_tier = ft.get('tier', 0) if ft else 0 %}
+        {% if (ft_tier and ft_tier >= 3) or is_admin %}
+        <div class="settings-section">
+            <h2>Your VIP Settings{% if is_admin %} <span style="color: #a78bfa; font-size: 0.8em;">(Admin - Full Access)</span>{% endif %}</h2>
+            
+            {% if (ft_tier and ft_tier >= 3) or is_admin %}
+            <div class="setting-item">
+                <label for="soundtrack-select">Select Soundtrack (replaces default music on all pages):</label>
+                <select id="soundtrack-select" onchange="updateSoundtrack(this.value)">
+                    {% for track in available_soundtracks %}
+                    <option value="{{ track.id }}" {% if (ft.get('soundtrack') == track.id) or (is_admin and not ft.get('soundtrack') and track.id == 'default') %}selected{% endif %}>
+                        {{ track.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            
+            {% if (ft_tier and ft_tier >= 3) or is_admin %}
+            <div class="setting-item">
+                <label>
+                    Trading Buddy (Coach Bot):
+                    <span style="margin-left: 10px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="trading-buddy-toggle" {% if ft.get('trading_buddy_enabled') or is_admin %}checked{% endif %} onchange="updateTradingBuddy(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="margin-left: 10px; color: #94a3b8;">
+                            {% if ft.get('trading_buddy_enabled') or is_admin %}Enabled{% else %}Disabled{% endif %}
+                        </span>
+                    </span>
+                </label>
+                <p style="color: #64748b; font-size: 0.85em; margin-top: 5px;">
+                    Receive custom trading videos and helpful tips at the end of matches
+                </p>
+            </div>
+            {% endif %}
+            
+            {% if (ft_tier and ft_tier >= 5) or is_admin %}
+            <div class="setting-item">
+                        <label>
+                    SYSTEMIC RISK MODE:
+                    <span style="margin-left: 10px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="systemic-risk-toggle" {% if ft.get('systemic_risk_mode_enabled') or is_admin %}checked{% endif %} onchange="updateSystemicRisk(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="margin-left: 10px; color: #94a3b8;">
+                            {% if ft.get('systemic_risk_mode_enabled') or is_admin %}Enabled{% else %}Disabled{% endif %}
+                        </span>
+                    </span>
+                </label>
+                <div class="systemic-risk-info">
+                    <h3>What is SYSTEMIC RISK MODE?</h3>
+                    <p style="color: #fca5a5; margin: 10px 0;">
+                        <strong>Core Idea:</strong> Markets don't move independently anymore. Every action has consequences elsewhere.
+                    </p>
+                    <p style="color: #fca5a5; margin: 10px 0;"><strong>How It Works:</strong></p>
+                    <ul style="color: #fca5a5;">
+                        <li>All assets are interconnected</li>
+                        <li>Big moves in one market cause ripple effects in others</li>
+                        <li>Example: Tech crashes → Crypto dips → Energy spikes</li>
+                        <li>Example: Oil pump → Transport stocks surge → Consumer stocks fall</li>
+                    </ul>
+                    <p style="color: #fca5a5; margin: 10px 0;"><strong>Gameplay Effects:</strong></p>
+                    <ul style="color: #fca5a5;">
+                        <li>Players manage a portfolio, not a single stock</li>
+                        <li>Abilities can cascade across markets</li>
+                        <li>Boss abilities trigger global events</li>
+                        <li>One bad move can start a chain reaction</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <div class="back-link">
+            <a href="/vault">← Return to Vault</a>
+        </div>
+    </div>
+    
+    <!-- Audio Logic -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            
+            // Check local storage for settings
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            // Apply Saved Settings - Check for founding trader soundtrack first
+            {% if ((ft_tier and ft_tier >= 3) or is_admin) and ft.get('soundtrack') %}
+            var ftTrack = "{{ ft.get('soundtrack') }}";
+            if(ftTrack && ftTrack !== 'default') {
+                audio.querySelector('source').src = "{{ url_for('static', filename='sounds/') }}" + ftTrack;
+                audio.load();
+                localStorage.setItem('bgm_track', 'sounds/' + ftTrack);
+            } else if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+            {% else %}
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+            {% endif %}
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            // Try to play BGM
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Autoplay prevented'));
+            }
+
+            // Mute toggle
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            // Save time periodically
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            // Save time on unload
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Button Hover Sounds
+            const buttons = document.querySelectorAll('button, a, .trader-card');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+        });
+        
+        function updateSoundtrack(trackId) {
+            const formData = new FormData();
+            formData.append('soundtrack', trackId);
+            
+            fetch('/update_founding_trader', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) {
+                    // Update audio source
+                    const audio = document.getElementById('bg-music');
+                    if(trackId !== 'default') {
+                        audio.querySelector('source').src = "{{ url_for('static', filename='sounds/') }}" + trackId;
+                        localStorage.setItem('bgm_track', 'sounds/' + trackId);
+                    } else {
+                        audio.querySelector('source').src = "{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}";
+                        localStorage.setItem('bgm_track', 'sounds/game-music-loop-7-145285.mp3');
+                    }
+                    audio.load();
+                    if(!audio.muted) audio.play();
+                }
+            });
+        }
+        
+        function updateTradingBuddy(enabled) {
+            const formData = new FormData();
+            formData.append('trading_buddy_enabled', enabled);
+            
+            fetch('/update_founding_trader', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) {
+                    const statusSpan = document.querySelector('#trading-buddy-toggle').parentElement.nextElementSibling;
+                    statusSpan.textContent = enabled ? 'Enabled' : 'Disabled';
+                }
+            });
+        }
+        
+        function updateSystemicRisk(enabled) {
+            const formData = new FormData();
+            formData.append('systemic_risk_mode_enabled', enabled);
+            
+            fetch('/update_founding_trader', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) {
+                    const statusSpan = document.querySelector('#systemic-risk-toggle').parentElement.nextElementSibling;
+                    statusSpan.textContent = enabled ? 'Enabled' : 'Disabled';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

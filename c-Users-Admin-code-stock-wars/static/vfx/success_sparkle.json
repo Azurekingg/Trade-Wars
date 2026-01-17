@@ -1,0 +1,49 @@
+{
+  "type": "particle",
+  "name": "Success Sparkle",
+  "description": "Sparkling effect for major wins",
+  "particles": {
+    "count": 50,
+    "size": {
+      "min": 3,
+      "max": 12
+    },
+    "lifetime": {
+      "min": 800,
+      "max": 3000
+    },
+    "velocity": {
+      "x": {"min": -3, "max": 3},
+      "y": {"min": -3, "max": 3}
+    },
+    "gravity": 0.05,
+    "spread": 360,
+    "rotation": {
+      "min": 0,
+      "max": 360,
+      "speed": {"min": -180, "max": 180}
+    }
+  },
+  "colors": ["#10b981", "#059669", "#6ee7b7", "#34d399", "#a7f3d0"],
+  "blend_mode": "screen",
+  "opacity": {
+    "start": 1.0,
+    "end": 0.0
+  },
+  "emitter": {
+    "type": "area",
+    "position": {"x": "center", "y": "center"},
+    "width": 200,
+    "height": 200,
+    "burst": true,
+    "burst_count": 50
+  },
+  "trail": {
+    "enabled": true,
+    "length": 10,
+    "fade": true
+  }
+}
+
+
+

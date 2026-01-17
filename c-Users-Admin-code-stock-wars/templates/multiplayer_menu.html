@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiplayer - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0f172a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), url("{{ url_for('static', filename='images/trading_floor_background.png') }}");
+            background-size: cover;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #60a5fa;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        /* Tech Buttons */
+        .btn {
+            position: relative;
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 2px solid;
+            border-radius: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-create {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+            color: #10b981;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+        .btn-create:hover {
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-join {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+        .btn-join:hover {
+            background: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-back {
+            background: transparent;
+            border-color: #475569;
+            color: #94a3b8;
+            margin-top: 30px;
+        }
+        .btn-back:hover {
+            color: #fff;
+            border-color: #cbd5e1;
+        }
+        
+        .join-form {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: white;
+            font-size: 1.2em;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+
+        /* Modal or Toggle Styles for Join */
+        .join-toggle.active + .join-form {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multiplayer</h1>
+        
+        <form action="/create_room" method="POST">
+            <input type="hidden" name="game_mode" value="one_v_one">
+            <button type="submit" class="btn btn-create">Create Room</button>
+        </form>
+
+        <button class="btn btn-join" onclick="document.getElementById('join-form').style.display = 'block'; this.style.display = 'none';">Join Room</button>
+        
+        <form id="join-form" class="join-form" action="/join_room" method="POST">
+            <input type="text" name="room_code" placeholder="ENTER 4-DIGIT CODE" maxlength="4" required pattern="\d{4}" title="4 digit code">
+            <button type="submit" class="btn btn-join">Connect</button>
+        </form>
+
+        <form action="/quick_match" method="POST">
+            <button type="submit" class="btn" style="background: rgba(251, 191, 36, 0.1); border-color: #fbbf24; color: #fbbf24; text-shadow: 0 0 5px rgba(251, 191, 36, 0.5); margin-top: 15px;">
+                Quick Match
+            </button>
+        </form>
+
+        <a href="/" class="btn btn-back">Back to Menu</a>
+    </div>
+
+    <!-- Audio Persistence -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+            }
+
+            var playPromise = audio.play();
+            if (playPromise !== undefined) playPromise.catch(e => console.log('Autoplay prevented'));
+
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Hover Sounds
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

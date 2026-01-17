@@ -1,0 +1,55 @@
+{
+  "type": "animation",
+  "name": "Warning Pulse",
+  "description": "Pulsing red warning effect for loss tips",
+  "keyframes": [
+    {
+      "time": 0,
+      "scale": 1.0,
+      "opacity": 0.0,
+      "color": "#ef4444"
+    },
+    {
+      "time": 250,
+      "scale": 1.15,
+      "opacity": 1.0,
+      "color": "#dc2626"
+    },
+    {
+      "time": 500,
+      "scale": 1.0,
+      "opacity": 0.8,
+      "color": "#ef4444"
+    },
+    {
+      "time": 750,
+      "scale": 1.15,
+      "opacity": 1.0,
+      "color": "#dc2626"
+    },
+    {
+      "time": 1000,
+      "scale": 1.0,
+      "opacity": 0.8,
+      "color": "#ef4444"
+    },
+    {
+      "time": 1250,
+      "scale": 1.15,
+      "opacity": 1.0,
+      "color": "#dc2626"
+    },
+    {
+      "time": 1500,
+      "scale": 1.0,
+      "opacity": 0.0,
+      "color": "#ef4444"
+    }
+  ],
+  "easing": "ease-in-out",
+  "loop": false,
+  "duration_ms": 1500
+}
+
+
+

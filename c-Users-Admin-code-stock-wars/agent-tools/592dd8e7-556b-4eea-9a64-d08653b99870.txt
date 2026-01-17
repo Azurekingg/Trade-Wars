@@ -1,0 +1,417 @@
+---
+pid: 15980
+cwd: |
+  C:\Users\Admin\code\stock wars
+active_command: python app.py
+---
+PS C:\Users\Admin\code\stock wars> python app.py
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.                                          
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /hq HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/style.css HTTP/1.1" 304 -     
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/three_column_layout.css HTTP/1.1" 304 -                                                                       
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/images/trade_wars_logo.png HTTP/1.1" 304 -                                                                    
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/chart_bars.svg HTTP/1.1" 304 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/chart_arrow.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/dollar_coin.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/dollar_coin_small.svg HTTP/1.1" 304 -                                                                         
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/images/hq_background.jpg HTTP/1.1" 304 -                                                                      
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/buy.mp3 HTTP/1.1" 404 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/ability.mp3 HTTP/1.1" 404 -                                                                            
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/sell.mp3 HTTP/1.1" 404 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/pop-win-casino.mp3 HTTP/1.1" 206 -                                                                     
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/button_click.mp3 HTTP/1.1" 206 -                                                                       
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/amapiano.mp3 HTTP/1.1" 206 -                                                                           
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /hq HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/style.css HTTP/1.1" 304 -     
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/three_column_layout.css HTTP/1.1" 304 -                                                                       
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/images/trade_wars_logo.png HTTP/1.1" 304 -                                                                    
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/chart_bars.svg HTTP/1.1" 304 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/chart_arrow.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/dollar_coin.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/dollar_coin_small.svg HTTP/1.1" 304 -                                                                         
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/buy.mp3 HTTP/1.1" 404 -
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/sell.mp3 HTTP/1.1" 404 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:37] "GET /static/sounds/ability.mp3 HTTP/1.1" 404 -                                                                            
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /hq HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/style.css HTTP/1.1" 304 -     
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/three_column_layout.css HTTP/1.1" 304 -                                                                       
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/images/trade_wars_logo.png HTTP/1.1" 304 -                                                                    
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/chart_bars.svg HTTP/1.1" 304 -
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/chart_arrow.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/dollar_coin.svg HTTP/1.1" 304 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/dollar_coin_small.svg HTTP/1.1" 304 -                                                                         
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/buy.mp3 HTTP/1.1" 404 -
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/sell.mp3 HTTP/1.1" 404 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/ability.mp3 HTTP/1.1" 404 -                                                                            
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /loadout_selection HTTP/1.1" 200 -    
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/style.css HTTP/1.1" 304 -     
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/three_column_layout.css HTTP/1.1" 304 -                                                                       
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/buy.mp3 HTTP/1.1" 404 -
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/sell.mp3 HTTP/1.1" 404 -                                                                               
+127.0.0.1 - - [06/Dec/2025 14:49:38] "GET /static/sounds/ability.mp3 HTTP/1.1" 404 -                                                                            
+127.0.0.1 - - [06/Dec/2025 14:49:43] "POST /confirm_loadout HTTP/1.1" 302 -     
+127.0.0.1 - - [06/Dec/2025 14:49:43] "GET /index HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:49:43] "GET /static/style.css HTTP/1.1" 304 -     
+127.0.0.1 - - [06/Dec/2025 14:49:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:44] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:45] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:46] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:47] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:48] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:49] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:50] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:51] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:52] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:53] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:54] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:55] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:56] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:57] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:58] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:49:59] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:00] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:01] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:02] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:03] "GET /get_market_data HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:50:04] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:05] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:06] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:07] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:08] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:09] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:10] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:11] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:13] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:14] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:15] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:16] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:17] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:18] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:19] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:20] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:21] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:22] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:23] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:24] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:25] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:26] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:27] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:28] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:29] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:30] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:31] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:32] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:33] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:34] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:35] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:36] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:37] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:38] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:39] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:40] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:41] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:42] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:44] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:45] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:46] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:47] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:48] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:49] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:50] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:51] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:52] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:53] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:54] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:55] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:56] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:50:58] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:00] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:01] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:02] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:03] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:04] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:05] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:06] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:07] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:08] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:09] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:10] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:11] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:12] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:13] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:14] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:15] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:16] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:17] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:18] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:19] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:20] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:21] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:22] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:23] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:24] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:25] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:26] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:27] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:28] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:29] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:30] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:31] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:32] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:33] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:34] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:35] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:36] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:37] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:38] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:39] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:40] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:41] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:42] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:44] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:45] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:46] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:47] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:48] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:51:48] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:49] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:50] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:51] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:51:51] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:52] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:53] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:54] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:55] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:57] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:58] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:59] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:51:59] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:00] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:01] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:01] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:02] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:03] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:04] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:05] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:06] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:07] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:08] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:09] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:09] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:10] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:11] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:12] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:13] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:14] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:17] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:18] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:19] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:19] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:20] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:21] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:22] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:22] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:23] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:23] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:25] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:26] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:28] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:30] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:30] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:31] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:32] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:32] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:33] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:34] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:52:34] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:35] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:36] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:37] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:38] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:39] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:40] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:41] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:42] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:44] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:45] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:46] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:47] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:48] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:49] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:50] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:51] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:52] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:53] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:54] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:55] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:56] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:58] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:52:59] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:00] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:01] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:02] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:03] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:04] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:05] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:06] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:07] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:08] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:09] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:10] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:11] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:12] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:13] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:14] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:15] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:16] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:17] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:18] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:19] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:20] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:21] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:22] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:23] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:24] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:25] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:26] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:53:26] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:27] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:28] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:29] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:30] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:31] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:32] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:33] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:34] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:35] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:36] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:37] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:38] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:39] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:40] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:41] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:42] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:44] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:45] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:46] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:47] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:48] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:49] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:50] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:52] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:53] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:54] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:55] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:56] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:57] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:58] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:53:59] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:00] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:01] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:02] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:03] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:04] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:05] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:06] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:07] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:08] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:09] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:10] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:11] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:12] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:15] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:15] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:54:15] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:54:16] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:17] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:18] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:19] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:20] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:20] "POST /game_action HTTP/1.1" 200 -
+127.0.0.1 - - [06/Dec/2025 14:54:21] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:22] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:23] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:24] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:25] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:26] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:27] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:28] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:29] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:30] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:31] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:32] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:33] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:34] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:35] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:36] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:37] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:38] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:39] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:40] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:41] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:43] "GET /get_market_data HTTP/1.1" 200 -      
+127.0.0.1 - - [06/Dec/2025 14:54:44] "GET /get_market_data HTTP/1.1" 200 -      
+Exception in thread Thread-48 (market_simulator_thread):
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\threading.py", line 1016, in _bootstrap_inner                                                
+    self.run()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\threading.py", line 953, in run                                                              
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\Admin\code\stock wars\app.py", line 515, in market_simulator_thread                                                                            
+    player_data["match_history"].append({
+KeyError: 'match_history'
+127.0.0.1 - - [06/Dec/2025 14:54:45] "GET /get_market_data HTTP/1.1" 200 -      
+[2025-12-06 14:54:56,853] ERROR in app: Exception on /inter_round [GET]
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 2190, in wsgi_app                                          
+    response = self.full_dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 1486, in full_dispatch_request                             
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 1484, in full_dispatch_request                             
+    rv = self.dispatch_request()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\app.py", line 1469, in dispatch_request                                  
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)    
+  File "C:\Users\Admin\code\stock wars\app.py", line 828, in inter_round        
+    return render_template('inter_round.html',
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\templating.py", line 151, in render_template                             
+    return _render(app, template, context)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\templating.py", line 132, in _render                                     
+    rv = template.render(context)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\jinja2\environment.py", line 1295, in render                                   
+    self.environment.handle_exception()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\jinja2\environment.py", line 942, in handle_exception                          
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\Admin\code\stock wars\templates\inter_round.html", line 1, in top-level template code                                                          
+    {% extends "base.html" %}
+  File "C:\Users\Admin\code\stock wars\templates\base.html", line 16, in top-level template code                                                                
+    {% block scripts %}{% endblock %}
+  File "C:\Users\Admin\code\stock wars\templates\inter_round.html", line 36, in block 'scripts'                                                                 
+    const playerRoundWins = {{ player_round_wins | tojson }};
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\jinja2\filters.py", line 1721, in do_tojson                                    
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps                             
+    dumps(obj, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\json\provider.py", line 180, in dumps                                    
+    return json.dumps(obj, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\json\__init__.py", line 238, in dumps                                                        
+    **kw).encode(obj)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 199, in encode                                                        
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\json\encoder.py", line 257, in iterencode                                                    
+    return _iterencode(o, 0)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\flask\json\provider.py", line 120, in _default                                 
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")                                                                              
+TypeError: Object of type Undefined is not JSON serializable
+127.0.0.1 - - [06/Dec/2025 14:54:56] "GET /inter_round HTTP/1.1" 500 -

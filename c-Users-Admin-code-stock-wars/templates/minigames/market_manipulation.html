@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Manipulation Job - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #050b14;
+            color: #e0f2fe;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #ef4444;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        h1 {
+            color: #ef4444;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 2em;
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #22c55e;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .price-display {
+            text-align: center;
+            font-size: 3em;
+            font-family: 'Orbitron', sans-serif;
+            color: #0ea5e9;
+            margin: 30px 0;
+            text-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
+        }
+        
+        .price-up { color: #22c55e; }
+        .price-down { color: #ef4444; }
+        
+        .target-zone {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px dashed #22c55e;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .target-price {
+            font-size: 1.5em;
+            color: #22c55e;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .action-btn {
+            padding: 20px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: 3px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            min-width: 150px;
+        }
+        
+        .btn-buy {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        
+        .btn-buy:hover {
+            background: rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+        
+        .btn-buy:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-sell {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .btn-sell:hover {
+            background: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn-sell:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid #fbbf24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #fef3c7;
+        }
+        
+        .sequence-display {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .sequence-item {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .sequence-buy { background: rgba(34, 197, 94, 0.3); color: #22c55e; }
+        .sequence-sell { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+        .sequence-current { border: 2px solid #fbbf24; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 10px 0;
+            min-height: 30px;
+        }
+        
+        .feedback-good { color: #22c55e; }
+        .feedback-bad { color: #ef4444; }
+        .feedback-warning { color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧨 Market Manipulation</h1>
+        <div class="instructions">
+            <strong>Instructions:</strong> Execute the sequence of BUY/SELL orders shown below. Hit the timing windows precisely when the price is in the target zone. Each correct action increases your score. Failure causes penalties.
+        </div>
+        
+        <div class="timer" id="timer">60</div>
+        <div class="score">Score: <span id="score">0</span> / <span id="max-score">0</span></div>
+        
+        <div class="target-zone">
+            <div>Target Zone</div>
+            <div class="target-price" id="target-price">$100.00 - $105.00</div>
+        </div>
+        
+        <div class="price-display" id="price-display">$100.00</div>
+        
+        <div class="sequence-display">
+            <div style="margin-bottom: 10px; color: #94a3b8;">Sequence to Execute:</div>
+            <div id="sequence-display"></div>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="action-buttons">
+            <button class="action-btn btn-buy" id="btn-buy" onclick="executeAction('buy')" data-tooltip="Click to execute a BUY order. Make sure the price is in the target zone!">BUY</button>
+            <button class="action-btn btn-sell" id="btn-sell" onclick="executeAction('sell')" data-tooltip="Click to execute a SELL order. Make sure the price is in the target zone!">SELL</button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="endJob()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Abandon Job
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Overlay -->
+    {% include 'minigames/tutorial_overlay.html' %}
+    
+    <!-- Audio Elements -->
+    <audio id="sound-buy" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-sell" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-success" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/pop-win-casino-winning-398059.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-fail" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Sound effects
+        const sounds = {
+            buy: document.getElementById('sound-buy'),
+            sell: document.getElementById('sound-sell'),
+            success: document.getElementById('sound-success'),
+            fail: document.getElementById('sound-fail')
+        };
+        
+        // Set volume for sounds
+        Object.values(sounds).forEach(sound => {
+            const savedVol = localStorage.getItem('sfx_volume');
+            if (savedVol !== null) sound.volume = parseFloat(savedVol);
+        });
+        
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Sound play failed:', e));
+            }
+        }
+        const jobData = {{ job | tojson }};
+        let currentPrice = 100.00;
+        let sequence = [];
+        let currentIndex = 0;
+        let score = 0;
+        let maxScore = 0;
+        let timeRemaining = jobData.time_limit_seconds;
+        let gameActive = true;
+        let priceDirection = 1;
+        let volatility = 0.05;
+        
+        // Generate random sequence
+        function generateSequence() {
+            const actions = ['buy', 'sell'];
+            sequence = [];
+            for (let i = 0; i < 15; i++) {
+                sequence.push(actions[Math.floor(Math.random() * actions.length)]);
+            }
+            maxScore = sequence.length;
+            displaySequence();
+        }
+        
+        function displaySequence() {
+            const container = document.getElementById('sequence-display');
+            container.innerHTML = '';
+            sequence.forEach((action, index) => {
+                const span = document.createElement('span');
+                span.className = `sequence-item sequence-${action}${index === currentIndex ? ' sequence-current' : ''}`;
+                span.textContent = action.toUpperCase();
+                container.appendChild(span);
+            });
+        }
+        
+        function updatePrice() {
+            if (!gameActive) return;
+            
+            // Extreme volatility
+            const change = (Math.random() - 0.5) * volatility * 2;
+            currentPrice = Math.max(50, Math.min(150, currentPrice * (1 + change)));
+            
+            const priceEl = document.getElementById('price-display');
+            priceEl.textContent = '$' + currentPrice.toFixed(2);
+            
+            // Update color based on change
+            priceEl.className = 'price-display';
+            if (change > 0) priceEl.classList.add('price-up');
+            else priceEl.classList.add('price-down');
+            
+            // Update target zone (changes randomly)
+            if (Math.random() < 0.1) {
+                const base = 90 + Math.random() * 20;
+                document.getElementById('target-price').textContent = 
+                    `$${base.toFixed(2)} - $${(base + 5).toFixed(2)}`;
+            }
+        }
+        
+        function executeAction(action) {
+            if (!gameActive) return;
+            
+            const expected = sequence[currentIndex];
+            const targetZone = document.getElementById('target-price').textContent;
+            const [min, max] = targetZone.match(/\$(\d+\.\d+)/g).map(s => parseFloat(s.replace('$', '')));
+            const inZone = currentPrice >= min && currentPrice <= max;
+            
+            if (action === expected && inZone) {
+                score++;
+                playSound('success');
+                playSound(action === 'buy' ? 'buy' : 'sell');
+                showFeedback('Perfect timing!', 'good');
+                currentIndex++;
+                if (currentIndex >= sequence.length) {
+                    // Sequence complete, generate new one
+                    generateSequence();
+                    currentIndex = 0;
+                    showFeedback('Sequence complete! New sequence started.', 'good');
+                }
+                displaySequence();
+            } else if (action === expected && !inZone) {
+                playSound('fail');
+                showFeedback('Correct action, but wrong timing!', 'warning');
+            } else {
+                playSound('fail');
+                showFeedback('Wrong action!', 'bad');
+                score = Math.max(0, score - 0.5);
+            }
+            
+            document.getElementById('score').textContent = Math.round(score);
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback feedback-${type}`;
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 2000);
+        }
+        
+        function endJob() {
+            if (confirm('Abandon this job? You will receive no payout.')) {
+                gameActive = false;
+                const finalScore = maxScore > 0 ? score / maxScore : 0;
+                submitJob(finalScore);
+            }
+        }
+        
+        function submitJob(score) {
+            const timeTaken = jobData.time_limit_seconds - timeRemaining;
+            fetch('/loan_shark/job/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    score: score,
+                    time_taken: timeTaken
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/loan_shark';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+        
+        // Timer
+        const timerInterval = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(timerInterval);
+                return;
+            }
+            
+            timeRemaining--;
+            document.getElementById('timer').textContent = timeRemaining;
+            
+            if (timeRemaining <= 0) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                const finalScore = maxScore > 0 ? score / maxScore : 0;
+                submitJob(finalScore);
+            }
+        }, 1000);
+        
+        // Price update
+        setInterval(updatePrice, 200);
+        
+        // Tutorial Steps (scoped to avoid conflict with tutorial overlay)
+        const marketManipulationTutorialSteps = [
+            {
+                title: "Market Manipulation Tutorial",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎯 Objective</h3>
+                        <p>Execute a sequence of BUY/SELL orders shown at the bottom. Hit the timing windows precisely when the price is in the <strong style="color: #22c55e;">target zone</strong>.</p>
+                    </div>
+                `,
+                highlight: '.target-zone'
+            },
+            {
+                title: "Understanding the Sequence",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>📋 The Sequence</h3>
+                        <p>You'll see a sequence of BUY and SELL actions you need to execute. The <strong style="color: #fbbf24;">highlighted action</strong> is the one you need to do next.</p>
+                        <div class="demo-element">
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <span style="padding: 8px 15px; background: rgba(34, 197, 94, 0.3); color: #22c55e; border-radius: 4px;">BUY</span>
+                                <span style="padding: 8px 15px; background: rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 4px; border: 2px solid #fbbf24;">SELL</span>
+                                <span style="padding: 8px 15px; background: rgba(34, 197, 94, 0.3); color: #22c55e; border-radius: 4px;">BUY</span>
+                            </div>
+                            <p style="margin-top: 10px; color: #fbbf24; font-size: 0.9em;">↑ This is your current target</p>
+                        </div>
+                    </div>
+                `,
+                highlight: '.sequence-display'
+            },
+            {
+                title: "Timing is Everything",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>⏰ Target Zone</h3>
+                        <p>The price must be within the <strong style="color: #22c55e;">target zone</strong> when you click BUY or SELL. Watch the price display - it changes rapidly!</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Tip:</strong> The price moves with extreme volatility. Wait for it to enter the green zone before executing your action!
+                        </div>
+                    </div>
+                `,
+                highlight: '#price-display'
+            },
+            {
+                title: "Controls",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎮 How to Play</h3>
+                        <p>Click the <strong style="color: #22c55e;">BUY</strong> button when you need to buy and the price is in the target zone.</p>
+                        <p>Click the <strong style="color: #ef4444;">SELL</strong> button when you need to sell and the price is in the target zone.</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Remember:</strong> Correct action + correct timing = points! Wrong action or wrong timing = penalty!
+                        </div>
+                    </div>
+                `,
+                highlight: '.action-buttons'
+            }
+        ];
+        
+        function onTutorialComplete() {
+            // Start the game
+            generateSequence();
+            updatePrice();
+        }
+        
+        // Initialize tutorial on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if tutorial was skipped before
+            const tutorialSeen = sessionStorage.getItem('market_manipulation_tutorial_seen');
+            if (!tutorialSeen) {
+                setTimeout(() => {
+                    if (typeof initTutorial === 'function') {
+                        initTutorial(marketManipulationTutorialSteps);
+                    } else {
+                        onTutorialComplete();
+                    }
+                }, 500);
+            } else {
+                onTutorialComplete();
+            }
+            
+            // Initialize tooltips
+            setTimeout(() => {
+                if (typeof addTooltip === 'function') {
+                    document.querySelectorAll('[data-tooltip]').forEach(el => {
+                        addTooltip(el, el.getAttribute('data-tooltip'));
+                    });
+                }
+            }, 1000);
+        });
+        
+        function skipTutorial() {
+            sessionStorage.setItem('market_manipulation_tutorial_seen', 'true');
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            highlightElements.forEach(el => {
+                if (el) el.classList.remove('tutorial-highlight');
+            });
+            highlightElements = [];
+            onTutorialComplete();
+        }
+    </script>
+</body>
+</html>
+

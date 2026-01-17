@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.cursor/
+terminals/
+player_data.json
+
+
+
+
+
+
+
+
+
+
+

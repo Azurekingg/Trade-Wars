@@ -1,0 +1,526 @@
+{
+    "rennelldenton2495@gmail.com": {
+        "username": "KKingPin",
+        "password": "Savagefoxx24",
+        "data": {
+            "username": "kingpin",
+            "player_id": "E27A66DE",
+            "net_worth": 142544.59899788452,
+            "owned_abilities": [
+                {
+                    "id": "pump",
+                    "name": "The Pump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "Q",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Raises price.",
+                    "rarity": "Rare",
+                    "description": "Raises price."
+                },
+                {
+                    "id": "dump",
+                    "name": "The Dump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "W",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Lowers price.",
+                    "rarity": "Rare",
+                    "description": "Lowers price."
+                },
+                {
+                    "id": "rumor",
+                    "name": "The Rumor",
+                    "type": "insider",
+                    "behavior_type": "insider",
+                    "hotkey": "E",
+                    "cost": 20000,
+                    "cooldown": 15,
+                    "function": "Reveals trend.",
+                    "rarity": "Rare",
+                    "description": "Reveals trend."
+                },
+                {
+                    "id": "flash_freeze",
+                    "name": "Flash Freeze",
+                    "type": "rare",
+                    "behavior_type": "shark",
+                    "hotkey": "R",
+                    "cost": 25000,
+                    "cooldown": 20,
+                    "function": "Blocks the opponent's ability to sell for the next 4 ticks.",
+                    "rarity": "Rare",
+                    "description": "Blocks opponent's selling."
+                },
+                {
+                    "id": "smoke_screen",
+                    "name": "Smoke Screen",
+                    "type": "rare",
+                    "behavior_type": "shark",
+                    "hotkey": "W",
+                    "cost": 10000,
+                    "cooldown": 15,
+                    "function": "Hides the price chart from the opponent for 7 ticks. Opponent cannot see price movements during this time. Tick = 1 second of match time.",
+                    "rarity": "Rare",
+                    "description": "Hides chart from opponent. Chart = the visual graph showing stock price over time."
+                },
+                {
+                    "id": "leverage_x10",
+                    "name": "Leverage x10",
+                    "type": "rare",
+                    "behavior_type": "manipulation",
+                    "hotkey": "L",
+                    "cost": 50000,
+                    "cooldown": 30,
+                    "function": "Multiplies PnL changes by 10x for 8 ticks. PnL = Profit and Loss, your score. Leverage = amplifies gains and losses. Tick = 1 second of match time.",
+                    "rarity": "Rare",
+                    "description": "High risk, high reward leverage. 10x means if you gain $100, you get $1000, but losses are also 10x bigger."
+                },
+                {
+                    "id": "news_flash",
+                    "name": "News Flash",
+                    "type": "rare",
+                    "behavior_type": "manipulation",
+                    "hotkey": "N",
+                    "cost": 45000,
+                    "cooldown": 15,
+                    "function": "Forces strong trend bias for 11 ticks. Trend = the direction price is moving (up or down). Bias = makes price more likely to move in your favor. Tick = 1 second of match time.",
+                    "rarity": "Rare",
+                    "description": "Forces market trend to favor you. Use when you own stock to push price up, or before buying to get better entry."
+                },
+                {
+                    "id": "trend_lines",
+                    "name": "Trend Lines",
+                    "type": "common",
+                    "behavior_type": "passive",
+                    "hotkey": "Passive",
+                    "cost": 5000,
+                    "cooldown": 15,
+                    "function": "Buy button flashes green if next ticks will be good (price rising), sell button flashes red if bad (price falling) for 7 ticks. Tick = 1 second of match time.",
+                    "rarity": "Common",
+                    "description": "Visual guidance on buy/sell timing. Green = good time to buy, Red = good time to sell."
+                },
+                {
+                    "id": "stop_loss_shield",
+                    "name": "Stop-Loss Shield",
+                    "type": "common",
+                    "behavior_type": "passive",
+                    "hotkey": "Passive",
+                    "cost": 5000,
+                    "cooldown": 15,
+                    "function": "Auto-sells position if PnL drops below -5% of investment.",
+                    "rarity": "Common",
+                    "description": "Auto-sells on loss."
+                }
+            ],
+            "wins": 6,
+            "losses": 2,
+            "owned_items": [],
+            "rogue_run": {
+                "active": true,
+                "hearts": 4,
+                "tokens": [],
+                "defeated_bosses": []
+            },
+            "syndicate_data": {
+                "active": false,
+                "recruited_mercs": [],
+                "emblems": [],
+                "current_tournament": null
+            },
+            "loan": {
+                "active": false,
+                "amount": 0,
+                "matches_remaining": 0,
+                "interest_rate": 0.0
+            },
+            "premises_shown": {
+                "chapter_1": true
+            },
+            "first_signin_welcome_played": true,
+            "first_loss_welcome_played": true,
+            "loans_received": [],
+            "loans_given": [],
+            "friends": [
+                "7920304B"
+            ],
+            "founding_trader": {
+                "tier": 5,
+                "badge": "Legendary Founding Trader",
+                "frame": null,
+                "soundtrack": null,
+                "trading_buddy_enabled": true,
+                "systemic_risk_mode_enabled": false,
+                "title": "Market Menace",
+                "narrator_line": "The admin who controls the markets themselves.",
+                "unique_ending_unlocked": false
+            }
+        }
+    },
+    "blackizmagic24@gmail.com": {
+        "username": "Scoop",
+        "password": "Savagefoxx24",
+        "data": {
+            "username": "Scoop",
+            "player_id": "BBF0BCF2",
+            "net_worth": 127976,
+            "owned_abilities": [
+                {
+                    "id": "pump",
+                    "name": "The Pump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "Q",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Raises price.",
+                    "rarity": "Rare",
+                    "description": "Raises price."
+                },
+                {
+                    "id": "dump",
+                    "name": "The Dump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "W",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Lowers price.",
+                    "rarity": "Rare",
+                    "description": "Lowers price."
+                },
+                {
+                    "id": "rumor",
+                    "name": "The Rumor",
+                    "type": "insider",
+                    "behavior_type": "insider",
+                    "hotkey": "E",
+                    "cost": 20000,
+                    "cooldown": 15,
+                    "function": "Reveals trend.",
+                    "rarity": "Rare",
+                    "description": "Reveals trend."
+                },
+                {
+                    "id": "flash_freeze",
+                    "name": "Flash Freeze",
+                    "type": "rare",
+                    "behavior_type": "shark",
+                    "hotkey": "R",
+                    "cost": 25000,
+                    "cooldown": 20,
+                    "function": "Blocks the opponent's ability to sell for the next 4 ticks.",
+                    "rarity": "Rare",
+                    "description": "Blocks opponent's selling."
+                }
+            ],
+            "wins": 1,
+            "losses": 0,
+            "owned_items": [],
+            "rogue_run": {
+                "active": true,
+                "hearts": 4,
+                "tokens": [],
+                "defeated_bosses": []
+            },
+            "syndicate_data": {
+                "active": false,
+                "recruited_mercs": [],
+                "emblems": [],
+                "current_tournament": null
+            },
+            "loan": {
+                "active": false,
+                "amount": 0,
+                "matches_remaining": 0,
+                "interest_rate": 0.0
+            },
+            "premises_shown": {
+                "chapter_1": true
+            },
+            "first_signin_welcome_played": true,
+            "loans_received": [],
+            "loans_given": [],
+            "founding_trader": {
+                "tier": null,
+                "badge": null,
+                "frame": null,
+                "soundtrack": null,
+                "trading_buddy_enabled": false,
+                "systemic_risk_mode_enabled": false,
+                "title": null,
+                "narrator_line": null,
+                "unique_ending_unlocked": false
+            }
+        }
+    },
+    "yrnxthesavage@gmail.com": {
+        "username": "YRNXdeSAV",
+        "password": "QweAsdZxc123!!!!!!",
+        "data": {
+            "username": "YRNXdeSAV",
+            "player_id": "7920304B",
+            "net_worth": 504188.5429122911,
+            "owned_abilities": [
+                {
+                    "id": "pump",
+                    "name": "The Pump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "Q",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Raises price.",
+                    "rarity": "Rare",
+                    "description": "Raises price."
+                },
+                {
+                    "id": "dump",
+                    "name": "The Dump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "W",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Lowers price.",
+                    "rarity": "Rare",
+                    "description": "Lowers price."
+                },
+                {
+                    "id": "rumor",
+                    "name": "The Rumor",
+                    "type": "insider",
+                    "behavior_type": "insider",
+                    "hotkey": "E",
+                    "cost": 20000,
+                    "cooldown": 15,
+                    "function": "Reveals trend.",
+                    "rarity": "Rare",
+                    "description": "Reveals trend."
+                },
+                {
+                    "id": "leverage_x10",
+                    "name": "Leverage x10",
+                    "type": "rare",
+                    "behavior_type": "manipulation",
+                    "hotkey": "L",
+                    "cost": 50000,
+                    "cooldown": 30,
+                    "function": "Multiplies PnL changes by 10x for 8 ticks. PnL = Profit and Loss, your score. Leverage = amplifies gains and losses. Tick = 1 second of match time.",
+                    "rarity": "Rare",
+                    "description": "High risk, high reward leverage. 10x means if you gain $100, you get $1000, but losses are also 10x bigger."
+                },
+                {
+                    "id": "stop_loss_shield",
+                    "name": "Stop-Loss Shield",
+                    "type": "common",
+                    "behavior_type": "passive",
+                    "hotkey": "Passive",
+                    "cost": 5000,
+                    "cooldown": 15,
+                    "function": "Auto-sells position if PnL drops below -5% of investment.",
+                    "rarity": "Common",
+                    "description": "Auto-sells on loss."
+                },
+                {
+                    "id": "trend_lines",
+                    "name": "Trend Lines",
+                    "type": "common",
+                    "behavior_type": "passive",
+                    "hotkey": "Passive",
+                    "cost": 5000,
+                    "cooldown": 15,
+                    "function": "Buy button flashes green if next ticks will be good (price rising), sell button flashes red if bad (price falling) for 7 ticks. Tick = 1 second of match time.",
+                    "rarity": "Common",
+                    "description": "Visual guidance on buy/sell timing. Green = good time to buy, Red = good time to sell."
+                },
+                {
+                    "id": "the_oracle",
+                    "name": "The Oracle",
+                    "type": "legendary",
+                    "behavior_type": "legendary",
+                    "hotkey": "O",
+                    "cost": 150000,
+                    "cooldown": 60,
+                    "function": "Shows a text box telling you when to buy then sell for 1 trade. Trade = buying then selling stock. Follow the guidance for guaranteed profit on that one trade. Cooldown = 60 ticks (1 minute).",
+                    "rarity": "Legendary",
+                    "description": "Perfect trade timing guidance. Shows exact tick numbers to buy and sell for maximum profit."
+                }
+            ],
+            "wins": 6,
+            "losses": 0,
+            "owned_items": [],
+            "rogue_run": {
+                "active": true,
+                "hearts": 4,
+                "tokens": [],
+                "defeated_bosses": []
+            },
+            "syndicate_data": {
+                "active": false,
+                "recruited_mercs": [],
+                "emblems": [],
+                "current_tournament": null
+            },
+            "loan": {
+                "active": false,
+                "amount": 0,
+                "matches_remaining": 0,
+                "interest_rate": 0.0
+            },
+            "friends": [],
+            "first_signin_welcome_played": true,
+            "first_loss_welcome_played": true,
+            "premises_shown": {
+                "chapter_1": true
+            },
+            "loans_received": [],
+            "loans_given": []
+        }
+    },
+    "zayd_17@yahoo.com": {
+        "username": "Zayd ",
+        "password": "Waleed2020!",
+        "data": {
+            "username": "Zayd ",
+            "player_id": "D5786F95",
+            "net_worth": 100000,
+            "owned_abilities": [
+                {
+                    "id": "pump",
+                    "name": "The Pump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "Q",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Raises price.",
+                    "rarity": "Rare",
+                    "description": "Raises price."
+                },
+                {
+                    "id": "dump",
+                    "name": "The Dump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "W",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Lowers price.",
+                    "rarity": "Rare",
+                    "description": "Lowers price."
+                },
+                {
+                    "id": "rumor",
+                    "name": "The Rumor",
+                    "type": "insider",
+                    "behavior_type": "insider",
+                    "hotkey": "E",
+                    "cost": 20000,
+                    "cooldown": 15,
+                    "function": "Reveals trend.",
+                    "rarity": "Rare",
+                    "description": "Reveals trend."
+                }
+            ],
+            "wins": 0,
+            "losses": 0,
+            "owned_items": [],
+            "rogue_run": {
+                "active": false,
+                "hearts": 4,
+                "tokens": [],
+                "defeated_bosses": []
+            },
+            "syndicate_data": {
+                "active": false,
+                "recruited_mercs": [],
+                "emblems": [],
+                "current_tournament": null
+            },
+            "loan": {
+                "active": false,
+                "amount": 0,
+                "matches_remaining": 0,
+                "interest_rate": 0.0
+            },
+            "friends": [],
+            "first_signin_welcome_played": true,
+            "first_loss_welcome_played": false
+        }
+    },
+    "dentonroyal4@gmail.com": {
+        "username": "big trade",
+        "password": "Trizzle321",
+        "data": {
+            "username": "big trade",
+            "player_id": "9B1A6CAF",
+            "net_worth": 100000,
+            "owned_abilities": [
+                {
+                    "id": "pump",
+                    "name": "The Pump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "Q",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Raises price.",
+                    "rarity": "Rare",
+                    "description": "Raises price."
+                },
+                {
+                    "id": "dump",
+                    "name": "The Dump",
+                    "type": "whale",
+                    "behavior_type": "whale",
+                    "hotkey": "W",
+                    "cost": 30000,
+                    "cooldown": 15,
+                    "function": "Lowers price.",
+                    "rarity": "Rare",
+                    "description": "Lowers price."
+                },
+                {
+                    "id": "rumor",
+                    "name": "The Rumor",
+                    "type": "insider",
+                    "behavior_type": "insider",
+                    "hotkey": "E",
+                    "cost": 20000,
+                    "cooldown": 15,
+                    "function": "Reveals trend.",
+                    "rarity": "Rare",
+                    "description": "Reveals trend."
+                }
+            ],
+            "wins": 0,
+            "losses": 0,
+            "owned_items": [],
+            "rogue_run": {
+                "active": false,
+                "hearts": 4,
+                "tokens": [],
+                "defeated_bosses": []
+            },
+            "syndicate_data": {
+                "active": false,
+                "recruited_mercs": [],
+                "emblems": [],
+                "current_tournament": null
+            },
+            "loan": {
+                "active": false,
+                "amount": 0,
+                "matches_remaining": 0,
+                "interest_rate": 0.0
+            },
+            "friends": [],
+            "first_signin_welcome_played": true,
+            "first_loss_welcome_played": false
+        }
+    }
+}

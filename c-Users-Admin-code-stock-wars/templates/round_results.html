@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Round Results - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0b0e14;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .results-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #334155;
+        }
+        h1 {
+            color: #f8fafc;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .winner {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .winner-player { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+        .winner-ai { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.4); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .stat-item label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+        .stat-item div {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Tech Buttons */
+        .btn {
+            position: relative;
+            padding: 15px;
+            border: 2px solid;
+            border-radius: 0;
+            font-weight: 900;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+
+        .btn-primary { 
+            background: rgba(59, 130, 246, 0.1); 
+            border-color: #3b82f6; 
+            color: #3b82f6; 
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+        .btn-primary:hover { 
+            background: rgba(59, 130, 246, 0.2); 
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-secondary { 
+            background: transparent; 
+            border-color: #64748b; 
+            color: #94a3b8; 
+        }
+        .btn-secondary:hover { 
+            border-color: #94a3b8; 
+            color: #f1f5f9; 
+            background: rgba(148, 163, 184, 0.1);
+        }
+        
+        .btn-danger { 
+            background: rgba(239, 68, 68, 0.1); 
+            border-color: #ef4444; 
+            color: #ef4444; 
+            text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+        .btn-danger:hover { 
+            background: rgba(239, 68, 68, 0.2); 
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="results-card">
+        {% if num_rounds > 1 %}
+            <h1>Round {{ current_round }} of {{ num_rounds }}</h1>
+            {% if match_complete %}
+                <h2 style="color: #fbbf24; font-size: 1.5em; margin-bottom: 20px;">Match Complete!</h2>
+            {% endif %}
+        {% else %}
+            <h1>Round Results</h1>
+        {% endif %}
+        <div class="winner {{ 'winner-player' if 'Player' in winner or 'PLAYER' in winner else 'winner-ai' }}" id="winner-display">
+            {% if winner_username %}
+                Winner: {{ winner_username }}<br>
+                <span style="font-size: 0.8em; color: #94a3b8;">Loser: {{ loser_username }}</span>
+            {% else %}
+                {{ winner }}
+            {% endif %}
+        </div>
+        
+        {% if num_rounds > 1 and round_wins %}
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong style="color: #60a5fa; display:block; margin-bottom: 10px;">Round Wins:</strong>
+            <div style="display: flex; justify-content: space-around; color: #cbd5e1;">
+                <div>Host: {{ round_wins.get('host', 0) }}</div>
+                <div>Guest: {{ round_wins.get('guest', 0) }}</div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Win condition explanation -->
+        <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid #fbbf24; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <span style="color: #fbbf24; font-size: 0.9em;">💰 <strong>Winner determined by highest total cash</strong> (Capital + Stock Value)</span>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <label>Your PnL</label>
+                <div style="color: {{ '#4ade80' if player_pnl >= 0 else '#f87171' }}">
+                    {{ "+$" if player_pnl >= 0 else "-$" }}{{ "%.2f"|format(player_pnl|abs) }}
+                </div>
+            </div>
+            <div class="stat-item">
+                <label>Opponent PnL</label>
+                <div style="color: {{ '#4ade80' if ai_pnl >= 0 else '#f87171' }}">
+                    {{ "+$" if ai_pnl >= 0 else "-$" }}{{ "%.2f"|format(ai_pnl|abs) }}
+                </div>
+            </div>
+        </div>
+
+        {% if is_academy %}
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+            <strong style="color: #60a5fa; display:block; margin-bottom: 10px;">🎓 Academy Tips:</strong>
+            <p style="margin: 0; color: #cbd5e1; font-size: 1.1em; font-style: italic;">
+                "{{ tip }}"
+            </p>
+        </div>
+        {% elif is_tutorial %}
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+            <strong style="color: #60a5fa; display:block; margin-bottom: 10px;">🎓 Academy Tips:</strong>
+            <ul style="margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 0.9em;">
+                <li>Remember: Green ticks mean the price went UP, Red means DOWN.</li>
+                <li>Check your PnL constantly. If it's negative, consider cutting losses!</li>
+                <li>Abilities can turn the tide of a losing trade. Use them wisely.</li>
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if trading_buddy_tip %}
+        <div style="background: rgba(139, 92, 246, 0.15); border: 2px solid #8b5cf6; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+            <strong style="color: #a78bfa; display:block; margin-bottom: 10px;">🤖 Trading Buddy (Coach Bot):</strong>
+            <p style="margin: 0; color: #cbd5e1; font-size: 1.1em; font-style: italic;">
+                "{{ trading_buddy_tip }}"
+            </p>
+        </div>
+        {% endif %}
+
+        {% if reset_message %}
+        <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <strong style="color: #ef4444; display:block; margin-bottom: 15px; font-size: 1.2em;">⚠️ Run Reset:</strong>
+            <p style="color: #cbd5e1; margin: 0; font-size: 1.1em;">
+                {{ reset_message }}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if show_unique_ending %}
+        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(139, 92, 246, 0.2)); border: 3px solid #ef4444; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);">
+            <strong style="color: #fbbf24; display:block; margin-bottom: 15px; font-size: 1.5em; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);">⭐ LEGENDARY FOUNDING TRADER ENDING ⭐</strong>
+            <pre style="color: #f1f5f9; font-family: 'Roboto', sans-serif; font-size: 1.1em; white-space: pre-wrap; text-align: left; background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 8px; margin: 0;">{{ unique_ending_text }}</pre>
+        </div>
+        {% endif %}
+        
+        {% if show_reward_choice %}
+        <div style="background: rgba(251, 191, 36, 0.1); border: 2px solid #fbbf24; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <strong style="color: #fbbf24; display:block; margin-bottom: 15px; font-size: 1.2em;">Choose Your Reward:</strong>
+            <div style="display: flex; gap: 15px; flex-direction: column;">
+                <form action="/choose_reward" method="POST" style="margin: 0;">
+                    <input type="hidden" name="choice" value="heart">
+                    <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444; width: 100%;">
+                        ❤️ Restore Heart
+                    </button>
+                </form>
+                <form action="/choose_reward" method="POST" style="margin: 0;">
+                    <input type="hidden" name="choice" value="token">
+                    <button type="submit" class="btn" style="background: rgba(251, 191, 36, 0.1); border-color: #fbbf24; color: #fbbf24; width: 100%;">
+                        {{ boss_token_name }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="btn-group">
+            {% if show_reward_choice %}
+                <!-- Don't show continue button until reward is chosen -->
+            {% elif num_rounds > 1 and not match_complete %}
+                <!-- More rounds to go - continue to next round -->
+                <form action="/battle" method="GET" style="margin: 0;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Continue to Next Round</button>
+                </form>
+            {% elif is_academy %}
+                <a href="{{ next_url }}" class="btn btn-primary">Back to Academy</a>
+            {% elif is_tutorial %}
+                <a href="{{ next_url }}" class="btn btn-primary">Back to Academy</a>
+            {% elif next_url %}
+                <a href="{{ next_url }}" class="btn btn-primary">Continue Run</a>
+            {% else %}
+                <a href="/lobby" class="btn btn-primary">Return to Lobby</a>
+            {% endif %}
+            {% if not show_reward_choice %}
+            <a href="/" class="btn btn-danger">Main Menu</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Audio Persistence -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="victory-sound">
+        <source src="{{ url_for('static', filename='sounds/victory.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="lose-sound">
+        <source src="{{ url_for('static', filename='sounds/lose.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+            var victorySound = document.getElementById('victory-sound');
+            var loseSound = document.getElementById('lose-sound');
+            
+            // Play win/loss sound
+            var winnerText = "{{ winner }}";
+            var playerWon = winnerText.includes('Player') || winnerText.includes('PLAYER') || winnerText.includes('VICTORY') || winnerText.includes('DEFEATED');
+            
+            if(savedSfxVol !== null) {
+                victorySound.volume = parseFloat(savedSfxVol);
+                loseSound.volume = parseFloat(savedSfxVol);
+            }
+            
+            if(playerWon) {
+                victorySound.play().catch(e => console.log('Victory sound failed', e));
+            } else {
+                loseSound.play().catch(e => console.log('Lose sound failed', e));
+            }
+
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+            }
+
+            var playPromise = audio.play();
+            if (playPromise !== undefined) playPromise.catch(e => console.log('Autoplay prevented'));
+
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Hover Sounds
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

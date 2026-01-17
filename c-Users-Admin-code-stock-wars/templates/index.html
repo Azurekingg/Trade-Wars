@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Trader Multiplayer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a;
+            /* Use the image as the background with a dark overlay */
+            background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url("{{ url_for('static', filename='images/trading_floor_background.png') }}");
+            background-size: cover;
+            background-position: center;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1000px;
+            /* Added constraint to keep content compact on PC */
+            max-height: 90vh; 
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Left Side: Title and Graphic */
+        .hero-section {
+            flex: 1;
+            text-align: center;
+            padding-right: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-title {
+            margin-bottom: 20px;
+        }
+
+        @keyframes pulse {
+            0% { filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.5)); }
+            50% { filter: drop-shadow(0 0 30px rgba(37, 99, 235, 0.8)); }
+            100% { filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.5)); }
+        }
+
+        .hero-logo {
+            max-width: 100%;
+            height: auto;
+            max-height: 350px; /* Original size for PC */
+            display: block;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em; /* Reduced for mobile */
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .graphic-placeholder {
+            font-size: 1.5em; /* Match button font size */
+            color: #34d399;
+            text-shadow: 0 0 20px rgba(52, 211, 153, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .money-display {
+            font-size: 1em; /* Same as button text (1.5em) */
+            font-weight: 700;
+            color: #f8fafc;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .coin-icon {
+            color: #fbbf24;
+            font-size: 1em; /* Same size as text */
+        }
+
+        /* Right Side: Menu Buttons */
+        .menu-section {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-end; /* Align to right like image somewhat */
+        }
+
+        /* Tech/Glitch Button Styles */
+        .menu-btn {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 900;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid;
+            border-radius: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-align: center;
+            text-decoration: none;
+            letter-spacing: 2px;
+            overflow: visible;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: all 0.2s ease;
+            box-shadow: none;
+            display: block;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* Glitch Effect Elements */
+        .menu-btn::before,
+        .menu-btn::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            z-index: -1;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+
+        /* Hover States */
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            text-shadow: 2px 0 #ff00ea, -2px 0 #00dbde;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-btn:hover::before {
+            opacity: 1;
+            transform: translate(3px, 0);
+            text-shadow: -2px 0 red;
+            animation: glitch-anim-1 0.2s infinite linear alternate-reverse;
+        }
+
+        .menu-btn:hover::after {
+            opacity: 1;
+            transform: translate(-3px, 0);
+            text-shadow: 2px 0 blue;
+            animation: glitch-anim-2 0.2s infinite linear alternate-reverse;
+        }
+
+        /* Button Variants */
+        .btn-rogue {
+            border-color: #ef4444;
+            color: #ef4444;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .btn-rogue:hover {
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-start {
+            border-color: #10b981;
+            color: #10b981;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+        .btn-start:hover {
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary, .btn-options {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+        }
+        .btn-secondary:hover, .btn-options:hover {
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Glitch Animations */
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); }
+            20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(40% 0 50% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 60% 0); }
+            100% { clip-path: inset(30% 0 30% 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); }
+            20% { clip-path: inset(30% 0 20% 0); }
+            40% { clip-path: inset(70% 0 10% 0); }
+            60% { clip-path: inset(20% 0 50% 0); }
+            80% { clip-path: inset(60% 0 20% 0); }
+            100% { clip-path: inset(5% 0 80% 0); }
+        }
+        
+        /* Removed Abilities Section */
+
+        /* Background Map Effect (Simple SVG pattern) - Removing as we have an image now, or keeping as subtle overlay */
+        .bg-map {
+            display: none; /* Hiding the pattern since we have an image background */
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            body {
+                height: 100vh;
+                min-height: 100vh;
+                padding: 10px;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .container {
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 15px;
+                padding: 10px;
+                width: 100%;
+                max-width: 100%;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+
+            .hero-section {
+                text-align: center;
+                padding-right: 0;
+                width: 100%;
+                flex: 0 0 auto;
+            }
+
+            .hero-title {
+                margin-bottom: 5px;
+            }
+
+            .hero-logo {
+                max-height: 120px; /* Much smaller on mobile */
+                width: auto;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9em; /* Smaller subtitle */
+                margin-bottom: 10px;
+                line-height: 1.2;
+            }
+
+            .graphic-placeholder {
+                justify-content: center;
+                font-size: 1.2em; /* Match button size */
+                flex-direction: row;
+                gap: 8px;
+                margin: 0;
+            }
+
+            .money-display {
+                font-size: 1em; /* Same as button text */
+                margin-top: 0;
+                gap: 5px;
+            }
+            
+            .coin-icon {
+                font-size: 1em;
+            }
+
+            .menu-section {
+                align-items: center;
+                width: 100%;
+                flex: 1 1 auto;
+                gap: 8px;
+                overflow-y: auto;
+                max-height: calc(100vh - 250px);
+            }
+
+            .menu-btn {
+                width: 100%;
+                max-width: 100%;
+                font-size: 1em; /* Smaller buttons */
+                padding: 12px;
+                margin-bottom: 5px;
+            }
+
+            .abilities-container {
+                margin-top: 20px;
+                max-width: 100%;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 600px) {
+            .hero-logo {
+                max-height: 80px;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.8em;
+                margin-bottom: 5px;
+            }
+            
+            .graphic-placeholder {
+                font-size: 1em;
+            }
+            
+            .menu-section {
+                max-height: calc(100vh - 150px);
+                gap: 5px;
+            }
+            
+            .menu-btn {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            width: 90%;
+            max-width: 400px;
+            color: #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #3b82f6;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #94a3b8;
+        }
+        .form-group input[type="range"], .form-group select {
+            width: 100%;
+            padding: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #fff;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-map"></div>
+
+    <!-- Options Modal -->
+    <div id="options-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Options</div>
+            
+            <div class="form-group">
+                <label>Music Volume</label>
+                <input type="range" id="bgm-volume" min="0" max="1" step="0.1" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label>SFX Volume</label>
+                <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="1">
+            </div>
+
+            <div class="form-group">
+                <label>Welcome Sound Volume</label>
+                <input type="range" id="welcome-volume" min="0" max="1" step="0.1" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label>Mute Welcome Sounds</label>
+                <input type="checkbox" id="mute-welcome">
+            </div>
+            
+            <div class="form-group">
+                <label>Joke Sound Volume</label>
+                <input type="range" id="joke-volume" min="0" max="1" step="0.1" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label>Mute Joke Sounds</label>
+                <input type="checkbox" id="mute-joke">
+            </div>
+            
+            <div class="form-group">
+                <label>Menu Background Music</label>
+                <select id="menu-music-select">
+                    <option value="">Default (Pixel Punch Rotation)</option>
+                    <option value="sounds/Pixel Punch.mp3">Pixel Punch</option>
+                    <option value="sounds/Pixel Punch (1).mp3">Pixel Punch (1)</option>
+                    <option value="sounds/game-music-loop-7-145285.mp3">Game Music Loop 7</option>
+                    <option value="sounds/amapiano-loop-base-banny-fernandes-297939.mp3">Amapiano Loop</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Battle Background Music</label>
+                <select id="battle-music-select">
+                    <option value="">Default (Amapiano)</option>
+                    <option value="sounds/amapiano-loop-base-banny-fernandes-297939.mp3">Amapiano Loop</option>
+                    <option value="sounds/game-music-loop-7-145285.mp3">Game Music Loop 7</option>
+                    <option value="sounds/Pixel Punch.mp3">Pixel Punch</option>
+                    <option value="sounds/Pixel Punch (1).mp3">Pixel Punch (1)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <button onclick="resetJokeSounds()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Reset Joke Sounds (Play Again)</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-close" onclick="closeOptions()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <div class="hero-title">
+                <img src="{{ url_for('static', filename='images/trade_wars_logo.png') }}" alt="Stock Wars Logo" class="hero-logo">
+            </div>
+            <div class="hero-subtitle">ARE YOU A BEAR OR BULL</div>
+            
+            <div class="graphic-placeholder">
+                <!-- Simple CSS representation of chart and coin -->
+                <div class="money-display" style="justify-content: center;">
+                    <span class="coin-icon">💰</span> 100,000
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <a href="/rogue/start_run" class="menu-btn btn-rogue" data-text="ROGUE TRADER">ROGUE TRADER</a>
+            <a href="/lobby" class="menu-btn btn-start" data-text="PLAYER VS AI">PLAYER VS AI</a>
+            <a href="/store" class="menu-btn btn-secondary" data-text="STORE">STORE</a>
+            <a href="/multiplayer" class="menu-btn btn-secondary" data-text="MULTIPLAYER">MULTIPLAYER</a>
+            <a href="/trader_academy" class="menu-btn btn-secondary" data-text="TRADER ACADEMY">TRADER ACADEMY</a>
+            <a href="/vault" class="menu-btn btn-secondary" data-text="VAULT">VAULT</a>
+            <button class="menu-btn btn-options" onclick="openOptions()" data-text="OPTIONS">OPTIONS</button>
+        </div>
+    </div>
+    
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <div id="chat-btn-container" style="position: fixed; bottom: 20px; right: 80px; z-index: 1000;">
+        <button id="chat-btn-menu" class="menu-btn-icon" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; position: relative;">
+            💬
+            <span id="chat-badge-menu" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center;">0</span>
+        </button>
+    </div>
+    
+    <!-- Chat Modal for Menu -->
+    <div id="chat-modal-menu" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 350px; max-width: 90vw; height: 500px; max-height: 70vh; background: rgba(15, 23, 42, 0.95); border: 2px solid #334155; border-radius: 12px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-direction: column;">
+        <div style="background: #1e293b; padding: 15px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button id="chat-global-btn-menu" class="chat-tab-btn active" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85em;">Global</button>
+                <button id="chat-private-btn-menu" class="chat-tab-btn" style="background: #475569; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85em;">Private</button>
+                <button id="chat-feedback-btn-menu" class="chat-tab-btn" style="background: #475569; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85em;">📝 Feedback</button>
+            </div>
+            <button id="close-chat-btn-menu" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">×</button>
+        </div>
+        <div id="chat-content-menu" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+            <div id="global-chat-menu" class="chat-section">
+                <div id="global-messages-menu" style="flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 300px;">
+                    <!-- Global messages will appear here -->
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: auto;">
+                    <input type="text" id="global-message-input-menu" placeholder="Type message..." style="flex: 1; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 14px;">
+                    <button id="send-global-btn-menu" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Send</button>
+                </div>
+            </div>
+            <div id="private-chat-menu" class="chat-section" style="display: none;">
+                <div id="friends-list-menu" style="margin-bottom: 10px; max-height: 150px; overflow-y: auto;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">Select Friend:</div>
+                    <div id="friends-list-content-menu">
+                        <!-- Friends will be listed here -->
+                    </div>
+                </div>
+                <div id="private-messages-menu" style="flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 200px;">
+                    <!-- Private messages will appear here -->
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: auto;">
+                    <input type="text" id="private-message-input-menu" placeholder="Type message..." style="flex: 1; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 14px;" disabled>
+                    <button id="send-private-btn-menu" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;" disabled>Send</button>
+                </div>
+            </div>
+            <div id="feedback-chat-menu" class="chat-section" style="display: none; flex-direction: column; height: 100%;">
+                <div id="feedback-status-menu" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-align: center; font-weight: bold;"></div>
+                
+                <!-- Compact Type Selection as Buttons -->
+                <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
+                    <button type="button" class="feedback-type-btn active" data-type="bug" style="flex: 1; min-width: 70px; padding: 8px 12px; background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; border-radius: 6px; color: #ef4444; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s;">🐛 Bug</button>
+                    <button type="button" class="feedback-type-btn" data-type="suggestion" style="flex: 1; min-width: 70px; padding: 8px 12px; background: rgba(59, 130, 246, 0.1); border: 2px solid #475569; border-radius: 6px; color: #94a3b8; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s;">💡 Idea</button>
+                    <button type="button" class="feedback-type-btn" data-type="question" style="flex: 1; min-width: 70px; padding: 8px 12px; background: rgba(251, 191, 36, 0.1); border: 2px solid #475569; border-radius: 6px; color: #94a3b8; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s;">❓ Help</button>
+                    <button type="button" class="feedback-type-btn" data-type="other" style="flex: 1; min-width: 70px; padding: 8px 12px; background: rgba(148, 163, 184, 0.1); border: 2px solid #475569; border-radius: 6px; color: #94a3b8; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: all 0.2s;">📌 Other</button>
+                </div>
+                <input type="hidden" id="feedback-type-menu" value="bug">
+                
+                <!-- Message Area -->
+                <textarea id="feedback-message-menu" placeholder="What's on your mind? Describe your feedback, bug, or question..." style="flex: 1; min-height: 150px; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font-size: 14px; resize: none; box-sizing: border-box; line-height: 1.5;"></textarea>
+                
+                <!-- Send Button -->
+                <button id="send-feedback-btn-menu" style="margin-top: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1em; transition: all 0.2s; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">
+                    📨 Send Feedback
+                </button>
+                
+                <p style="color: #64748b; font-size: 0.75em; text-align: center; margin: 10px 0 0 0;">Only the admin will see your feedback</p>
+            </div>
+        </div>
+        <div style="padding: 10px; background: #1e293b; border-top: 1px solid #334155; border-radius: 0 0 12px 12px; display: flex; gap: 5px; flex-wrap: wrap;">
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">😀</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">😎</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">🔥</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">💪</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">🎯</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">💰</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">📈</button>
+            <button class="emoji-btn-menu" style="background: transparent; border: 1px solid #475569; padding: 5px 10px; border-radius: 4px; cursor: pointer; color: white;">📉</button>
+        </div>
+    </div>
+    
+    <!-- Notification Box (Bottom Left) -->
+    <div id="notification-box" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; max-width: 300px; background: rgba(15, 23, 42, 0.95); border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; box-shadow: 0 0 20px rgba(14, 165, 233, 0.5); font-family: 'Roboto', sans-serif; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; color: #0ea5e9; font-size: 1em; text-transform: uppercase;">Notifications</h3>
+            <button id="close-notifications" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2em;">×</button>
+        </div>
+        <div id="notification-content" style="max-height: 400px; overflow-y: auto;">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+    
+    <audio id="sharky-sound">
+        <source src="{{ url_for('static', filename='sounds/sharky.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/Pixel Punch.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="welcome-sound"></audio>
+    <audio id="joke-sound"></audio>
+    <audio id="ui-click-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Options Logic
+        function openOptions() {
+            document.getElementById('options-modal').style.display = 'flex';
+        }
+        
+        function closeOptions() {
+            document.getElementById('options-modal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var bgmSlider = document.getElementById('bgm-volume');
+            var sfxSlider = document.getElementById('sfx-volume');
+            var welcomeSlider = document.getElementById('welcome-volume');
+            var muteWelcomeCheck = document.getElementById('mute-welcome');
+            var jokeSlider = document.getElementById('joke-volume');
+            var muteJokeCheck = document.getElementById('mute-joke');
+            var welcomeSound = document.getElementById('welcome-sound');
+            var jokeSound = document.getElementById('joke-sound');
+            var clickSound = document.getElementById('ui-click-sound');
+            var hoverSound = document.getElementById('hover-sound');
+            
+            // Menu music options
+            var menuMusicSelect = document.getElementById('menu-music-select');
+            var battleMusicSelect = document.getElementById('battle-music-select');
+            
+            // Default menu music rotation (Pixel Punch and Pixel Punch (1))
+            var defaultMenuTracks = [
+                "{{ url_for('static', filename='sounds/Pixel Punch.mp3') }}",
+                "{{ url_for('static', filename='sounds/Pixel Punch (1).mp3') }}"
+            ];
+            var currentTrackIndex = 0;
+            
+            // Check local storage for settings
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedWelcomeVol = localStorage.getItem('welcome_volume');
+            var savedMuteWelcome = localStorage.getItem('mute_welcome') === 'true';
+            var savedJokeVol = localStorage.getItem('joke_volume');
+            var savedMuteJoke = localStorage.getItem('mute_joke') === 'true';
+            var savedMenuMusic = localStorage.getItem('menu_music');
+            var savedBattleMusic = localStorage.getItem('battle_music');
+            
+            // Apply saved menu music selection
+            if (savedMenuMusic) {
+                menuMusicSelect.value = savedMenuMusic;
+            }
+            
+            // Apply saved battle music selection
+            if (savedBattleMusic) {
+                battleMusicSelect.value = savedBattleMusic;
+            }
+            
+            // Apply welcome sound settings
+            if(savedWelcomeVol !== null) {
+                welcomeSlider.value = savedWelcomeVol;
+                welcomeSound.volume = parseFloat(savedWelcomeVol);
+            } else {
+                welcomeSound.volume = 1.0;
+            }
+            
+            if(savedMuteWelcome) {
+                muteWelcomeCheck.checked = true;
+            }
+            
+            // Apply joke sound settings
+            if(savedJokeVol !== null) {
+                jokeSlider.value = savedJokeVol;
+                jokeSound.volume = parseFloat(savedJokeVol);
+            } else {
+                jokeSound.volume = 1.0;
+            }
+            
+            if(savedMuteJoke) {
+                muteJokeCheck.checked = true;
+            }
+            
+            // Welcome sound logic
+            {% if first_signin_welcome %}
+            if(!savedMuteWelcome) {
+                // Randomly choose between short_welcome or dont_sue_welcome
+                var welcomeTracks = [
+                    "{{ url_for('static', filename='sounds/Short_welcome.mp3') }}",
+                    "{{ url_for('static', filename='sounds/dont_sue_welcome.mp3') }}"
+                ];
+                var randomWelcome = welcomeTracks[Math.floor(Math.random() * welcomeTracks.length)];
+                welcomeSound.src = randomWelcome;
+                welcomeSound.play().catch(e => console.log('Welcome sound autoplay prevented', e));
+            }
+            {% endif %}
+            
+            {% if first_loss_welcome %}
+            if(!savedMuteWelcome) {
+                welcomeSound.src = "{{ url_for('static', filename='sounds/Disgraced_welcome_After_first_lost.mp3') }}";
+                welcomeSound.play().catch(e => console.log('Disgraced welcome sound autoplay prevented', e));
+            }
+            {% endif %}
+            
+            // Welcome volume control
+            welcomeSlider.addEventListener('input', function() {
+                welcomeSound.volume = this.value;
+                localStorage.setItem('welcome_volume', this.value);
+            });
+            
+            // Mute welcome checkbox
+            muteWelcomeCheck.addEventListener('change', function() {
+                localStorage.setItem('mute_welcome', this.checked);
+            });
+            
+            // Joke volume control
+            jokeSlider.addEventListener('input', function() {
+                jokeSound.volume = this.value;
+                localStorage.setItem('joke_volume', this.value);
+            });
+            
+            // Mute joke checkbox
+            muteJokeCheck.addEventListener('change', function() {
+                localStorage.setItem('mute_joke', this.checked);
+            });
+            
+            // Reset joke sounds function
+            window.resetJokeSounds = function() {
+                sessionStorage.removeItem('cost_money_joke_played');
+                sessionStorage.removeItem('pick_wisely_joke_played');
+                sessionStorage.removeItem('quit_joke_played');
+                alert('Joke sounds reset! They will play again on their next trigger.');
+            };
+            
+            // Menu music rotation - when track ends, play next (only if using default rotation)
+            audio.addEventListener('ended', function() {
+                if (currentTrackIndex >= 0) {
+                    currentTrackIndex = (currentTrackIndex + 1) % defaultMenuTracks.length;
+                    audio.querySelector('source').src = defaultMenuTracks[currentTrackIndex];
+                    audio.load();
+                    audio.play();
+                }
+            });
+
+            // Always start menu music from beginning on sign-in (don't use savedTime)
+            audio.currentTime = 0;
+            audio.muted = isMuted;
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedBgmVol !== null) {
+                bgmSlider.value = savedBgmVol;
+                audio.volume = parseFloat(savedBgmVol);
+            }
+            
+            if(savedSfxVol !== null) {
+                sfxSlider.value = savedSfxVol;
+                clickSound.volume = parseFloat(savedSfxVol);
+                hoverSound.volume = parseFloat(savedSfxVol);
+            }
+
+            // Set initial menu music track based on selection
+            function loadMenuMusic() {
+                var selectedMusic = menuMusicSelect.value;
+                if (selectedMusic) {
+                    // Use selected music
+                    audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + selectedMusic;
+                    audio.load();
+                    currentTrackIndex = -1; // Disable rotation for custom selection
+                } else {
+                    // Use default rotation
+                    audio.querySelector('source').src = defaultMenuTracks[0];
+                    audio.load();
+                    currentTrackIndex = 0;
+                }
+                // Always start from beginning on sign-in
+                audio.currentTime = 0;
+            }
+            
+            loadMenuMusic();
+            
+            // Menu music selection change handler
+            menuMusicSelect.addEventListener('change', function() {
+                var selectedMusic = this.value;
+                if (selectedMusic) {
+                    localStorage.setItem('menu_music', selectedMusic);
+                    audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + selectedMusic;
+                    audio.load();
+                    audio.currentTime = 0;
+                    currentTrackIndex = -1; // Disable rotation
+                    if (!audio.muted && !audio.paused) {
+                        audio.play().catch(e => console.log('Music play error', e));
+                    }
+                } else {
+                    localStorage.removeItem('menu_music');
+                    loadMenuMusic();
+                }
+            });
+            
+            // Battle music selection change handler
+            battleMusicSelect.addEventListener('change', function() {
+                var selectedMusic = this.value;
+                if (selectedMusic) {
+                    localStorage.setItem('battle_music', selectedMusic);
+                } else {
+                    localStorage.removeItem('battle_music');
+                }
+            });
+
+            // Volume Listeners
+            bgmSlider.addEventListener('input', function() {
+                audio.volume = this.value;
+                localStorage.setItem('bgm_volume', this.value);
+            });
+
+            sfxSlider.addEventListener('input', function() {
+                var val = this.value;
+                clickSound.volume = val;
+                hoverSound.volume = val;
+                localStorage.setItem('sfx_volume', val);
+            });
+
+            // Try to play
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('Autoplay prevented');
+                    // Add listener to body to play on first click
+                    document.body.addEventListener('click', function() {
+                        audio.play();
+                    }, { once: true });
+                });
+            }
+
+            // Mute Button Logic
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                this.innerHTML = audio.muted ? '🔇' : '🔊';
+                if(!audio.muted) audio.play();
+            });
+
+            // Don't save time for menu music - always start from beginning
+
+            // Button Hover & Click Effects
+            var menuBtns = document.querySelectorAll('.menu-btn, .menu-btn-icon');
+            menuBtns.forEach(function(btn) {
+                // Hover Sound
+                btn.addEventListener('mouseenter', function() {
+                    hoverSound.currentTime = 0;
+                    // Ensure volume is set before playing
+                    var savedSfxVol = localStorage.getItem('sfx_volume');
+                    if (savedSfxVol !== null) {
+                        hoverSound.volume = parseFloat(savedSfxVol);
+                    } else {
+                        hoverSound.volume = 1.0; // Default if not set
+                    }
+                    
+                    var playPromise = hoverSound.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {
+                            // Only log if not a user interaction error (common in Chrome before interaction)
+                            if (e.name !== 'NotAllowedError') {
+                                console.log("Hover sound error:", e);
+                            }
+                        });
+                    }
+                });
+
+                // Click Sound
+                if (btn.tagName === 'A') {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var href = this.getAttribute('href');
+                        
+                        // Check if it's logout/quit - play quit joke (once per session)
+                        if (href === '/logout' || href.includes('logout') || this.textContent.includes('QUIT')) {
+                            var savedMuteJoke = localStorage.getItem('mute_joke') === 'true';
+                            var savedJokeVol = localStorage.getItem('joke_volume');
+                            var quitJokePlayed = sessionStorage.getItem('quit_joke_played') === 'true';
+                            if (!savedMuteJoke && !quitJokePlayed && jokeSound) {
+                                var quitJokes = [
+                                    "{{ url_for('static', filename='sounds/Quitting_joke.mp3') }}",
+                                    "{{ url_for('static', filename='sounds/Quitting_valid_joke.mp3') }}"
+                                ];
+                                jokeSound.src = quitJokes[Math.floor(Math.random() * quitJokes.length)];
+                                if (savedJokeVol !== null) jokeSound.volume = parseFloat(savedJokeVol);
+                                jokeSound.play().catch(e => console.log('Quit joke play error', e));
+                                sessionStorage.setItem('quit_joke_played', 'true');
+                            }
+                        }
+                        
+                        // Visual effect
+                        this.classList.add('flashing');
+                        
+                        // Audio effect
+                        clickSound.currentTime = 0;
+                        clickSound.play().catch(e => console.log(e));
+                        
+                        // Delay for effect
+                        setTimeout(function() {
+                            window.location.href = href;
+                        }, 300);
+                    });
+                } else {
+                    // Normal button (like Options)
+                    btn.addEventListener('click', function() {
+                         // Visual effect
+                        this.classList.add('flashing');
+                        
+                        // Audio effect
+                        clickSound.currentTime = 0;
+                        clickSound.play().catch(e => console.log(e));
+                        
+                        // Remove class after animation
+                        var self = this;
+                        setTimeout(function() {
+                            self.classList.remove('flashing');
+                        }, 300);
+                    });
+                }
+            });
+            
+            // Notification Box Logic
+            const notificationBox = document.getElementById('notification-box');
+            const notificationContent = document.getElementById('notification-content');
+            const closeBtn = document.getElementById('close-notifications');
+            const sharkySound = document.getElementById('sharky-sound');
+            
+            // Set SFX volume for sharky sound
+            if(savedSfxVol !== null) {
+                sharkySound.volume = parseFloat(savedSfxVol);
+            }
+            
+            // Check for notifications
+            {% if loan_overdue %}
+                notificationBox.style.display = 'block';
+                let content = '<div style="color: #ef4444; margin-bottom: 15px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444;">';
+                content += '<strong>⚠️ Loan Shark Deadline!</strong><br>';
+                content += '<small>Your loan payment is overdue! Visit the Vault to pay.</small>';
+                content += '</div>';
+                notificationContent.innerHTML = content;
+                // Play sharky sound
+                sharkySound.play().catch(e => console.log('Sharky sound failed', e));
+            {% endif %}
+            
+            {% if top_players %}
+                if(notificationBox.style.display === 'none' || notificationBox.style.display === '') {
+                    notificationBox.style.display = 'block';
+                }
+                let leaderboard = '<div style="margin-top: 15px;"><strong style="color: #fbbf24; display: block; margin-bottom: 8px;">🏆 Top 5 Players:</strong>';
+                {% for player in top_players %}
+                leaderboard += '<div style="padding: 5px 0; border-bottom: 1px solid #334155; font-size: 0.9em;">';
+                leaderboard += '<span style="color: #60a5fa;">{{ player.username }}</span> ';
+                leaderboard += '<span style="color: #94a3b8; font-size: 0.85em;">({{ player.player_id }})</span><br>';
+                leaderboard += '<span style="color: #4ade80;">${{ "%.0f"|format(player.net_worth) }}</span>';
+                leaderboard += '</div>';
+                {% endfor %}
+                leaderboard += '</div>';
+                notificationContent.innerHTML += leaderboard;
+            {% endif %}
+            
+            {% if friend_invites %}
+                if(notificationBox.style.display === 'none' || notificationBox.style.display === '') {
+                    notificationBox.style.display = 'block';
+                }
+                let invites = '<div style="margin-top: 15px;"><strong style="color: #3b82f6; display: block; margin-bottom: 8px;">👥 Friend Invites:</strong>';
+                {% for invite in friend_invites %}
+                invites += '<div style="padding: 5px 0; font-size: 0.9em; color: #cbd5e1;">{{ invite }}</div>';
+                {% endfor %}
+                invites += '</div>';
+                notificationContent.innerHTML += invites;
+            {% endif %}
+            
+            // Close button
+            closeBtn.addEventListener('click', function() {
+                notificationBox.style.display = 'none';
+            });
+            
+            // Quit/Logout joke sound (once per session)
+            var quitJokePlayed = sessionStorage.getItem('quit_joke_played') === 'true';
+            var logoutLinks = document.querySelectorAll('a[href="/logout"], a[href*="logout"]');
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    var savedMuteJoke = localStorage.getItem('mute_joke') === 'true';
+                    var savedJokeVol = localStorage.getItem('joke_volume');
+                    if (!savedMuteJoke && !quitJokePlayed && jokeSound) {
+                        var quitJokes = [
+                            "{{ url_for('static', filename='sounds/Quitting_joke.mp3') }}",
+                            "{{ url_for('static', filename='sounds/Quitting_valid_joke.mp3') }}"
+                        ];
+                        jokeSound.src = quitJokes[Math.floor(Math.random() * quitJokes.length)];
+                        if (savedJokeVol !== null) jokeSound.volume = parseFloat(savedJokeVol);
+                        jokeSound.play().catch(e => console.log('Quit joke play error', e));
+                        sessionStorage.setItem('quit_joke_played', 'true');
+                    }
+                });
+            });
+        });
+        
+        // Chat System for Menu
+        const chatBtnMenu = document.getElementById('chat-btn-menu');
+        const chatModalMenu = document.getElementById('chat-modal-menu');
+        const closeChatBtnMenu = document.getElementById('close-chat-btn-menu');
+        const chatGlobalBtnMenu = document.getElementById('chat-global-btn-menu');
+        const chatPrivateBtnMenu = document.getElementById('chat-private-btn-menu');
+        const chatFeedbackBtnMenu = document.getElementById('chat-feedback-btn-menu');
+        const globalChatMenu = document.getElementById('global-chat-menu');
+        const privateChatMenu = document.getElementById('private-chat-menu');
+        const feedbackChatMenu = document.getElementById('feedback-chat-menu');
+        const globalMessagesMenu = document.getElementById('global-messages-menu');
+        const privateMessagesMenu = document.getElementById('private-messages-menu');
+        const globalInputMenu = document.getElementById('global-message-input-menu');
+        const privateInputMenu = document.getElementById('private-message-input-menu');
+        const sendGlobalBtnMenu = document.getElementById('send-global-btn-menu');
+        const sendPrivateBtnMenu = document.getElementById('send-private-btn-menu');
+        const sendFeedbackBtnMenu = document.getElementById('send-feedback-btn-menu');
+        const feedbackTypeMenu = document.getElementById('feedback-type-menu');
+        const feedbackMessageMenu = document.getElementById('feedback-message-menu');
+        const feedbackStatusMenu = document.getElementById('feedback-status-menu');
+        const friendsListContentMenu = document.getElementById('friends-list-content-menu');
+        let selectedFriendMenu = null;
+        let unreadCountMenu = 0;
+        
+        // Chat toggle
+        if (chatBtnMenu) {
+            chatBtnMenu.addEventListener('click', function() {
+                if (chatModalMenu) {
+                    chatModalMenu.style.display = chatModalMenu.style.display === 'none' ? 'flex' : 'none';
+                    if (chatModalMenu.style.display === 'flex') {
+                        unreadCountMenu = 0;
+                        updateChatBadgeMenu();
+                        loadFriendsMenu();
+                    }
+                }
+            });
+        }
+        
+        if (closeChatBtnMenu) {
+            closeChatBtnMenu.addEventListener('click', function() {
+                if (chatModalMenu) chatModalMenu.style.display = 'none';
+            });
+        }
+        
+        // Tab switching helper function
+        function setActiveTabMenu(activeBtn) {
+            [chatGlobalBtnMenu, chatPrivateBtnMenu, chatFeedbackBtnMenu].forEach(btn => {
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.style.background = '#475569';
+                    btn.style.color = '#94a3b8';
+                }
+            });
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.background = activeBtn === chatFeedbackBtnMenu ? '#8b5cf6' : '#3b82f6';
+                activeBtn.style.color = 'white';
+            }
+            if (globalChatMenu) globalChatMenu.style.display = 'none';
+            if (privateChatMenu) privateChatMenu.style.display = 'none';
+            if (feedbackChatMenu) feedbackChatMenu.style.display = 'none';
+        }
+        
+        if (chatGlobalBtnMenu) {
+            chatGlobalBtnMenu.addEventListener('click', function() {
+                setActiveTabMenu(chatGlobalBtnMenu);
+                if (globalChatMenu) globalChatMenu.style.display = 'flex';
+            });
+        }
+        
+        if (chatPrivateBtnMenu) {
+            chatPrivateBtnMenu.addEventListener('click', function() {
+                setActiveTabMenu(chatPrivateBtnMenu);
+                if (privateChatMenu) privateChatMenu.style.display = 'flex';
+                loadFriendsMenu();
+            });
+        }
+        
+        if (chatFeedbackBtnMenu) {
+            chatFeedbackBtnMenu.addEventListener('click', function() {
+                setActiveTabMenu(chatFeedbackBtnMenu);
+                if (feedbackChatMenu) feedbackChatMenu.style.display = 'flex';
+            });
+        }
+        
+        // Feedback type button selection
+        document.querySelectorAll('.feedback-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active from all
+                document.querySelectorAll('.feedback-type-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderColor = '#475569';
+                    b.style.color = '#94a3b8';
+                    b.style.background = 'rgba(30, 41, 59, 0.5)';
+                });
+                // Set active on clicked
+                this.classList.add('active');
+                const type = this.dataset.type;
+                document.getElementById('feedback-type-menu').value = type;
+                
+                // Update styling based on type
+                if (type === 'bug') {
+                    this.style.borderColor = '#ef4444';
+                    this.style.color = '#ef4444';
+                    this.style.background = 'rgba(239, 68, 68, 0.2)';
+                } else if (type === 'suggestion') {
+                    this.style.borderColor = '#3b82f6';
+                    this.style.color = '#3b82f6';
+                    this.style.background = 'rgba(59, 130, 246, 0.2)';
+                } else if (type === 'question') {
+                    this.style.borderColor = '#fbbf24';
+                    this.style.color = '#fbbf24';
+                    this.style.background = 'rgba(251, 191, 36, 0.2)';
+                } else {
+                    this.style.borderColor = '#94a3b8';
+                    this.style.color = '#94a3b8';
+                    this.style.background = 'rgba(148, 163, 184, 0.2)';
+                }
+            });
+        });
+        
+        // Send feedback
+        if (sendFeedbackBtnMenu) {
+            sendFeedbackBtnMenu.addEventListener('click', function() {
+                const feedbackType = feedbackTypeMenu ? feedbackTypeMenu.value : 'other';
+                const feedbackMsg = feedbackMessageMenu ? feedbackMessageMenu.value.trim() : '';
+                
+                if (!feedbackMsg) {
+                    alert('Please enter your feedback message');
+                    return;
+                }
+                
+                fetch('/feedback/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: feedbackType,
+                        message: feedbackMsg
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (feedbackStatusMenu) {
+                        feedbackStatusMenu.style.display = 'block';
+                        if (data.success) {
+                            feedbackStatusMenu.style.background = 'rgba(16, 185, 129, 0.2)';
+                            feedbackStatusMenu.style.border = '1px solid #10b981';
+                            feedbackStatusMenu.style.color = '#10b981';
+                            feedbackStatusMenu.textContent = '✓ Feedback sent! Thank you!';
+                            if (feedbackMessageMenu) feedbackMessageMenu.value = '';
+                        } else {
+                            feedbackStatusMenu.style.background = 'rgba(239, 68, 68, 0.2)';
+                            feedbackStatusMenu.style.border = '1px solid #ef4444';
+                            feedbackStatusMenu.style.color = '#ef4444';
+                            feedbackStatusMenu.textContent = data.message || 'Failed to send feedback';
+                        }
+                        setTimeout(() => {
+                            feedbackStatusMenu.style.display = 'none';
+                        }, 3000);
+                    }
+                })
+                .catch(err => {
+                    console.error('Feedback error:', err);
+                    alert('Failed to send feedback');
+                });
+            });
+        }
+        
+        // Emoji buttons
+        document.querySelectorAll('.emoji-btn-menu').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const emoji = this.textContent;
+                const activeInput = globalChatMenu.style.display !== 'none' ? globalInputMenu : privateInputMenu;
+                if (activeInput && !activeInput.disabled) {
+                    activeInput.value += emoji;
+                    activeInput.focus();
+                }
+            });
+        });
+        
+        // Send global message
+        if (sendGlobalBtnMenu) {
+            sendGlobalBtnMenu.addEventListener('click', sendGlobalMessageMenu);
+        }
+        if (globalInputMenu) {
+            globalInputMenu.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendGlobalMessageMenu();
+            });
+        }
+        
+        function sendGlobalMessageMenu() {
+            const message = globalInputMenu.value.trim();
+            if (message) {
+                fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: 'global',
+                        message: message
+                    })
+                });
+                globalInputMenu.value = '';
+            }
+        }
+        
+        // Send private message
+        if (sendPrivateBtnMenu) {
+            sendPrivateBtnMenu.addEventListener('click', sendPrivateMessageMenu);
+        }
+        if (privateInputMenu) {
+            privateInputMenu.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !privateInputMenu.disabled) sendPrivateMessageMenu();
+            });
+        }
+        
+        function sendPrivateMessageMenu() {
+            if (!selectedFriendMenu) return;
+            const message = privateInputMenu.value.trim();
+            if (message) {
+                fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: 'private',
+                        friend_id: selectedFriendMenu,
+                        message: message
+                    })
+                });
+                privateInputMenu.value = '';
+            }
+        }
+        
+        // Load friends for private chat
+        function loadFriendsMenu() {
+            fetch('/chat/friends')
+                .then(res => res.json())
+                .then(data => {
+                    if (friendsListContentMenu) {
+                        friendsListContentMenu.innerHTML = '';
+                        if (data.friends && data.friends.length > 0) {
+                            data.friends.forEach(friend => {
+                                const friendBtn = document.createElement('button');
+                                friendBtn.textContent = friend.username || friend.player_id;
+                                friendBtn.style.cssText = 'width: 100%; padding: 8px; margin-bottom: 5px; background: #334155; border: 1px solid #475569; border-radius: 6px; color: white; cursor: pointer; text-align: left;';
+                                friendBtn.addEventListener('click', function() {
+                                    selectedFriendMenu = friend.player_id;
+                                    if (privateInputMenu) privateInputMenu.disabled = false;
+                                    if (sendPrivateBtnMenu) sendPrivateBtnMenu.disabled = false;
+                                    document.querySelectorAll('#friends-list-content-menu button').forEach(b => {
+                                        b.style.background = '#334155';
+                                    });
+                                    this.style.background = '#3b82f6';
+                                    loadPrivateMessagesMenu(friend.player_id);
+                                });
+                                friendsListContentMenu.appendChild(friendBtn);
+                            });
+                        } else {
+                            friendsListContentMenu.innerHTML = '<div style="color: #94a3b8; font-size: 12px; padding: 10px;">No friends added yet</div>';
+                        }
+                    }
+                });
+        }
+        
+        function loadPrivateMessagesMenu(friendId) {
+            fetch(`/chat/private/${friendId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (privateMessagesMenu) {
+                        privateMessagesMenu.innerHTML = '';
+                        if (data.messages) {
+                            data.messages.forEach(msg => {
+                                addMessageToPrivateMenu(msg);
+                            });
+                        }
+                    }
+                });
+        }
+        
+        function addMessageToPrivateMenu(msg) {
+            if (!privateMessagesMenu) return;
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = 'padding: 8px; background: #1e293b; border-radius: 6px; margin-bottom: 5px;';
+            msgDiv.innerHTML = `<strong style="color: #60a5fa;">${msg.sender}:</strong> <span style="color: #e2e8f0;">${msg.message}</span>`;
+            privateMessagesMenu.appendChild(msgDiv);
+            privateMessagesMenu.scrollTop = privateMessagesMenu.scrollHeight;
+        }
+        
+        // Poll for new messages
+        setInterval(function() {
+            if (chatModalMenu && chatModalMenu.style.display === 'flex') {
+                fetch('/chat/messages')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.global && globalMessagesMenu) {
+                            globalMessagesMenu.innerHTML = '';
+                            data.global.forEach(msg => {
+                                const msgDiv = document.createElement('div');
+                                msgDiv.style.cssText = 'padding: 8px; background: #1e293b; border-radius: 6px; margin-bottom: 5px;';
+                                msgDiv.innerHTML = `<strong style="color: #60a5fa;">${msg.sender}:</strong> <span style="color: #e2e8f0;">${msg.message}</span>`;
+                                globalMessagesMenu.appendChild(msgDiv);
+                            });
+                            globalMessagesMenu.scrollTop = globalMessagesMenu.scrollHeight;
+                        }
+                    });
+            } else {
+                // Check for unread
+                fetch('/chat/unread')
+                    .then(res => res.json())
+                    .then(data => {
+                        unreadCountMenu = data.count || 0;
+                        updateChatBadgeMenu();
+                    });
+            }
+        }, 2000);
+        
+        function updateChatBadgeMenu() {
+            const badge = document.getElementById('chat-badge-menu');
+            if (badge) {
+                if (unreadCountMenu > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = unreadCountMenu > 9 ? '9+' : unreadCountMenu;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

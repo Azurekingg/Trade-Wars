@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prep Phase - {{ boss.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0f172a;
+            color: #e0e0e0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+        }
+
+        h1 { color: #ef4444; margin-top: 0; }
+        .boss-info {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .ability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ability-card-item {
+            background: #334155;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            font-size: 0.9em;
+            border: 1px solid transparent;
+        }
+        
+        .ability-card-item:hover { border-color: #60a5fa; }
+        .ability-card-item input { position: absolute; top: 10px; right: 10px; }
+
+        /* Tech Button */
+        .btn-start {
+            position: relative;
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 900;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            border-radius: 0;
+            cursor: pointer;
+            text-transform: uppercase;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: all 0.2s;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn-start:hover {
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VS {{ boss.name }}</h1>
+        <div class="boss-info">
+            <strong>Market:</strong> {{ boss.title }}<br>
+            <strong>Boss Ability:</strong> {{ boss.ability_desc }}<br>
+            <strong>Volatility:</strong> {{ boss.volatility }}
+        </div>
+
+        <h3>Select Your Loadout (Max 3)</h3>
+        <form action="/rogue/start_match" method="POST">
+            <input type="hidden" name="boss_id" value="{{ boss.id }}">
+            <div class="ability-grid">
+                {% for ability in abilities %}
+                <label class="ability-card-item">
+                    <div style="font-weight:bold; margin-bottom:5px;">{{ ability.name }}</div>
+                    <div style="font-size:0.8em; color:#94a3b8;">{{ ability.rarity }}</div>
+                    <div style="font-size:0.8em; margin-top:5px;">{{ ability.description }}</div>
+                    <input type="checkbox" name="equipped_abilities" value="{{ ability.id }}">
+                </label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn-start">ENTER MARKET</button>
+        </form>
+        <a href="/rogue/menu" style="display:block; text-align:center; margin-top:20px; color:#94a3b8;">Cancel</a>
+    </div>
+
+    <!-- Audio Persistence -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            var playPromise = audio.play();
+            if (playPromise !== undefined) playPromise.catch(e => console.log('Autoplay prevented'));
+
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Button Hover Sounds
+            const buttons = document.querySelectorAll('.btn-start, a, .ability-card-item');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+
+            // Selection Sounds
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(box => {
+                box.addEventListener('change', function() {
+                    if(this.checked) {
+                        selectSound.currentTime = 0;
+                        selectSound.play().catch(e => {});
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+

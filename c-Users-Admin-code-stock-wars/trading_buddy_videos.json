@@ -1,0 +1,250 @@
+{
+  "version": "1.0",
+  "last_updated": "2024-01-01",
+  "videos": [
+    {
+      "id": "win_tip_1",
+      "title": "Risk Management Victory",
+      "description": "Tips for managing risk after a win",
+      "video_file": "static/videos/win_risk_management.mp4",
+      "thumbnail": "static/images/video_thumbnails/win_risk_thumb.png",
+      "vfx_file": null,
+      "category": "win",
+      "subcategory": "risk_management",
+      "tags": ["win", "risk", "management", "strategy"],
+      "duration_seconds": 30,
+      "enabled": true,
+      "order": 1,
+      "tier_requirement": 3,
+      "conditions": {
+        "min_pnl": 0,
+        "market_types": ["all"]
+      }
+    },
+    {
+      "id": "win_tip_2",
+      "title": "Profit Taking Strategy",
+      "description": "When to take profits and lock in gains",
+      "video_file": "static/videos/win_profit_taking.mp4",
+      "thumbnail": "static/images/video_thumbnails/win_profit_thumb.png",
+      "vfx_file": "static/vfx/profit_glow.json",
+      "category": "win",
+      "subcategory": "profit_taking",
+      "tags": ["win", "profit", "strategy", "gains"],
+      "duration_seconds": 45,
+      "enabled": true,
+      "order": 2,
+      "tier_requirement": 3,
+      "conditions": {
+        "min_pnl": 1000,
+        "market_types": ["all"]
+      }
+    },
+    {
+      "id": "loss_tip_1",
+      "title": "Learning from Losses",
+      "description": "How to analyze losing trades and improve",
+      "video_file": "static/videos/loss_analysis.mp4",
+      "thumbnail": "static/images/video_thumbnails/loss_analysis_thumb.png",
+      "vfx_file": null,
+      "category": "loss",
+      "subcategory": "analysis",
+      "tags": ["loss", "analysis", "learning", "improvement"],
+      "duration_seconds": 40,
+      "enabled": true,
+      "order": 1,
+      "tier_requirement": 3,
+      "conditions": {
+        "max_pnl": 0,
+        "market_types": ["all"]
+      }
+    },
+    {
+      "id": "loss_tip_2",
+      "title": "Stop Loss Strategy",
+      "description": "Cutting losses early to protect capital",
+      "video_file": "static/videos/loss_stop_loss.mp4",
+      "thumbnail": "static/images/video_thumbnails/loss_stop_thumb.png",
+      "vfx_file": "static/vfx/warning_pulse.json",
+      "category": "loss",
+      "subcategory": "risk_management",
+      "tags": ["loss", "stop_loss", "risk", "protection"],
+      "duration_seconds": 35,
+      "enabled": true,
+      "order": 2,
+      "tier_requirement": 3,
+      "conditions": {
+        "max_pnl": -500,
+        "market_types": ["all"]
+      }
+    },
+    {
+      "id": "general_tip_1",
+      "title": "Market Volatility Basics",
+      "description": "Understanding market volatility and how to trade it",
+      "video_file": "static/videos/general_volatility.mp4",
+      "thumbnail": "static/images/video_thumbnails/general_volatility_thumb.png",
+      "vfx_file": null,
+      "category": "general",
+      "subcategory": "education",
+      "tags": ["general", "volatility", "education", "basics"],
+      "duration_seconds": 60,
+      "enabled": true,
+      "order": 1,
+      "tier_requirement": 3,
+      "conditions": {
+        "market_types": ["all"]
+      }
+    }
+  ],
+  "vfx": [
+    {
+      "id": "profit_glow",
+      "name": "Profit Glow Effect",
+      "file": "static/vfx/profit_glow.json",
+      "type": "particle",
+      "enabled": true,
+      "description": "Glowing golden effect for profit tips",
+      "duration_ms": 2000,
+      "intensity": "medium",
+      "color_scheme": {
+        "primary": "#fbbf24",
+        "secondary": "#f59e0b",
+        "glow": "#fef3c7"
+      },
+      "animation": {
+        "type": "fade_in_out",
+        "speed": "normal",
+        "loop": false
+      }
+    },
+    {
+      "id": "warning_pulse",
+      "name": "Warning Pulse",
+      "file": "static/vfx/warning_pulse.json",
+      "type": "animation",
+      "enabled": true,
+      "description": "Pulsing red warning effect for loss tips",
+      "duration_ms": 1500,
+      "intensity": "high",
+      "color_scheme": {
+        "primary": "#ef4444",
+        "secondary": "#dc2626",
+        "glow": "#fca5a5"
+      },
+      "animation": {
+        "type": "pulse",
+        "speed": "fast",
+        "loop": true,
+        "pulse_count": 3
+      }
+    },
+    {
+      "id": "success_sparkle",
+      "name": "Success Sparkle",
+      "file": "static/vfx/success_sparkle.json",
+      "type": "particle",
+      "enabled": true,
+      "description": "Sparkling effect for major wins",
+      "duration_ms": 3000,
+      "intensity": "high",
+      "color_scheme": {
+        "primary": "#10b981",
+        "secondary": "#059669",
+        "glow": "#6ee7b7"
+      },
+      "animation": {
+        "type": "sparkle",
+        "speed": "normal",
+        "loop": false,
+        "particle_count": 50
+      }
+    },
+    {
+      "id": "market_crash",
+      "name": "Market Crash Effect",
+      "file": "static/vfx/market_crash.json",
+      "type": "animation",
+      "enabled": true,
+      "description": "Dramatic effect for significant losses",
+      "duration_ms": 2500,
+      "intensity": "extreme",
+      "color_scheme": {
+        "primary": "#7f1d1d",
+        "secondary": "#991b1b",
+        "glow": "#fca5a5"
+      },
+      "animation": {
+        "type": "shake_crash",
+        "speed": "fast",
+        "loop": false,
+        "shake_intensity": "high"
+      }
+    },
+    {
+      "id": "tech_glitch",
+      "name": "Tech Glitch Effect",
+      "file": "static/vfx/tech_glitch.json",
+      "type": "animation",
+      "enabled": true,
+      "description": "Tech-themed glitch effect for special events",
+      "duration_ms": 1000,
+      "intensity": "medium",
+      "color_scheme": {
+        "primary": "#0ea5e9",
+        "secondary": "#0284c7",
+        "glow": "#7dd3fc"
+      },
+      "animation": {
+        "type": "glitch",
+        "speed": "very_fast",
+        "loop": false,
+        "glitch_count": 5
+      }
+    }
+  ],
+  "playlists": [
+    {
+      "id": "win_playlist",
+      "name": "Victory Tips",
+      "description": "Videos shown after winning trades",
+      "video_ids": ["win_tip_1", "win_tip_2"],
+      "shuffle": true,
+      "enabled": true
+    },
+    {
+      "id": "loss_playlist",
+      "name": "Learning from Losses",
+      "description": "Videos shown after losing trades",
+      "video_ids": ["loss_tip_1", "loss_tip_2"],
+      "shuffle": true,
+      "enabled": true
+    },
+    {
+      "id": "general_playlist",
+      "name": "General Trading Tips",
+      "description": "Educational content for all scenarios",
+      "video_ids": ["general_tip_1"],
+      "shuffle": false,
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "auto_play": true,
+    "show_controls": true,
+    "volume": 0.7,
+    "default_vfx_intensity": "medium",
+    "enable_transitions": true,
+    "transition_duration_ms": 500
+  },
+  "metadata": {
+    "total_videos": 5,
+    "total_vfx": 5,
+    "total_playlists": 3,
+    "supported_video_formats": ["mp4", "webm", "ogg"],
+    "supported_vfx_formats": ["json"],
+    "max_video_size_mb": 100,
+    "recommended_resolution": "1920x1080",
+    "recommended_fps": 30
+  }
+}

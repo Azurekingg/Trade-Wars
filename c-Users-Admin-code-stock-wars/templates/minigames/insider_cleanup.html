@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insider Cleanup Job - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #050b14;
+            color: #e0f2fe;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #fbbf24;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+        }
+        
+        h1 {
+            color: #fbbf24;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 2em;
+            font-family: 'Orbitron', sans-serif;
+            color: #fbbf24;
+            margin-bottom: 20px;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #22c55e;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .instructions {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid #fbbf24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #fef3c7;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .data-item {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid;
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .data-item.fake {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .data-item.legal {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.2);
+        }
+        
+        .data-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+        }
+        
+        .data-item.scrubbed {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .regulator-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(239, 68, 68, 0.95);
+            color: #fff;
+            padding: 30px 50px;
+            border-radius: 8px;
+            font-size: 1.5em;
+            font-weight: bold;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.8);
+            border: 3px solid #fff;
+        }
+        
+        .regulator-warning.active {
+            display: block;
+            animation: pulse 0.5s infinite;
+        }
+        
+        .regulator-preview {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(251, 191, 36, 0.95);
+            color: #000;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+            border: 2px solid #fbbf24;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .regulator-preview.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .game-container.shake {
+            animation: shake-border 0.1s infinite;
+        }
+        
+        @keyframes shake-border {
+            0%, 100% { 
+                border-color: #ef4444;
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+            }
+            25% { 
+                transform: translate(-2px, -2px);
+                border-color: #dc2626;
+            }
+            50% { 
+                transform: translate(2px, 2px);
+                border-color: #b91c1c;
+            }
+            75% { 
+                transform: translate(-2px, 2px);
+                border-color: #dc2626;
+            }
+        }
+        
+        .data-item {
+            transition: transform 0.3s ease;
+        }
+        
+        .data-item.shuffling {
+            animation: shuffle-move 0.5s ease-in-out;
+        }
+        
+        @keyframes shuffle-move {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(5px, -5px) rotate(2deg); }
+            50% { transform: translate(-5px, 5px) rotate(-2deg); }
+            75% { transform: translate(5px, 5px) rotate(1deg); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 10px 0;
+            min-height: 30px;
+        }
+        
+        .feedback-good { color: #22c55e; }
+        .feedback-bad { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧠 Insider Cleanup</h1>
+        <div class="instructions">
+            <strong>Instructions:</strong> Scrub fake data (red) by clicking on them. Avoid clicking legal data (green). Watch out for regulator detection! Mistakes increase interest instead of clearing debt.
+        </div>
+        
+        <div class="timer" id="timer">90</div>
+        <div class="score">Scrubbed: <span id="score">0</span> / <span id="total-fake">0</span></div>
+        
+        <div class="regulator-preview" id="regulator-preview">
+            ⚠️ REGULATOR APPROACHING IN 3 SECONDS! ⚠️
+        </div>
+        <div class="regulator-preview" id="regulator-preview">
+            ⚠️ REGULATOR APPROACHING IN 3 SECONDS! ⚠️
+        </div>
+        <div class="regulator-warning" id="regulator-warning">
+            ⚠️ REGULATOR DETECTED! Hide quickly! ⚠️
+        </div>
+        
+        <div class="data-grid" id="data-grid"></div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="endJob()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Abandon Job
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tutorial Overlay -->
+    {% include 'minigames/tutorial_overlay.html' %}
+    
+    <!-- Audio Elements -->
+    <audio id="sound-scrub" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-button-heavy-button-press-metallic-333826.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-mistake" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-regulator" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/ability-activated-6104.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="sound-success" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/pop-win-casino-winning-398059.mp3') }}" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Sound effects
+        const sounds = {
+            scrub: document.getElementById('sound-scrub'),
+            mistake: document.getElementById('sound-mistake'),
+            regulator: document.getElementById('sound-regulator'),
+            success: document.getElementById('sound-success')
+        };
+        
+        // Set volume for sounds
+        Object.values(sounds).forEach(sound => {
+            const savedVol = localStorage.getItem('sfx_volume');
+            if (savedVol !== null) sound.volume = parseFloat(savedVol);
+        });
+        
+        function playSound(soundName) {
+            const sound = sounds[soundName];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Sound play failed:', e));
+            }
+        }
+        const jobData = {{ job | tojson }};
+        let score = 0;
+        let totalFake = 0;
+        let mistakes = 0;
+        let timeRemaining = jobData.time_limit_seconds;
+        let gameActive = true;
+        let dataItems = [];
+        let regulatorActive = false;
+        
+        function generateData() {
+            const grid = document.getElementById('data-grid');
+            grid.innerHTML = '';
+            dataItems = [];
+            totalFake = 0;
+            
+            // Generate 20 data items
+            for (let i = 0; i < 20; i++) {
+                const isFake = Math.random() < 0.4; // 40% fake
+                if (isFake) totalFake++;
+                
+                const item = document.createElement('div');
+                item.className = `data-item ${isFake ? 'fake' : 'legal'}`;
+                item.textContent = isFake ? 'FAKE' : 'LEGAL';
+                item.dataset.isFake = isFake;
+                item.onclick = () => handleClick(item);
+                grid.appendChild(item);
+                dataItems.push(item);
+            }
+            
+            document.getElementById('total-fake').textContent = totalFake;
+        }
+        
+        function shuffleDataItems() {
+            if (!gameActive || regulatorActive) return;
+            
+            const grid = document.getElementById('data-grid');
+            const items = Array.from(grid.children);
+            
+            // Add shuffle animation
+            items.forEach(item => {
+                item.classList.add('shuffling');
+            });
+            
+            // Shuffle positions
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                grid.insertBefore(items[j], items[i]);
+            }
+            
+            // Remove animation after shuffle completes
+            setTimeout(() => {
+                items.forEach(item => {
+                    item.classList.remove('shuffling');
+                });
+            }, 500);
+        }
+        
+        function handleClick(item) {
+            if (!gameActive || item.classList.contains('scrubbed') || regulatorActive) return;
+            
+            const isFake = item.dataset.isFake === 'true';
+            
+            if (isFake) {
+                score++;
+                playSound('scrub');
+                item.classList.add('scrubbed');
+                showFeedback('Fake data scrubbed!', 'good');
+                
+                if (score >= totalFake) {
+                    playSound('success');
+                    // All fake data scrubbed, generate new set
+                    setTimeout(() => {
+                        generateData();
+                        score = 0;
+                    }, 1000);
+                }
+            } else {
+                mistakes++;
+                playSound('mistake');
+                showFeedback('Legal data! Mistake!', 'bad');
+                item.style.animation = 'shake 0.5s';
+            }
+            
+            document.getElementById('score').textContent = score;
+        }
+        
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback feedback-${type}`;
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 2000);
+        }
+        
+        function triggerRegulator() {
+            if (regulatorActive) return;
+            
+            // Show 3-second warning first
+            const preview = document.getElementById('regulator-preview');
+            const gameContainer = document.querySelector('.game-container');
+            
+            preview.classList.add('active');
+            
+            // After 3 seconds, trigger the regulator event
+            setTimeout(() => {
+                preview.classList.remove('active');
+                regulatorActive = true;
+                playSound('regulator');
+                
+                // Add shake animation to game container
+                if (gameContainer) {
+                    gameContainer.classList.add('shake');
+                }
+                
+                document.getElementById('regulator-warning').classList.add('active');
+                
+                // Disable all items temporarily
+                dataItems.forEach(item => {
+                    item.style.pointerEvents = 'none';
+                });
+                
+                // After 3 seconds, remove regulator effects
+                setTimeout(() => {
+                    regulatorActive = false;
+                    document.getElementById('regulator-warning').classList.remove('active');
+                    if (gameContainer) {
+                        gameContainer.classList.remove('shake');
+                    }
+                    dataItems.forEach(item => {
+                        if (!item.classList.contains('scrubbed')) {
+                            item.style.pointerEvents = 'auto';
+                        }
+                    });
+                }, 3000);
+            }, 3000);
+        }
+        
+        function endJob() {
+            if (confirm('Abandon this job? You will receive no payout.')) {
+                gameActive = false;
+                const finalScore = totalFake > 0 ? (score / totalFake) - (mistakes * 0.1) : 0;
+                submitJob(Math.max(0, Math.min(1, finalScore)));
+            }
+        }
+        
+        function submitJob(score) {
+            const timeTaken = jobData.time_limit_seconds - timeRemaining;
+            fetch('/loan_shark/job/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    score: score,
+                    time_taken: timeTaken
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/loan_shark';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+        
+        // Timer
+        const timerInterval = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(timerInterval);
+                return;
+            }
+            
+            timeRemaining--;
+            document.getElementById('timer').textContent = timeRemaining;
+            
+            if (timeRemaining <= 0) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                const finalScore = totalFake > 0 ? (score / totalFake) - (mistakes * 0.1) : 0;
+                submitJob(Math.max(0, Math.min(1, finalScore)));
+            }
+        }, 1000);
+        
+        // Shuffle data items every 5-10 seconds
+        function scheduleShuffle() {
+            if (!gameActive) return;
+            const delay = 5000 + Math.random() * 5000; // 5-10 seconds
+            setTimeout(() => {
+                if (gameActive && !regulatorActive) {
+                    shuffleDataItems();
+                }
+                scheduleShuffle(); // Schedule next shuffle
+            }, delay);
+        }
+        scheduleShuffle();
+        
+        // Regulator detection (random)
+        setInterval(() => {
+            if (gameActive && Math.random() < 0.15) {
+                triggerRegulator();
+            }
+        }, 5000);
+        
+        // Tutorial Steps (scoped to avoid conflict with tutorial overlay)
+        const insiderCleanupTutorialSteps = [
+            {
+                title: "Insider Cleanup Tutorial",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🎯 Objective</h3>
+                        <p>Scrub <strong style="color: #ef4444;">fake data (red)</strong> by clicking on them. Avoid clicking <strong style="color: #22c55e;">legal data (green)</strong>. Watch out for regulator detection!</p>
+                    </div>
+                `,
+                highlight: '#data-grid'
+            },
+            {
+                title: "Identifying Fake Data",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🔴 Fake Data (Red)</h3>
+                        <p>These are marked with red borders and say "FAKE". Click them to scrub them clean.</p>
+                        <div class="demo-element">
+                            <div style="background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; padding: 15px; border-radius: 4px; text-align: center; color: #fca5a5; font-weight: bold;">FAKE</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Avoid Legal Data",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>🟢 Legal Data (Green)</h3>
+                        <p>These are marked with green borders and say "LEGAL". Clicking them is a mistake and increases your interest!</p>
+                        <div class="demo-element">
+                            <div style="background: rgba(34, 197, 94, 0.2); border: 2px solid #22c55e; padding: 15px; border-radius: 4px; text-align: center; color: #86efac; font-weight: bold;">LEGAL</div>
+                        </div>
+                        <div class="highlight-box">
+                            <strong style="color: #ef4444;">Warning:</strong> Mistakes increase interest instead of clearing debt!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Regulator Detection",
+                content: `
+                    <div class="tutorial-step">
+                        <h3>⚠️ Regulator Warning</h3>
+                        <p>Sometimes a regulator will appear! When this happens, all buttons are disabled for 3 seconds. Don't click anything during this time!</p>
+                        <div class="highlight-box">
+                            <strong style="color: #fbbf24;">Tip:</strong> The regulator warning appears randomly. Stay alert!
+                        </div>
+                    </div>
+                `,
+                highlight: '#regulator-warning'
+            }
+        ];
+        
+        function onTutorialComplete() {
+            generateData();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialSeen = sessionStorage.getItem('insider_cleanup_tutorial_seen');
+            if (!tutorialSeen) {
+                setTimeout(() => {
+                    if (typeof initTutorial === 'function') {
+                        initTutorial(insiderCleanupTutorialSteps);
+                    } else {
+                        onTutorialComplete();
+                    }
+                }, 500);
+            } else {
+                onTutorialComplete();
+            }
+            
+            // Initialize tooltips
+            setTimeout(() => {
+                if (typeof addTooltip === 'function') {
+                    document.querySelectorAll('[data-tooltip]').forEach(el => {
+                        addTooltip(el, el.getAttribute('data-tooltip'));
+                    });
+                }
+            }, 1000);
+        });
+        
+        function skipTutorial() {
+            sessionStorage.setItem('insider_cleanup_tutorial_seen', 'true');
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            highlightElements.forEach(el => {
+                if (el) el.classList.remove('tutorial-highlight');
+            });
+            highlightElements = [];
+            onTutorialComplete();
+        }
+    </script>
+</body>
+</html>
+

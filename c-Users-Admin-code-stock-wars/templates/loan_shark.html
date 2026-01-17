@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Shark - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/backalley.png') }}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #ef4444;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: #ef4444;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .loan-status {
+            background: #1e293b;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ef4444;
+            text-align: left;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .loan-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .loan-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .loan-card:hover {
+            border-color: #ef4444;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .terms {
+            font-size: 0.8em;
+            color: #94a3b8;
+        }
+
+        .warning {
+            color: #ef4444;
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+        }
+
+        .btn-take {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-take:hover { background: #dc2626; }
+
+        .btn-pay {
+            background: #22c55e;
+            color: white;
+        }
+        .btn-pay:hover { background: #16a34a; }
+
+        .btn-back {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            margin-top: 20px;
+        }
+        .btn-back:hover { color: #fff; border-color: #fff; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Loan Shark</h1>
+        <div class="subtitle">"Need capital? I got you. Just pay me back... or else."</div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div style="background: {% if category == 'error' %}rgba(239, 68, 68, 0.2){% elif category == 'warning' %}rgba(251, 191, 36, 0.2){% else %}rgba(59, 130, 246, 0.2){% endif %}; 
+                            border: 2px solid {% if category == 'error' %}#ef4444{% elif category == 'warning' %}#fbbf24{% else %}#3b82f6{% endif %}; 
+                            padding: 15px; margin-bottom: 20px; border-radius: 4px; color: {% if category == 'error' %}#fca5a5{% elif category == 'warning' %}#fef3c7{% else %}#cbd5e1{% endif %};">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if player_data.loan.active %}
+        <div class="loan-status">
+            <h3 style="margin-top:0; color:#ef4444;">Active Debt</h3>
+            <div class="status-row">
+                <span>Principal:</span>
+                <span>${{ player_data.loan.amount }}</span>
+            </div>
+            <div class="status-row">
+                <span>Deadline:</span>
+                <span style="color: {{ '#ef4444' if player_data.loan.matches_remaining <= 0 else '#fff' }}">
+                    {{ player_data.loan.matches_remaining }} Matches Remaining
+                </span>
+            </div>
+            <div class="status-row">
+                <span>Penalty Rate:</span>
+                <span>{{ (player_data.loan.interest_rate * 100)|int }}% of Winnings</span>
+            </div>
+            {% if player_data.loan.matches_remaining <= 0 %}
+            <div style="color:#ef4444; font-weight:bold; margin-top:10px; text-align:center;">
+                ⚠️ DEADLINE PASSED! GARNISHMENT ACTIVE ⚠️
+            </div>
+            {% endif %}
+            
+            <!-- What is the Penalty? Button -->
+            <div style="margin-top: 15px; margin-bottom: 15px;">
+                <button id="penalty-info-btn" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">
+                    ❓ What is the Penalty?
+                </button>
+                <div id="penalty-info" style="display: none; background: rgba(127, 29, 29, 0.3); border: 1px solid #7f1d1d; padding: 15px; margin-top: 10px; border-radius: 4px; text-align: left;">
+                    <h4 style="color: #fca5a5; margin-top: 0; margin-bottom: 10px;">🎲 RANDOM PENALTY POOL:</h4>
+                    <ul style="color: #e2e8f0; padding-left: 20px; margin: 0; font-size: 0.9em;">
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">1️⃣ Ability Repossession</strong> - One random equipped ability is permanently confiscated. High-tier abilities are more likely targets.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">2️⃣ Forced Liquidation</strong> - Instantly sell a random open position at a 15–25% penalty, ignoring market conditions.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">3️⃣ Interest Spike</strong> - Remaining loan balance increases by +20–40%. Extends the debt, but makes the next punishment worse.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">4️⃣ Market Interference</strong> - For the next X ticks: Slower execution, increased slippage, delayed ability activation.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">5️⃣ Reputation Damage</strong> - Future loans become more expensive, shorter deadlines, higher punishment odds.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">6️⃣ The Warning</strong> - (Early-game only) Cosmetic intimidation: Screen cracks, threatening dialogue. No penalty... yet.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form action="/bank/pay_loan" method="POST">
+                <button type="submit" class="btn-action btn-pay">PAY DEBT (${{ player_data.loan.amount }})</button>
+            </form>
+        </div>
+        {% else %}
+        <!-- Quick Loan Options -->
+        <div class="loan-options">
+            <form action="/bank/take_loan" method="POST" class="loan-card" onclick="this.submit()">
+                <input type="hidden" name="amount" value="5000">
+                <div class="amount">$5,000</div>
+                <div class="terms">Pay in 5 Matches</div>
+                <div class="warning">10% Penalty</div>
+            </form>
+            
+            <form action="/bank/take_loan" method="POST" class="loan-card" onclick="this.submit()">
+                <input type="hidden" name="amount" value="10000">
+                <div class="amount">$10,000</div>
+                <div class="terms">Pay in 5 Matches</div>
+                <div class="warning">15% Penalty</div>
+            </form>
+            
+            <form action="/bank/take_loan" method="POST" class="loan-card" onclick="this.submit()">
+                <input type="hidden" name="amount" value="50000">
+                <div class="amount">$50,000</div>
+                <div class="terms">Pay in 5 Matches</div>
+                <div class="warning">25% Penalty</div>
+            </form>
+        </div>
+        
+        <!-- Custom Loan Amount -->
+        <div style="background: rgba(127, 29, 29, 0.2); border: 2px solid #7f1d1d; padding: 20px; margin-top: 20px; border-radius: 8px;">
+            <h3 style="color: #fca5a5; margin-top: 0; margin-bottom: 15px; text-align: center;">💰 Ask for Higher Amount</h3>
+            <p style="color: #cbd5e1; font-size: 0.9em; margin-bottom: 15px; text-align: center; font-style: italic;">
+                "Want more? The bigger the loan, the bigger the penalty. You've been warned."
+            </p>
+            <form action="/bank/take_loan" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="custom_amount" style="color: #e2e8f0; font-weight: bold; min-width: 120px;">Amount:</label>
+                    <input type="number" id="custom_amount" name="amount" min="1000" max="1000000" step="1000" value="10000" required 
+                           style="flex: 1; padding: 10px; background: #1e293b; border: 1px solid #ef4444; color: #e2e8f0; border-radius: 4px; font-size: 1.1em;">
+                </div>
+                <div id="penalty-preview" style="background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 4px; text-align: center;">
+                    <span style="color: #fca5a5;">Estimated Penalty: <strong id="penalty-rate">15%</strong></span>
+                </div>
+                <button type="submit" class="btn-action btn-take" style="margin-top: 0;">ASK FOR LOAN</button>
+            </form>
+        </div>
+        
+        <!-- Do a Job Option -->
+        <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; padding: 20px; margin-top: 20px; border-radius: 8px;">
+            <h3 style="color: #22c55e; margin-top: 0; margin-bottom: 15px; text-align: center;">💼 Do a Job Instead</h3>
+            <p style="color: #cbd5e1; font-size: 0.9em; margin-bottom: 15px; text-align: center; font-style: italic;">
+                "Don't have the cash? Work it off. Complete a job and we'll call it even... maybe."
+            </p>
+            <p style="color: #86efac; font-size: 0.85em; margin-bottom: 15px; text-align: center;">
+                Complete a high-risk mini-game to earn money or reduce existing debt. Success clears debt, failure makes it worse.
+            </p>
+            <a href="/loan_shark/jobs" class="btn-action" style="background: #22c55e; color: white; margin-top: 0; text-decoration: none; display: block; text-align: center;">
+                💼 CHOOSE A JOB
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- PAY OR BLEED SYSTEM INFO -->
+        <div style="background: rgba(127, 29, 29, 0.3); border: 2px solid #7f1d1d; padding: 25px; margin-top: 30px; text-align: left; border-radius: 8px;">
+            <h2 style="color: #ef4444; text-align: center; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.5em;">
+                🦈 LOAN SHARK SYSTEM: "PAY OR BLEED"
+            </h2>
+            
+            <p style="color: #fca5a5; font-size: 1.1em; margin-bottom: 20px; text-align: center; font-weight: bold;">
+                When you take a Loan Shark Loan, you enter a dangerous contract with the underground market.
+            </p>
+            
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; margin-bottom: 15px; border-left: 3px solid #ef4444;">
+                <p style="color: #e2e8f0; margin: 0;">
+                    <strong style="color: #ef4444;">You have 5 in-game days (or rounds) to repay the debt + interest.</strong><br>
+                    If the debt is not repaid in time, the Loan Shark enforces consequences.
+                </p>
+            </div>
+            
+            <h3 style="color: #fca5a5; margin-top: 25px; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px solid #7f1d1d; padding-bottom: 5px;">
+                OPTION 1: 🩸 ENFORCEMENT (RANDOM PENALTY)
+            </h3>
+            <p style="color: #cbd5e1; margin-bottom: 15px; font-style: italic;">
+                "You missed a payment. The Shark is collecting."
+            </p>
+            
+            <!-- Clickable Penalty Info Button -->
+            <div style="margin-bottom: 20px;">
+                <button id="penalty-info-btn-general" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1em;">
+                    ❓ What is the Penalty? (Click to View Penalty Options)
+                </button>
+                <div id="penalty-info-general" style="display: none; background: rgba(127, 29, 29, 0.2); padding: 15px; margin-top: 10px; border-radius: 4px;">
+                    <h4 style="color: #fca5a5; margin-top: 0; margin-bottom: 10px;">🎲 RANDOM PENALTY POOL:</h4>
+                    <ul style="color: #e2e8f0; padding-left: 20px; margin: 0;">
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">1️⃣ Ability Repossession</strong> - One random equipped ability is permanently confiscated. High-tier abilities are more likely targets.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">2️⃣ Forced Liquidation</strong> - Instantly sell a random open position at a 15–25% penalty, ignoring market conditions.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">3️⃣ Interest Spike</strong> - Remaining loan balance increases by +20–40%. Extends the debt, but makes the next punishment worse.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">4️⃣ Market Interference</strong> - For the next X ticks: Slower execution, increased slippage, delayed ability activation.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">5️⃣ Reputation Damage</strong> - Future loans become more expensive, shorter deadlines, higher punishment odds.</li>
+                        <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">6️⃣ The Warning</strong> - (Early-game only) Cosmetic intimidation: Screen cracks, threatening dialogue. No penalty... yet.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3 style="color: #fca5a5; margin-top: 25px; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px solid #7f1d1d; padding-bottom: 5px;">
+                OPTION 2: 💼 "DO A JOB" MINI-GAME (DEBT FOR LABOR)
+            </h3>
+            <p style="color: #cbd5e1; margin-bottom: 15px; font-style: italic;">
+                "You don't have the cash? Fine. You'll work."
+            </p>
+            <p style="color: #e2e8f0; margin-bottom: 15px;">
+                Instead of accepting a penalty, you may work off the debt by completing a Loan Shark Job. This triggers a high-risk, time-pressured mini-game.
+            </p>
+            
+            <div style="background: rgba(127, 29, 29, 0.2); padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <h4 style="color: #fca5a5; margin-top: 0; margin-bottom: 10px;">🎮 LOAN SHARK JOB MINI-GAMES (ROTATING):</h4>
+                <ul style="color: #e2e8f0; padding-left: 20px; margin: 0;">
+                    <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">🧨 JOB TYPE 1: MARKET MANIPULATION</strong> - Execute a sequence of BUY/SELL orders under extreme volatility. Hit timing windows precisely. Failure causes double penalties.</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">🧠 JOB TYPE 2: INSIDER CLEANUP</strong> - Puzzle-based mini-game: Scrub fake data, hide illegal trades, avoid "regulator" detection. Mistakes increase interest instead of clearing debt.</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">⚡ JOB TYPE 3: LIQUIDITY RUN</strong> - Rapid-fire decision test: Choose which assets to dump, which to protect. Wrong choices permanently damage your portfolio.</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: #ef4444;">🎯 JOB TYPE 4: ENFORCER FAVOR</strong> - Reflex-based or rhythm-style mini-game. Miss too many inputs → partial debt cleared only.</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <h4 style="color: #22c55e; margin-top: 0; margin-bottom: 10px;">⚠️ RISK / REWARD BALANCE:</h4>
+                <table style="width: 100%; color: #e2e8f0; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 8px;"><strong style="color: #22c55e;">Perfect Job</strong></td>
+                        <td style="padding: 8px;">Debt fully erased + small bonus</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 8px;"><strong style="color: #22c55e;">Success</strong></td>
+                        <td style="padding: 8px;">Debt cleared</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 8px;"><strong style="color: #fbbf24;">Partial Fail</strong></td>
+                        <td style="padding: 8px;">Debt reduced, penalty applied</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong style="color: #ef4444;">Fail</strong></td>
+                        <td style="padding: 8px;">Full penalty + interest increase</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="background: rgba(127, 29, 29, 0.2); padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <h4 style="color: #fca5a5; margin-top: 0; margin-bottom: 10px;">🦈 LOAN SHARK PERSONALITY & ESCALATION:</h4>
+                <p style="color: #e2e8f0; margin-bottom: 10px;">
+                    <strong style="color: #ef4444;">The Loan Shark remembers you.</strong>
+                </p>
+                <ul style="color: #e2e8f0; padding-left: 20px; margin: 0;">
+                    <li style="margin-bottom: 8px;"><strong>Repeated failures:</strong> Fewer job options, harsher penalties</li>
+                    <li style="margin-bottom: 8px;"><strong>Repaid loans:</strong> Slightly better terms next time</li>
+                    <li style="margin-bottom: 8px;"><strong>Exploiting the system:</strong> Triggers unique Shark-only abilities</li>
+                    <li style="margin-bottom: 8px;"><strong>Late-game Loan Sharks may:</strong> Stack penalties, remove UI elements temporarily, force jobs during boss fights</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-left: 3px solid #ef4444; margin-top: 20px;">
+                <h4 style="color: #fca5a5; margin-top: 0; margin-bottom: 10px;">🎭 TONE & PRESENTATION:</h4>
+                <p style="color: #cbd5e1; margin-bottom: 10px; font-style: italic;">
+                    Threatening but darkly comedic. Stylized intimidation with screen flickers, cracked UI, and shark-themed overlays.
+                </p>
+                <div style="color: #e2e8f0; font-style: italic; padding-left: 15px; border-left: 2px solid #ef4444;">
+                    <p style="margin: 5px 0;">"Money's late. Fingers aren't."</p>
+                    <p style="margin: 5px 0;">"You borrow my cash, you borrow my patience."</p>
+                </div>
+            </div>
+        </div>
+
+        <a href="/vault" class="btn-action btn-back" style="display:block; text-decoration:none; margin-top: 20px;">Leave the Alley</a>
+    </div>
+
+    <!-- Audio Logic -->
+    <div id="mute-btn-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="mute-btn" style="background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔊</button>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="{{ url_for('static', filename='sounds/game-music-loop-7-145285.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-6-299043.mp3') }}" type="audio/mpeg">
+    </audio>
+    <audio id="select-sound">
+        <source src="{{ url_for('static', filename='sounds/ui-interface-sound-18-299047.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('bg-music');
+            var muteBtn = document.getElementById('mute-btn');
+            var hoverSound = document.getElementById('hover-sound');
+            var selectSound = document.getElementById('select-sound');
+            
+            // Check local storage for settings
+            var isMuted = localStorage.getItem('bg_music_muted') === 'true';
+            var savedTime = parseFloat(localStorage.getItem('bg_music_time') || 0);
+            var savedBgmVol = localStorage.getItem('bgm_volume');
+            var savedSfxVol = localStorage.getItem('sfx_volume');
+            var savedTrack = localStorage.getItem('bgm_track');
+
+            // Apply Saved Settings
+            if(savedTrack) {
+                var currentSrc = audio.querySelector('source').src;
+                if(!currentSrc.includes(savedTrack)) {
+                     audio.querySelector('source').src = "{{ url_for('static', filename='') }}" + savedTrack;
+                     audio.load();
+                }
+            }
+
+            audio.currentTime = savedTime;
+            audio.muted = isMuted;
+            if(savedBgmVol !== null) audio.volume = parseFloat(savedBgmVol);
+            muteBtn.innerHTML = isMuted ? '🔇' : '🔊';
+
+            if(savedSfxVol !== null) {
+                hoverSound.volume = parseFloat(savedSfxVol);
+                selectSound.volume = parseFloat(savedSfxVol);
+            }
+
+            // Try to play BGM
+            var playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => console.log('Autoplay prevented'));
+            }
+
+            // Mute toggle
+            muteBtn.addEventListener('click', function() {
+                audio.muted = !audio.muted;
+                localStorage.setItem('bg_music_muted', audio.muted);
+                muteBtn.innerHTML = audio.muted ? '🔇' : '🔊';
+                if (audio.paused && !audio.muted) audio.play();
+            });
+
+            // Save time periodically
+            setInterval(function() {
+                if(!audio.paused) localStorage.setItem('bg_music_time', audio.currentTime);
+            }, 1000);
+            
+            // Save time on unload
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('bg_music_time', audio.currentTime);
+            });
+
+            // Button Hover Sounds
+            const buttons = document.querySelectorAll('button, a, .loan-card');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {});
+                });
+            });
+
+            // Selection Sounds (Loan cards)
+            const loanCards = document.querySelectorAll('.loan-card');
+            loanCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    selectSound.currentTime = 0;
+                    selectSound.play().catch(e => {});
+                });
+            });
+            
+            // Calculate penalty rate for custom loan amount
+            const customAmountInput = document.getElementById('custom_amount');
+            const penaltyRateDisplay = document.getElementById('penalty-rate');
+            
+            if (customAmountInput && penaltyRateDisplay) {
+                function calculatePenalty(amount) {
+                    if (amount <= 5000) return 10;
+                    if (amount <= 10000) return 15;
+                    if (amount <= 25000) return 20;
+                    if (amount <= 50000) return 25;
+                    if (amount <= 100000) return 35;
+                    if (amount <= 250000) return 45;
+                    if (amount <= 500000) return 55;
+                    return 65; // 500k+
+                }
+                
+                customAmountInput.addEventListener('input', function() {
+                    const amount = parseInt(this.value) || 0;
+                    const penalty = calculatePenalty(amount);
+                    penaltyRateDisplay.textContent = penalty + '%';
+                    
+                    // Update warning color based on penalty
+                    const previewDiv = document.getElementById('penalty-preview');
+                    if (penalty >= 45) {
+                        previewDiv.style.background = 'rgba(239, 68, 68, 0.3)';
+                        previewDiv.style.border = '1px solid #ef4444';
+                    } else if (penalty >= 25) {
+                        previewDiv.style.background = 'rgba(251, 191, 36, 0.2)';
+                        previewDiv.style.border = '1px solid #fbbf24';
+                    } else {
+                        previewDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                        previewDiv.style.border = '1px solid #7f1d1d';
+                    }
+                });
+                
+                // Initial calculation
+                customAmountInput.dispatchEvent(new Event('input'));
+            }
+            
+            // Toggle penalty info (for active loan)
+            const penaltyInfoBtn = document.getElementById('penalty-info-btn');
+            const penaltyInfo = document.getElementById('penalty-info');
+            if (penaltyInfoBtn && penaltyInfo) {
+                penaltyInfoBtn.addEventListener('click', function() {
+                    const isVisible = penaltyInfo.style.display !== 'none';
+                    penaltyInfo.style.display = isVisible ? 'none' : 'block';
+                    this.textContent = isVisible ? '❓ What is the Penalty?' : '❌ Hide Penalty Info';
+                });
+            }
+            
+            // Toggle penalty info (for general info section)
+            const penaltyInfoBtnGeneral = document.getElementById('penalty-info-btn-general');
+            const penaltyInfoGeneral = document.getElementById('penalty-info-general');
+            if (penaltyInfoBtnGeneral && penaltyInfoGeneral) {
+                penaltyInfoBtnGeneral.addEventListener('click', function() {
+                    const isVisible = penaltyInfoGeneral.style.display !== 'none';
+                    penaltyInfoGeneral.style.display = isVisible ? 'none' : 'block';
+                    this.textContent = isVisible ? '❓ What is the Penalty? (Click to View Penalty Options)' : '❌ Hide Penalty Options';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader Academy - Stock Wars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #050b14;
+            color: #e0f2fe;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .header {
+            width: 100%;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid #0ea5e9;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #0ea5e9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+        }
+
+        .container {
+            flex: 1;
+            width: 90%;
+            max-width: 1000px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .academy-nav {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 5px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+        }
+
+        .nav-step {
+            padding: 15px 25px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .nav-step:hover {
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+        .nav-step.active {
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.1);
+            border-bottom: 2px solid #0ea5e9;
+            text-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
+        }
+
+        .content-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #1e293b;
+            border-left: 4px solid #0ea5e9;
+            border-radius: 4px;
+            padding: 40px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .content-card.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #f0f9ff;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 2em;
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+        }
+
+        h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #38bdf8;
+            margin-top: 35px;
+            font-size: 1.4em;
+            letter-spacing: 1px;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #cbd5e1;
+            font-size: 1.1em;
+        }
+
+        .visual-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            padding: 30px;
+            margin: 25px 0;
+            border-radius: 0;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .visual-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 10px; height: 10px;
+            border-top: 2px solid #0ea5e9;
+            border-left: 2px solid #0ea5e9;
+        }
+        .visual-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0; width: 10px; height: 10px;
+            border-bottom: 2px solid #0ea5e9;
+            border-right: 2px solid #0ea5e9;
+        }
+
+        .highlight-text {
+            font-weight: bold;
+            color: #fbbf24;
+            text-shadow: 0 0 5px rgba(251, 191, 36, 0.3);
+        }
+
+        .btn-action {
+            padding: 12px 30px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            border: 1px solid transparent;
+            border-radius: 0;
+            cursor: pointer;
+            margin-top: 25px;
+            text-decoration: none;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-next {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-color: #10b981;
+            float: right;
+        }
+        
+        .btn-next:hover {
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transform: translateX(5px);
+        }
+        
+        .btn-home {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .btn-home:hover {
+            background: rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-demo {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid #3b82f6;
+            display: block; 
+            text-align: center; 
+            width: 220px; 
+            margin: 15px auto;
+        }
+        
+        .btn-demo:hover {
+            background: rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Mock UI Elements for Visuals */
+        .mock-ticker {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.8em;
+            padding: 15px;
+            background: #000;
+            color: #10b981;
+            display: inline-block;
+            border: 1px solid #333;
+            margin: 10px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        
+        .mock-ticker.red { color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+
+        .mock-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #2563eb;
+            color: #60a5fa;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-block;
+            margin: 5px;
+            text-transform: uppercase;
+        }
+        
+        .mock-pnl {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5em;
+            color: #10b981;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            font-size: 1.1em;
+            background: rgba(30, 41, 59, 0.3);
+            padding: 10px;
+            border-left: 2px solid #334155;
+        }
+        
+        .check-icon { color: #10b981; font-size: 1.2em; text-shadow: 0 0 5px #10b981; }
+
+        /* Flashing Animation */
+        @keyframes flash {
+            0% { opacity: 1; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
+            50% { opacity: 0.3; text-shadow: none; }
+            100% { opacity: 1; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
+        }
+        .flashing { animation: flash 1.5s infinite; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">🎓 Rogue Trader Academy</div>
+        <a href="/" class="btn-action btn-home" style="margin:0;">Exit to Menu</a>
+    </div>
+
+    <div class="container">
+        <div class="academy-nav">
+            <div class="nav-step active" onclick="showPhase(1)">Phase 1: Goal</div>
+            <div class="nav-step" onclick="showPhase(2)">Phase 2: Time & Price</div>
+            <div class="nav-step" onclick="showPhase(3)">Phase 3: Trading</div>
+            <div class="nav-step" onclick="showPhase(4)">Summary</div>
+        </div>
+
+        <!-- PHASE 1 -->
+        <div id="phase-1" class="content-card active">
+            <h2>Phase 1: Your Goal and Your Score</h2>
+            
+            <h3>The Goal: Buy Low, Sell High</h3>
+            <p>The only way to win a round is to have a higher <span class="highlight-text">Net Worth</span> than your opponent at the final tick.</p>
+            <div class="visual-box">
+                <div style="font-size: 2em; font-weight: 900; color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);" class="flashing">GOAL: BUY LOW, SELL HIGH</div>
+            </div>
+            <a href="/academy/demo/goal" class="btn-action btn-demo">👀 See Live Demo</a>
+            <p>You increase your Net Worth by buying shares of stock when the price is low and selling them when the price is high.</p>
+
+            <h3>Net Worth</h3>
+            <p>This is your total wealth. It equals your current <b>Capital (Cash)</b> + the value of your <b>Stock Held</b> (Shares * Current Price).</p>
+            <div class="visual-box">
+                <span style="color: #94a3b8; font-size: 0.8em; display: block; margin-bottom: 5px;">PLAYER NET WORTH</span>
+                <span style="color: #fff; font-size: 1.5em; font-weight: bold;">$105,250</span>
+            </div>
+
+            <h3>PnL (Profit and Loss)</h3>
+            <p>This is your score for the current round. It shows how much money you have made (Profit) or lost (Loss) compared to your starting capital of $100,000. The highest PnL wins the round!</p>
+            <div class="visual-box">
+                <div class="mock-pnl">Match PnL: +$5,250</div>
+                <div style="font-size: 0.8em; color: #64748b; margin-top: 5px;">(You are winning!)</div>
+            </div>
+
+            <button class="btn-action btn-next" onclick="showPhase(2)">Next: Time & Price</button>
+        </div>
+
+        <!-- PHASE 2 -->
+        <div id="phase-2" class="content-card">
+            <h2>Phase 2: Time and Price</h2>
+
+            <h3>What is a Tick?</h3>
+            <p>A Tick is one unit of time in the match, like a second on a clock. Every tick, the stock price changes, and both you and the AI can execute one action. A match lasts for <b>300 Ticks</b>.</p>
+            <div class="visual-box">
+                <span style="color: #fff; font-size: 1.2em; font-family: monospace;">TICK: 45 / 300</span>
+            </div>
+            <a href="/academy/demo/time" class="btn-action btn-demo">👀 See Live Demo</a>
+
+            <h3>Green vs. Red Ticks</h3>
+            <p>The stock price doesn't just show a number; it shows color based on its change from the previous tick:</p>
+            <ul style="list-style: none; padding: 0;">
+                <li>💚 <b>Green</b> means the price went UP.</li>
+                <li>🔴 <b>Red</b> means the price went DOWN.</li>
+            </ul>
+            <div class="visual-box">
+                <div class="mock-ticker">$100.00</div> ➝ 
+                <div class="mock-ticker" style="color:#10b981">$100.50 ▲</div> ➝ 
+                <div class="mock-ticker" style="color:#ef4444">$100.40 ▼</div>
+            </div>
+
+            <h3>Volatility</h3>
+            <p>This is how quickly and drastically the stock price moves. High Volatility means the price swings wildly, offering high profit potential but also high risk. Abilities like <b>'The Pump'</b> and <b>'The Dump'</b> create massive, temporary volatility!</p>
+            
+            <button class="btn-action btn-next" onclick="showPhase(3)">Next: Trading</button>
+        </div>
+
+        <!-- PHASE 3 -->
+        <div id="phase-3" class="content-card">
+            <h2>Phase 3: Trading and Positions</h2>
+
+            <h3>Shares (Stock Held)</h3>
+            <p>A Share is a unit of ownership in the stock. When you <b>BUY</b>, your Shares Held increase and your Capital decreases. When you <b>SELL</b>, your Shares Held decrease and your Capital increases.</p>
+            <div class="visual-box">
+                <div style="display: flex; justify-content: space-around; align-items: center;">
+                    <div>
+                        <div>Capital</div>
+                        <div style="color: #ef4444;">$90,000 ▼</div>
+                    </div>
+                    <div style="font-size: 2em;">➝</div>
+                    <div>
+                        <div>Stock Held</div>
+                        <div style="color: #10b981;">100 Shares ▲</div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; font-style: italic; color: #94a3b8;">(Buying 100 Shares @ $100)</div>
+            </div>
+
+            <h3>Buying vs. Selling</h3>
+            <p><b>Buy:</b> You are betting the price will go UP. You want to buy at $100 and sell later at $110.</p>
+            <p><b>Sell:</b> You are realizing the profit (or loss) from the shares you currently hold.</p>
+            <div class="visual-box">
+                <span class="mock-btn" style="background:#10b981; border-color:#059669;">BUY</span>
+                <span class="mock-btn" style="background:#ef4444; border-color:#b91c1c;">SELL</span>
+            </div>
+            <a href="/academy/demo/trading" class="btn-action btn-demo">👀 See Live Demo</a>
+
+            <h3>The Log</h3>
+            <p>The Game Log is your complete record of the match. It tracks all market-wide events and actions. Check the log to understand what the AI is doing!</p>
+            <div class="visual-box" style="text-align: left; padding-left: 30px; font-family: monospace; font-size: 0.9em; background: #000;">
+                <div style="color: #10b981;">> You bought 10 shares @ $100.00</div>
+                <div style="color: #ef4444;">> AI Bot sold 5 shares @ $100.10</div>
+                <div style="color: #fbbf24;">> Market: The Pump used by Player!</div>
+            </div>
+
+            <h3>Using Abilities</h3>
+            <p>Abilities are special actions that can manipulate the price or block your opponent. They cost money, but they are the key to victory.</p>
+            <div class="visual-box">
+                <span class="mock-btn">Q: The Pump</span>
+                <span class="mock-btn">W: The Dump</span>
+                <span class="mock-btn">E: Rumor</span>
+            </div>
+            <a href="/academy/demo/abilities" class="btn-action btn-demo">👀 See Live Demo</a>
+
+            <button class="btn-action btn-next" onclick="showPhase(4)">Next: Summary</button>
+        </div>
+
+        <!-- CHECKLIST -->
+        <div id="phase-4" class="content-card">
+            <h2>📋 Player Checklist</h2>
+            <p>Before starting your first match, remember:</p>
+            
+            <div class="checklist-item">
+                <span class="check-icon">✓</span>
+                <span>Keep an eye on your <b>PnL</b>—that's how you win.</span>
+            </div>
+            <div class="checklist-item">
+                <span class="check-icon">✓</span>
+                <span>Watch the <b>Ticks</b>—the round ends at 300!</span>
+            </div>
+            <div class="checklist-item">
+                <span class="check-icon">✓</span>
+                <span>Use <b>Abilities</b> to control the volatile market or counter the AI.</span>
+            </div>
+            <div class="checklist-item">
+                <span class="check-icon">✓</span>
+                <span><b>Buy Green, Sell Red</b> is easy to remember, but try to predict the next color change!</span>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center;">
+                <p>Ready to test your skills?</p>
+                <a href="/academy/practice_match" class="btn-action" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; font-size: 1.2em; padding: 15px 40px; margin: 0 auto;">Start Practice Match</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPhase(phaseNum) {
+            // Hide all cards
+            const cards = document.querySelectorAll('.content-card');
+            cards.forEach(card => card.classList.remove('active'));
+
+            // Show target card
+            document.getElementById(`phase-${phaseNum}`).classList.add('active');
+
+            // Update nav
+            const steps = document.querySelectorAll('.nav-step');
+            steps.forEach((step, index) => {
+                if (index + 1 === phaseNum) step.classList.add('active');
+                else step.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>
+

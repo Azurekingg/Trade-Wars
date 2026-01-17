@@ -1,5 +1,6 @@
 [build]
 builder = "nixpacks"
+buildCommand = "cd c-Users-Admin-code-stock-wars && pip install -r requirements.txt"
 
 [deploy]
 startCommand = "cd c-Users-Admin-code-stock-wars && gunicorn -w 4 -b 0.0.0.0:$PORT app:app"
